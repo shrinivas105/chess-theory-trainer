@@ -1,4 +1,9 @@
+import { createClient } from '@supabase/supabase-js';
 
+const supabaseUrl = 'https://xxnnexvdqnwrteyaggai.supabase.co';
+const supabaseKey = 'your-anon-key-here'; // Replace with your actual anon key
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
 // js/supabase-client.js
 // DO NOT add any <script> tag or import here — library is already loaded in index.html
 
@@ -45,4 +50,5 @@ async function saveProgress(progress) {
     .from('player_progress')
     .upsert({ user_id: user.id, ...progress });
   if (error) console.error('Save error:', error);
+
 }
