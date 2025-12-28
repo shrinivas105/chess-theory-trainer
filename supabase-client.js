@@ -1,15 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://xxnnexvdqnwrteyaggai.supabase.co';
-const supabaseKey = 'your-anon-key-here'; // Replace with your actual anon key
+// Use your real keys (or leave placeholders for now — app works without them)
+const supabaseUrl = 'https://lvnmwycnrkltcechihai.supabase.co';     // Replace later
+const supabaseAnonKey = 'sb_publishable_ko82rLYQ9J0ShEoV4JT2KQ_Y3gt5Mx5';                   // Replace later
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 // js/supabase-client.js
 // DO NOT add any <script> tag or import here — library is already loaded in index.html
 
-// Use your real keys (or leave placeholders for now — app works without them)
-const supabaseUrl = 'https://lvnmwycnrkltcechihai.supabase.co';     // Replace later
-const supabaseAnonKey = 'sb_publishable_ko82rLYQ9J0ShEoV4JT2KQ_Y3gt5Mx5';                   // Replace later
+
 
 // Use the global Supabase object from the CDN
 const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
@@ -52,3 +51,4 @@ async function saveProgress(progress) {
   if (error) console.error('Save error:', error);
 
 }
+
