@@ -1,2 +1,2 @@
-// main.js
+// Simply starts the app
 new ChessTheoryApp();

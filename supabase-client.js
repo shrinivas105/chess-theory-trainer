@@ -1,18 +1,15 @@
-// supabase-client.js
-// Uses global Supabase from CDN in index.html
 
-const supabaseUrl = 'https://lvnmwycnrkltcechihai.supabase.co';
-const supabaseAnonKey = 'sb_publishable_ko82rLYQ9J0ShEoV4JT2KQ_Y3gt5Mx5';
+// js/supabase-client.js
+// DO NOT add any <script> tag or import here — library is already loaded in index.html
 
-const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    storageKey: 'ChessTheoryAuth',
-    autoRefreshToken: true,
-    detectSessionInUrl: true
-  }
-});
+// Use your real keys (or leave placeholders for now — app works without them)
+const supabaseUrl = 'https://lvnmwycnrkltcechihai.supabase.co';     // Replace later
+const supabaseAnonKey = 'sb_publishable_ko82rLYQ9J0ShEoV4JT2KQ_Y3gt5Mx5';                   // Replace later
 
+// Use the global Supabase object from the CDN
+const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+// Helper functions
 async function getUser() {
   const { data: { user } } = await supabase.auth.getUser();
   return user;
