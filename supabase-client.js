@@ -6,7 +6,7 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 // Only create client if it doesn't exist (prevents duplicate declaration error)
 if (typeof window.supabaseClient === 'undefined') {
-  window.supabaseClient = Supabase.createClient(supabaseUrl, supabaseAnonKey, {
+  window.supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
