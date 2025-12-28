@@ -1,6 +1,10 @@
+import { supabase } from './supabase-client.js';
+import { ChessAPI } from './chess-api.js';
+import { Scoring } from './scoring.js';
+import { pieces } from './pieces.js';
+import { getUser, signInWithGoogle, signOut, loadProgress, saveProgress } from './supabase-client.js';
 
-class ChessTheoryApp {
-  import { supabase } from './supabase-client.js';
+export class ChessTheoryApp {
   constructor() {
     this.game = new Chess();
     this.playerColor = null;
@@ -148,12 +152,12 @@ class ChessTheoryApp {
     const authSection = this.isLoggedIn
       ? `<div style="text-align:center;margin:20px 0;">
            <strong>🔐 Synced as ${this.user.email.split('@')[0]}</strong><br>
-           <button class="btn" style="margin-top:8px;" onclick="signOut().then(()=>location.reload())">
+           <button class="btn" style="margin-top:8px;" id="signOutBtn">
              Sign Out
            </button>
          </div>`
       : `<div style="text-align:center;margin:20px 0;">
-           <button class="btn" onclick="signInWithGoogle()">
+           <button class="btn" id="signInBtn">
              🔐 Sign in with Google to sync across devices
            </button>
            <p style="font-size:0.8rem;color:#aaa;margin-top:10px;">
@@ -215,6 +219,20 @@ class ChessTheoryApp {
     document.getElementById('masterBtn').onclick = () => this.selectSource('master');
     document.getElementById('lichessBtn').onclick = () => this.selectSource('lichess');
     document.getElementById('resetBtn').onclick = () => this.resetStats();
+    
+    // Auth button handlers
+    const signInBtn = document.getElementById('signInBtn');
+    if (signInBtn) {
+      signInBtn.onclick = () => signInWithGoogle();
+    }
+    
+    const signOutBtn = document.getElementById('signOutBtn');
+    if (signOutBtn) {
+      signOutBtn.onclick = async () => {
+        await signOut();
+        location.reload();
+      };
+    }
   }
 
   renderColorChoice() {
@@ -566,7 +584,7 @@ class ChessTheoryApp {
 
     if (tempLegion.level > oldLegion.level) {
       newMerit = tempLegion.thresholds[tempLegion.level];
-      this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you’ve won. 🍷`;
+      this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you've won. 🍷`;
       rankChanged = true;
     }
 
@@ -620,6 +638,4 @@ class ChessTheoryApp {
       }
     }
   }
-
 }
-
