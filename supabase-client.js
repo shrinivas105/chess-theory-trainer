@@ -1,6 +1,6 @@
 // === REPLACE WITH YOUR OWN SUPABASE VALUES ===
-const supabaseUrl = 'https://YOUR-PROJECT.supabase.co';     // ← Your project URL
-const supabaseAnonKey = 'your-anon-key-here';               // ← From Settings > API
+const supabaseUrl = 'https://lvnmwycnrkltcechihai.supabase.co';     // ← Your project URL
+const supabaseAnonKey = 'sb_publishable_ko82rLYQ9J0ShEoV4JT2KQ_Y3gt5Mx5';               // ← From Settings > API
 
 const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
 
