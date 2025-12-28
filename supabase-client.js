@@ -19,13 +19,10 @@ if (typeof window.supabaseClient === 'undefined') {
   console.log('✓ Supabase client initialized');
 }
 
-// Use window.supabaseClient everywhere to avoid redeclaration
-const supabase = window.supabaseClient;
-
 // Helper functions with better error handling
 async function getUser() {
   try {
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const { data: { user }, error } = await window.supabaseClient.auth.getUser();
     if (error) {
       console.error('getUser error:', error);
       return null;
@@ -39,7 +36,7 @@ async function getUser() {
 
 async function signInWithGoogle() {
   try {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: { 
         redirectTo: window.location.origin,
@@ -61,7 +58,7 @@ async function signInWithGoogle() {
 
 async function signOut() {
   try {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await window.supabaseClient.auth.signOut();
     if (error) throw error;
     console.log('✓ Signed out successfully');
   } catch (e) {
@@ -74,7 +71,7 @@ async function loadProgress() {
     const user = await getUser();
     if (!user) return null;
     
-    const { data, error } = await supabase
+    const { data, error } = await window.supabaseClient
       .from('player_progress')
       .select('*')
       .eq('user_id', user.id)
@@ -101,7 +98,7 @@ async function saveProgress(progress) {
       return;
     }
     
-    const { error } = await supabase
+    const { error } = await window.supabaseClient
       .from('player_progress')
       .upsert({ 
         user_id: user.id, 
