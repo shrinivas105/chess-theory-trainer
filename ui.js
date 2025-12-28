@@ -15,17 +15,14 @@ class ChessTheoryApp {
     this.recentGames = [];
     this.pieceImages = pieces;
 
-    // Load local progress first — instant and always works
     this.legionMerits = JSON.parse(localStorage.getItem('chessTheoryLegionMerits') || '{}');
     this.gamesPlayed = parseInt(localStorage.getItem('chessTheoryGamesPlayed') || '0');
     this.recentBattleRanksMaster = JSON.parse(localStorage.getItem('chessTheoryRecentBattleRanksMaster') || '[]');
     this.recentBattleRanksLichess = JSON.parse(localStorage.getItem('chessTheoryRecentBattleRanksLichess') || '[]');
 
-    // Auth state
     this.user = null;
     this.isLoggedIn = false;
 
-    // Restore session and set up listener
     supabase.auth.getSession();
     this.setupAuthListener();
     this.checkAuth();
@@ -37,10 +34,7 @@ class ChessTheoryApp {
     const user = await getUser();
     this.user = user;
     this.isLoggedIn = !!user;
-
-    if (this.isLoggedIn) {
-      await this.loadCloudProgress();
-    }
+    if (this.isLoggedIn) await this.loadCloudProgress();
     this.render();
   }
 
@@ -48,13 +42,12 @@ class ChessTheoryApp {
     supabase.auth.onAuthStateChange(async (event, session) => {
       this.user = session?.user ?? null;
       this.isLoggedIn = !!this.user;
-
       if (event === 'SIGNED_IN') {
-        console.log('User signed in:', this.user.email);
+        console.log('Signed in:', this.user.email);
         await this.loadCloudProgress();
         this.render();
       } else if (event === 'SIGNED_OUT') {
-        console.log('User signed out');
+        console.log('Signed out');
         location.reload();
       }
     });
@@ -74,8 +67,6 @@ class ChessTheoryApp {
 
       this.saveToLocalStorage();
       this.render();
-    } else {
-      console.log('No cloud progress found or not logged in');
     }
   }
 
@@ -88,7 +79,6 @@ class ChessTheoryApp {
 
   async saveCloudProgress() {
     if (!this.isLoggedIn) return;
-
     const progress = {
       master_merit: this.legionMerits.master_merit || 0,
       lichess_merit: this.legionMerits.lichess_merit || 0,
@@ -96,7 +86,6 @@ class ChessTheoryApp {
       recent_battle_ranks_master: this.recentBattleRanksMaster,
       recent_battle_ranks_lichess: this.recentBattleRanksLichess
     };
-
     await saveProgress(progress);
   }
 
@@ -111,11 +100,8 @@ class ChessTheoryApp {
   }
 
   setRecentBattleRanks(source, ranks) {
-    if (source === 'master') {
-      this.recentBattleRanksMaster = ranks;
-    } else {
-      this.recentBattleRanksLichess = ranks;
-    }
+    if (source === 'master') this.recentBattleRanksMaster = ranks;
+    else this.recentBattleRanksLichess = ranks;
     this.saveAllProgress();
   }
 
@@ -125,15 +111,12 @@ class ChessTheoryApp {
     const legionInfo = Scoring.getLegionRank(currentMerit);
     const recentRanks = this.getRecentBattleRanks(source);
     const warning = Scoring.getDemotionWarning(legionInfo.title, recentRanks);
-
     if (recentRanks.length === 0) return '';
-
     const battleBadges = recentRanks.map(rank => {
       const letter = rank[0];
       const className = rank.toLowerCase();
       return `<div class="battle-badge ${className}">${letter}</div>`;
     }).join('');
-
     return `
       <div class="battle-history">
         <div class="battle-history-title">Last ${recentRanks.length} Battle${recentRanks.length > 1 ? 's' : ''}</div>
@@ -179,9 +162,7 @@ class ChessTheoryApp {
             <div class="legion-status">
               ${masterLegion.title} (${masterMerit} merit) ${masterLegion.icon}
             </div>
-            ${masterLegion.nextRank
-              ? `<div class="legion-next">${masterLegion.title} → ${masterLegion.nextRank}: ${masterLegion.pointsNeeded} more</div>`
-              : `<div class="legion-next">Highest rank achieved</div>`}
+            ${masterLegion.nextRank ? `<div class="legion-next">${masterLegion.title} → ${masterLegion.nextRank}: ${masterLegion.pointsNeeded} more</div>` : `<div class="legion-next">Highest rank achieved</div>`}
             <div class="rank-progress">
               ${masterLegion.rankOrder.map(r => `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`).join('')}
             </div>
@@ -193,9 +174,7 @@ class ChessTheoryApp {
             <div class="legion-status">
               ${clubLegion.title} (${clubMerit} merit) ${clubLegion.icon}
             </div>
-            ${clubLegion.nextRank
-              ? `<div class="legion-next">${clubLegion.title} → ${clubLegion.nextRank}: ${clubLegion.pointsNeeded} more</div>`
-              : `<div class="legion-next">Highest rank achieved</div>`}
+            ${clubLegion.nextRank ? `<div class="legion-next">${clubLegion.title} → ${clubLegion.nextRank}: ${clubLegion.pointsNeeded} more</div>` : `<div class="legion-next">Highest rank achieved</div>`}
             <div class="rank-progress">
               ${clubLegion.rankOrder.map(r => `<div class="rank-step ${r === clubLegion.title ? 'active' : ''}">${r}</div>`).join('')}
             </div>
@@ -566,7 +545,6 @@ class ChessTheoryApp {
     msgEl.innerHTML = html;
     msgEl.style.display = 'block';
 
-    // Update merit after game end
     await this.updateLegionMerit(score);
   }
 
