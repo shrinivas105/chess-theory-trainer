@@ -5,7 +5,13 @@ const supabaseUrl = 'https://lvnmwycnrkltcechihai.supabase.co';
 const supabaseAnonKey = 'sb_publishable_ko82rLYQ9J0ShEoV4JT2KQ_Y3gt5Mx5';
 
 // Create and export the supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
 
 // Helper functions - all need to be exported
 export async function getUser() {
@@ -53,3 +59,4 @@ export async function saveProgress(progress) {
     console.error('Save error:', error);
   }
 }
+
