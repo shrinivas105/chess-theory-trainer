@@ -6,18 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lines of the Legion</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-  <!-- Load Supabase library exactly ONCE here -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app"></div>
-
-  <script src="scoring.js"></script>
-  <script src="chess-api.js"></script>
-  <script src="supabase-client.js"></script>  <!-- Defines supabase using the global Supabase -->
-  <script src="ui.js"></script>
-  <script src="main.js"></script>
+  <!-- Only load main.js as a module - it will import all other files -->
+  <script type="module" src="main.js"></script>
 </body>
-
 </html>
-
