@@ -11,18 +11,91 @@ class ChessTheoryApp {
     this.playerMoves = 0;
     this.topMoveChoices = 0;
     this.hintUsed = false;
-    this.previousFEN = null;
-    this.lastPlayerUCI = null;
     this.topGames = [];
     this.recentGames = [];
     this.pieceImages = pieces;
+
+    // Load progress from localStorage first — this is instant and always works
     this.legionMerits = JSON.parse(localStorage.getItem('chessTheoryLegionMerits') || '{}');
     this.gamesPlayed = parseInt(localStorage.getItem('chessTheoryGamesPlayed') || '0');
     this.recentBattleRanksMaster = JSON.parse(localStorage.getItem('chessTheoryRecentBattleRanksMaster') || '[]');
     this.recentBattleRanksLichess = JSON.parse(localStorage.getItem('chessTheoryRecentBattleRanksLichess') || '[]');
-    this.rankChangeMessage = null;
-    this.rankChanged = false;
+
+    // Auth state
+    this.user = null;
+    this.isLoggedIn = false;
+
+    // Set up Supabase auth listener and initial check
+    this.setupAuthListener();
+    this.checkAuth();
+
     this.render();
+  }
+
+  async checkAuth() {
+    const user = await getUser();
+    this.user = user;
+    this.isLoggedIn = !!user;
+    if (this.isLoggedIn) {
+      await this.loadCloudProgress();
+    }
+    this.render();
+  }
+
+  setupAuthListener() {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      this.user = session?.user ?? null;
+      this.isLoggedIn = !!this.user;
+
+      if (event === 'SIGNED_IN') {
+        await this.loadCloudProgress();
+        this.render();
+      } else if (event === 'SIGNED_OUT') {
+        location.reload(); // Reload to fall back to local progress
+      }
+    });
+  }
+
+  async loadCloudProgress() {
+    const progress = await loadProgress();
+    if (progress) {
+      this.legionMerits = {
+        master_merit: progress.master_merit || 0,
+        lichess_merit: progress.lichess_merit || 0
+      };
+      this.gamesPlayed = progress.games_played || 0;
+      this.recentBattleRanksMaster = progress.recent_battle_ranks_master || [];
+      this.recentBattleRanksLichess = progress.recent_battle_ranks_lichess || [];
+
+      // Keep localStorage in sync as a reliable backup
+      this.saveToLocalStorage();
+    }
+  }
+
+  saveToLocalStorage() {
+    localStorage.setItem('chessTheoryLegionMerits', JSON.stringify(this.legionMerits));
+    localStorage.setItem('chessTheoryGamesPlayed', this.gamesPlayed.toString());
+    localStorage.setItem('chessTheoryRecentBattleRanksMaster', JSON.stringify(this.recentBattleRanksMaster));
+    localStorage.setItem('chessTheoryRecentBattleRanksLichess', JSON.stringify(this.recentBattleRanksLichess));
+  }
+
+  async saveCloudProgress() {
+    if (!this.isLoggedIn) return;
+
+    const progress = {
+      master_merit: this.legionMerits.master_merit || 0,
+      lichess_merit: this.legionMerits.lichess_merit || 0,
+      games_played: this.gamesPlayed,
+      recent_battle_ranks_master: this.recentBattleRanksMaster,
+      recent_battle_ranks_lichess: this.recentBattleRanksLichess
+    };
+
+    await saveProgress(progress);
+  }
+
+  async saveAllProgress() {
+    this.saveToLocalStorage();      // Always instant local save
+    await this.saveCloudProgress(); // Cloud only if logged in
   }
 
   getRecentBattleRanks(source) {
@@ -32,11 +105,10 @@ class ChessTheoryApp {
   setRecentBattleRanks(source, ranks) {
     if (source === 'master') {
       this.recentBattleRanksMaster = ranks;
-      localStorage.setItem('chessTheoryRecentBattleRanksMaster', JSON.stringify(ranks));
     } else {
       this.recentBattleRanksLichess = ranks;
-      localStorage.setItem('chessTheoryRecentBattleRanksLichess', JSON.stringify(ranks));
     }
+    this.saveAllProgress();
   }
 
   renderBattleHistory(source) {
@@ -45,12 +117,15 @@ class ChessTheoryApp {
     const legionInfo = Scoring.getLegionRank(currentMerit);
     const recentRanks = this.getRecentBattleRanks(source);
     const warning = Scoring.getDemotionWarning(legionInfo.title, recentRanks);
+
     if (recentRanks.length === 0) return '';
+
     const battleBadges = recentRanks.map(rank => {
       const letter = rank[0];
       const className = rank.toLowerCase();
       return `<div class="battle-badge ${className}">${letter}</div>`;
     }).join('');
+
     return `
       <div class="battle-history">
         <div class="battle-history-title">Last ${recentRanks.length} Battle${recentRanks.length > 1 ? 's' : ''}</div>
@@ -68,6 +143,22 @@ class ChessTheoryApp {
     const masterBattleHistory = this.renderBattleHistory('master');
     const clubBattleHistory = this.renderBattleHistory('lichess');
 
+    const authSection = this.isLoggedIn
+      ? `<div style="text-align:center;margin:20px 0;">
+           <strong>🔐 Synced as ${this.user.email.split('@')[0]}</strong><br>
+           <button class="btn" style="margin-top:8px;" onclick="signOut().then(()=>location.reload())">
+             Sign Out
+           </button>
+         </div>`
+      : `<div style="text-align:center;margin:20px 0;">
+           <button class="btn" onclick="signInWithGoogle()">
+             🔐 Sign in with Google to sync across devices
+           </button>
+           <p style="font-size:0.8rem;color:#aaa;margin-top:10px;">
+             No account needed — progress is saved locally and works instantly!
+           </p>
+         </div>`;
+
     document.getElementById('app').innerHTML = `
       <div class="menu">
         <h1 class="menu-title">LINES OF THE LEGION</h1>
@@ -75,6 +166,9 @@ class ChessTheoryApp {
           Hold the line. Survive the opening drawn from real games —
           until theory ends and true battle begins.
         </p>
+
+        ${authSection}
+
         <div style="font-size:.9rem;line-height:1.5;">
           <div class="legion-card masters">
             <div class="legion-header">🏆 Masters Legion</div>
@@ -89,6 +183,7 @@ class ChessTheoryApp {
             </div>
             ${masterBattleHistory}
           </div>
+
           <div class="legion-card club">
             <div class="legion-header">♟️ Club Legion</div>
             <div class="legion-status">
@@ -102,8 +197,10 @@ class ChessTheoryApp {
             </div>
             ${clubBattleHistory}
           </div>
+
           <div style="margin-top:8px;">⚔️ Battles Fought: ${this.gamesPlayed}</div>
         </div>
+
         <p class="menu-cta">Choose your campaign:</p>
         <div class="menu-actions">
           <button id="masterBtn" class="menu-btn primary">🥷 Master</button>
@@ -225,17 +322,29 @@ class ChessTheoryApp {
   }
 
   resetStats() {
-    if (confirm('Are you sure you want to reset all your stats? This cannot be undone.')) {
-      localStorage.removeItem('chessTheoryLegionMerits');
-      localStorage.removeItem('chessTheoryGamesPlayed');
-      localStorage.removeItem('chessTheoryRecentBattleRanksMaster');
-      localStorage.removeItem('chessTheoryRecentBattleRanksLichess');
-      this.legionMerits = {};
-      this.gamesPlayed = 0;
-      this.recentBattleRanksMaster = [];
-      this.recentBattleRanksLichess = [];
-      this.render();
+    if (!confirm('Are you sure you want to reset all your stats? This cannot be undone.')) return;
+
+    this.legionMerits = {};
+    this.gamesPlayed = 0;
+    this.recentBattleRanksMaster = [];
+    this.recentBattleRanksLichess = [];
+
+    localStorage.removeItem('chessTheoryLegionMerits');
+    localStorage.removeItem('chessTheoryGamesPlayed');
+    localStorage.removeItem('chessTheoryRecentBattleRanksMaster');
+    localStorage.removeItem('chessTheoryRecentBattleRanksLichess');
+
+    if (this.isLoggedIn) {
+      saveProgress({
+        master_merit: 0,
+        lichess_merit: 0,
+        games_played: 0,
+        recent_battle_ranks_master: [],
+        recent_battle_ranks_lichess: []
+      });
     }
+
+    this.render();
   }
 
   async queryExplorer() {
@@ -384,9 +493,7 @@ class ChessTheoryApp {
     const recentRanks = this.getRecentBattleRanks(this.aiSource);
     recentRanks.push(battleRank.title);
     if (recentRanks.length > 5) recentRanks.shift();
-    this.setRecentBattleRanks(this.aiSource, recentRanks);
-
-    this.updateLegionMerit(score);
+    this.setRecentBattleRanks(this.aiSource, recentRanks); // Triggers saveAllProgress()
 
     const moveQuality = Scoring.getMoveQuality(this.topMoveChoices, this.playerMoves);
     const displayEval = this.finalPlayerEval > 0 ? '+' + this.finalPlayerEval.toFixed(1) : this.finalPlayerEval.toFixed(1);
@@ -395,14 +502,16 @@ class ChessTheoryApp {
     const summaryEl = document.getElementById('endSummary');
     const msgEl = document.getElementById('theoryMessage');
 
-    let rankChangeHtml = this.rankChangeMessage ?
-      (this.rankChangeMessage.includes('Promoted')
-        ? `<div class="promotion-message">${this.rankChangeMessage}</div>`
-        : `<div class="demotion-message">${this.rankChangeMessage}</div>`)
+    let rankChangeHtml = this.rankChangeMessage
+      ? (this.rankChangeMessage.includes('Promoted')
+          ? `<div class="promotion-message">${this.rankChangeMessage}</div>`
+          : `<div class="demotion-message">${this.rankChangeMessage}</div>`)
       : '';
     this.rankChangeMessage = null;
 
-    let penaltyMsg = battleRank.penaltyReason ? `<div style="color:#e74c3c;font-size:.85rem;margin-top:6px;">Penalty: ${battleRank.penaltyReason}</div>` : '';
+    let penaltyMsg = battleRank.penaltyReason
+      ? `<div style="color:#e74c3c;font-size:.85rem;margin-top:6px;">Penalty: ${battleRank.penaltyReason}</div>`
+      : '';
 
     summaryEl.innerHTML = `
       ${rankChangeHtml}
@@ -445,7 +554,7 @@ class ChessTheoryApp {
     msgEl.style.display = 'block';
   }
 
-  updateLegionMerit(score) {
+  async updateLegionMerit(score) {
     const meritKey = `${this.aiSource}_merit`;
     const oldMerit = this.legionMerits[meritKey] || 0;
     const oldLegion = Scoring.getLegionRank(oldMerit);
@@ -484,9 +593,9 @@ class ChessTheoryApp {
     }
 
     this.legionMerits[meritKey] = newMerit;
-    localStorage.setItem('chessTheoryLegionMerits', JSON.stringify(this.legionMerits));
     this.gamesPlayed++;
-    localStorage.setItem('chessTheoryGamesPlayed', this.gamesPlayed.toString());
+
+    await this.saveAllProgress(); // Saves locally + cloud (if logged in)
   }
 
   render() {
@@ -498,8 +607,10 @@ class ChessTheoryApp {
       this.renderColorChoice();
       return;
     }
+
     this.renderBoard();
     this.queryExplorer();
+
     if (this.game.turn() !== this.playerColor) {
       const currentFEN = this.game.fen();
       if (this.lastAIMoveFEN !== currentFEN) {
