@@ -1,3 +1,4 @@
+import { supabase } from './supabase-client.js';
 class ChessTheoryApp {
   constructor() {
     this.game = new Chess();
@@ -618,4 +619,5 @@ class ChessTheoryApp {
       }
     }
   }
+
 }
