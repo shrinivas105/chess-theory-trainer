@@ -1,9 +1,4 @@
-import { supabase } from './supabase-client.js';
-import { ChessAPI, pieces } from './chess-api.js';
-import { Scoring } from './scoring.js';
-import { getUser, signInWithGoogle, signOut, loadProgress, saveProgress } from './supabase-client.js';
-
-export class ChessTheoryApp {
+class ChessTheoryApp {
   constructor() {
     this.game = new Chess();
     this.playerColor = null;
@@ -20,7 +15,7 @@ export class ChessTheoryApp {
     this.recentGames = [];
     this.pieceImages = pieces;
 
-    // Load progress from localStorage first — this is instant and always works
+    // Load local progress first — instant and always works
     this.legionMerits = JSON.parse(localStorage.getItem('chessTheoryLegionMerits') || '{}');
     this.gamesPlayed = parseInt(localStorage.getItem('chessTheoryGamesPlayed') || '0');
     this.recentBattleRanksMaster = JSON.parse(localStorage.getItem('chessTheoryRecentBattleRanksMaster') || '[]');
@@ -30,7 +25,8 @@ export class ChessTheoryApp {
     this.user = null;
     this.isLoggedIn = false;
 
-    // Set up Supabase auth listener and initial check
+    // Restore session and set up listener
+    supabase.auth.getSession();
     this.setupAuthListener();
     this.checkAuth();
 
@@ -41,6 +37,7 @@ export class ChessTheoryApp {
     const user = await getUser();
     this.user = user;
     this.isLoggedIn = !!user;
+
     if (this.isLoggedIn) {
       await this.loadCloudProgress();
     }
@@ -53,10 +50,12 @@ export class ChessTheoryApp {
       this.isLoggedIn = !!this.user;
 
       if (event === 'SIGNED_IN') {
+        console.log('User signed in:', this.user.email);
         await this.loadCloudProgress();
         this.render();
       } else if (event === 'SIGNED_OUT') {
-        location.reload(); // Reload to fall back to local progress
+        console.log('User signed out');
+        location.reload();
       }
     });
   }
@@ -64,6 +63,7 @@ export class ChessTheoryApp {
   async loadCloudProgress() {
     const progress = await loadProgress();
     if (progress) {
+      console.log('Cloud progress loaded:', progress);
       this.legionMerits = {
         master_merit: progress.master_merit || 0,
         lichess_merit: progress.lichess_merit || 0
@@ -72,8 +72,10 @@ export class ChessTheoryApp {
       this.recentBattleRanksMaster = progress.recent_battle_ranks_master || [];
       this.recentBattleRanksLichess = progress.recent_battle_ranks_lichess || [];
 
-      // Keep localStorage in sync as a reliable backup
       this.saveToLocalStorage();
+      this.render();
+    } else {
+      console.log('No cloud progress found or not logged in');
     }
   }
 
@@ -99,8 +101,9 @@ export class ChessTheoryApp {
   }
 
   async saveAllProgress() {
-    this.saveToLocalStorage();      // Always instant local save
-    await this.saveCloudProgress(); // Cloud only if logged in
+    this.saveToLocalStorage();
+    await this.saveCloudProgress();
+    this.render();
   }
 
   getRecentBattleRanks(source) {
@@ -151,16 +154,12 @@ export class ChessTheoryApp {
     const authSection = this.isLoggedIn
       ? `<div style="text-align:center;margin:20px 0;">
            <strong>🔐 Synced as ${this.user.email.split('@')[0]}</strong><br>
-           <button class="btn" style="margin-top:8px;" id="signOutBtn">
-             Sign Out
-           </button>
+           <button class="btn" style="margin-top:8px;" id="signOutBtn">Sign Out</button>
          </div>`
       : `<div style="text-align:center;margin:20px 0;">
-           <button class="btn" id="signInBtn">
-             🔐 Sign in with Google to sync across devices
-           </button>
+           <button class="btn" id="signInBtn">🔐 Sign in with Google to sync across devices</button>
            <p style="font-size:0.8rem;color:#aaa;margin-top:10px;">
-             No account needed — progress is saved locally and works instantly!
+             No account needed — progress saved locally and works instantly!
            </p>
          </div>`;
 
@@ -218,20 +217,15 @@ export class ChessTheoryApp {
     document.getElementById('masterBtn').onclick = () => this.selectSource('master');
     document.getElementById('lichessBtn').onclick = () => this.selectSource('lichess');
     document.getElementById('resetBtn').onclick = () => this.resetStats();
-    
-    // Auth button handlers
+
     const signInBtn = document.getElementById('signInBtn');
-    if (signInBtn) {
-      signInBtn.onclick = () => signInWithGoogle();
-    }
-    
+    if (signInBtn) signInBtn.onclick = signInWithGoogle;
+
     const signOutBtn = document.getElementById('signOutBtn');
-    if (signOutBtn) {
-      signOutBtn.onclick = async () => {
-        await signOut();
-        location.reload();
-      };
-    }
+    if (signOutBtn) signOutBtn.onclick = async () => {
+      await signOut();
+      location.reload();
+    };
   }
 
   renderColorChoice() {
@@ -509,13 +503,10 @@ export class ChessTheoryApp {
     const { score, penaltyReason } = Scoring.getTotalScore(this.playerMoves, this.topMoveChoices, this.finalPlayerEval);
     const battleRank = Scoring.getBattleRank(score, this.finalPlayerEval, penaltyReason);
 
-    // ✅ THIS IS THE KEY LINE ADDED - Updates merit and saves to cloud
-    await this.updateLegionMerit(score);
-
     const recentRanks = this.getRecentBattleRanks(this.aiSource);
     recentRanks.push(battleRank.title);
     if (recentRanks.length > 5) recentRanks.shift();
-    this.setRecentBattleRanks(this.aiSource, recentRanks); // Triggers saveAllProgress()
+    this.setRecentBattleRanks(this.aiSource, recentRanks);
 
     const moveQuality = Scoring.getMoveQuality(this.topMoveChoices, this.playerMoves);
     const displayEval = this.finalPlayerEval > 0 ? '+' + this.finalPlayerEval.toFixed(1) : this.finalPlayerEval.toFixed(1);
@@ -574,6 +565,9 @@ export class ChessTheoryApp {
     }
     msgEl.innerHTML = html;
     msgEl.style.display = 'block';
+
+    // Update merit after game end
+    await this.updateLegionMerit(score);
   }
 
   async updateLegionMerit(score) {
@@ -617,7 +611,7 @@ export class ChessTheoryApp {
     this.legionMerits[meritKey] = newMerit;
     this.gamesPlayed++;
 
-    await this.saveAllProgress(); // Saves locally + cloud (if logged in)
+    await this.saveAllProgress();
   }
 
   render() {
