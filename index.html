@@ -1,30 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Lines of the Legion</title>
+
+  <!-- Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-  <!-- Load Supabase library exactly ONCE here -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="style.css">
+
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <div id="app"></div>
 
   <!-- Core utilities -->
   <script src="scoring.js"></script>
   <script src="chess-api.js"></script>
-  
-  <!-- Supabase client -->
+
+  <!-- Supabase -->
   <script src="supabase-client.js"></script>
-  
-  <!-- Modular UI components -->
   <script src="auth.js"></script>
+
+  <!-- UI & logic -->
   <script src="ui-renderer.js"></script>
   <script src="game-logic.js"></script>
-  
-  <!-- App initialization -->
+
+  <!-- App entry (LAST) -->
   <script src="main.js"></script>
 </body>
 </html>
