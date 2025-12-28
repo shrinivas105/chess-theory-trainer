@@ -1,7 +1,6 @@
 import { supabase } from './supabase-client.js';
 import { ChessAPI } from './chess-api.js';
 import { Scoring } from './scoring.js';
-import { pieces } from './pieces.js';
 import { getUser, signInWithGoogle, signOut, loadProgress, saveProgress } from './supabase-client.js';
 
 export class ChessTheoryApp {
@@ -639,3 +638,4 @@ export class ChessTheoryApp {
     }
   }
 }
+
