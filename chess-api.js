@@ -1,4 +1,4 @@
-const pieces = {
+export const pieces = {
   wp: "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg",
   wr: "https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg",
   wn: "https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg",
@@ -13,20 +13,30 @@ const pieces = {
   bk: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg"
 };
 
-class ChessAPI {
+export class ChessAPI {
   static cache = {};
+  
   static async queryExplorer(source, fen) {
     const key = `${source}_${fen}`;
     if (this.cache[key]) return this.cache[key];
-    let url = source === 'master' ? 'https://explorer.lichess.ovh/masters' : 'https://explorer.lichess.ovh/lichess';
+    
+    let url = source === 'master' 
+      ? 'https://explorer.lichess.ovh/masters' 
+      : 'https://explorer.lichess.ovh/lichess';
     url += `?variant=standard&fen=${encodeURIComponent(fen)}&topGames=0&moves=5`;
-    if (source === 'lichess') url += '&ratings=1600,1800,2000,2200,2500';
+    
+    if (source === 'lichess') {
+      url += '&ratings=1600,1800,2000,2200,2500';
+    }
+    
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 6000);
       const response = await fetch(url, { signal: controller.signal });
       clearTimeout(timeout);
+      
       if (!response.ok) throw new Error('API error');
+      
       const data = await response.json();
       this.cache[key] = data;
       return data;
@@ -35,29 +45,42 @@ class ChessAPI {
       return { white: 0, draws: 0, black: 0, moves: [] };
     }
   }
+  
   static async queryGames(source, fen) {
     const base = source === 'master' ? 'masters' : 'lichess';
     let url = `https://explorer.lichess.ovh/${base}?variant=standard&fen=${encodeURIComponent(fen)}`;
-    if (source === 'master') url += '&topGames=10';
-    else url += '&recentGames=10&ratings=1600,1800,2000,2200,2500';
+    
+    if (source === 'master') {
+      url += '&topGames=10';
+    } else {
+      url += '&recentGames=10&ratings=1600,1800,2000,2200,2500';
+    }
+    
     try {
       const response = await fetch(url);
       if (!response.ok) return { topGames: [], recentGames: [] };
+      
       const data = await response.json();
-      return { topGames: data.topGames || [], recentGames: data.recentGames || [] };
+      return { 
+        topGames: data.topGames || [], 
+        recentGames: data.recentGames || [] 
+      };
     } catch (e) {
       console.warn('Games query failed:', e);
       return { topGames: [], recentGames: [] };
     }
   }
+  
   static async getEvaluation(fen, cache = {}) {
     if (cache[fen] !== undefined) return cache[fen];
+    
     try {
       const response = await fetch('https://chess-api.com/v1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fen })
       });
+      
       if (response.ok) {
         const data = await response.json();
         if (typeof data.eval === 'number') {
@@ -68,6 +91,7 @@ class ChessAPI {
     } catch (e) {
       console.log('Evaluation unavailable');
     }
+    
     return 0;
   }
 }
