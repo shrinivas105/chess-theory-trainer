@@ -1,2 +1,4 @@
-// Simply starts the app
-new ChessTheoryApp();
+// main.js - App initialization
+// Fixed: Create global app instance for onclick handlers
+
+window.app = new ChessTheoryApp();

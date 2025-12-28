@@ -12,10 +12,19 @@
 <body>
   <div id="app"></div>
 
+  <!-- Core utilities -->
   <script src="scoring.js"></script>
   <script src="chess-api.js"></script>
-  <script src="supabase-client.js"></script>  <!-- Defines supabase using the global Supabase -->
-  <script src="ui.js"></script>
+  
+  <!-- Supabase client -->
+  <script src="supabase-client.js"></script>
+  
+  <!-- Modular UI components -->
+  <script src="auth.js"></script>
+  <script src="ui-renderer.js"></script>
+  <script src="game-logic.js"></script>
+  
+  <!-- App initialization -->
   <script src="main.js"></script>
 </body>
 </html>
