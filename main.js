@@ -1,2 +1,4 @@
+import { ChessTheoryApp } from './ui.js';
+
 // Simply starts the app
-new ChessTheoryApp();
+const app = new ChessTheoryApp();
