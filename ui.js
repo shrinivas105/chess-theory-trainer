@@ -1,5 +1,6 @@
-import { supabase } from './supabase-client.js';
+
 class ChessTheoryApp {
+  import { supabase } from './supabase-client.js';
   constructor() {
     this.game = new Chess();
     this.playerColor = null;
@@ -621,3 +622,4 @@ class ChessTheoryApp {
   }
 
 }
+
