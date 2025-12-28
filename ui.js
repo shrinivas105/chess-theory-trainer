@@ -509,6 +509,9 @@ export class ChessTheoryApp {
     const { score, penaltyReason } = Scoring.getTotalScore(this.playerMoves, this.topMoveChoices, this.finalPlayerEval);
     const battleRank = Scoring.getBattleRank(score, this.finalPlayerEval, penaltyReason);
 
+    // ✅ THIS IS THE KEY LINE ADDED - Updates merit and saves to cloud
+    await this.updateLegionMerit(score);
+
     const recentRanks = this.getRecentBattleRanks(this.aiSource);
     recentRanks.push(battleRank.title);
     if (recentRanks.length > 5) recentRanks.shift();
@@ -638,5 +641,3 @@ export class ChessTheoryApp {
     }
   }
 }
-
-
