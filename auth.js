@@ -1,4 +1,5 @@
 // auth.js - Handles all authentication and progress sync logic
+// Fixed: Proper session management and sync across devices
 
 class AuthModule {
   constructor(app) {
@@ -10,6 +11,15 @@ class AuthModule {
 
   async initialize() {
     try {
+      // Get supabase client from window
+      const supabase = window.supabaseClient;
+      
+      if (!supabase) {
+        console.error('Supabase client not found!');
+        this.authInitialized = true;
+        return false;
+      }
+
       // Set up listener FIRST
       this.setupAuthListener();
       
@@ -39,6 +49,13 @@ class AuthModule {
   }
 
   setupAuthListener() {
+    const supabase = window.supabaseClient;
+    
+    if (!supabase) {
+      console.error('Cannot setup auth listener - supabase client not found');
+      return;
+    }
+
     supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event, session?.user?.email || 'no user');
       

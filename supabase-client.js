@@ -5,8 +5,8 @@ const supabaseUrl = 'https://lvnmwycnrkltcechihai.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2bm13eWNucmtsdGNlY2hpaGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU0MDk5MjEsImV4cCI6MjA1MDk4NTkyMX0.CEdveFq79zyZ6u2bpGsP2wRi0jYtI0v4gDCNgjkZ9Fw';
 
 // Only create client if it doesn't exist (prevents duplicate declaration error)
-if (typeof window.supabase === 'undefined') {
-  window.supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey, {
+if (typeof window.supabaseClient === 'undefined') {
+  window.supabaseClient = Supabase.createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
@@ -19,7 +19,8 @@ if (typeof window.supabase === 'undefined') {
   console.log('✓ Supabase client initialized');
 }
 
-const supabase = window.supabase;
+// Use window.supabaseClient everywhere to avoid redeclaration
+const supabase = window.supabaseClient;
 
 // Helper functions with better error handling
 async function getUser() {
