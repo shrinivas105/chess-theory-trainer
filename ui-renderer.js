@@ -122,6 +122,16 @@ renderColorChoice() {
           Merit is decided by how long you hold the line, the accuracy of your moves,
           and the strength of the resulting position.
         </p>
+<p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin:0;">
+  <strong style="color:var(--gold);">Stay within opening theory to earn honor.</strong>
+  Leave the book early, and the battle ends — judgment is final at that moment.
+  Merit is decided by how long you hold the line, the accuracy of your moves,
+  and the strength of the resulting position.
+  Based on this, your battle rank is assigned from <strong>Levy → Hastatus → Principes → Triarius → Imperator</strong>,
+  where <em>Levy</em> reflects the weakest performance and <em>Imperator</em> the topmost.
+  Merits earned in the battle are added to your total to move up the rank for promotion.
+  In case of poor performance, your rank may be reduced, reflecting demotion on the battlefield.
+</p>
 
         <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin-top:6px;">
           Consistent excellence earns promotion, but each new rank demands higher standards.
