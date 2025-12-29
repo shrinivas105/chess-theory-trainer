@@ -98,18 +98,18 @@ class UIRenderer {
 renderRankMeritTable() {
   let rows = '';
 
-  for (let i = 0; i < this.rankOrder.length - 1; i++) {
-    const rank = this.rankOrder[i];
-    const nextRank = this.rankOrder[i + 1];
-    const meritNeeded = this.thresholds[i + 1] - this.thresholds[i];
+  for (let i = 0; i < rankOrder.length - 1; i++) {
+    const rank = rankOrder[i];
+    const nextRank = rankOrder[i + 1];
+    const meritNeeded = thresholds[i + 1] - thresholds[i];
 
     rows += `
       <tr>
-        <td style="padding:6px 8px; color:var(--gold);">
-          ${this.iconMap[rank]} ${rank}
+        <td style="padding:6px 8px; color:var(--gold); white-space:nowrap;">
+          ${iconMap[rank]} ${rank}
         </td>
-        <td style="padding:6px 8px; color:#bbb;">
-          ${meritNeeded} Merit → ${nextRank}
+        <td style="padding:6px 8px; color:#bbb; text-align:right;">
+          ${meritNeeded} → ${nextRank}
         </td>
       </tr>
     `;
