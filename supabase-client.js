@@ -24,7 +24,7 @@ if (typeof window.supabaseClient === 'undefined') {
       detectSessionInUrl: true,
       storage: window.localStorage,
       storageKey: 'chess-theory-supabase-auth',
-      flowType: 'pkce'
+      flowType: 'implicit' // Changed from 'pkce' to 'implicit' for better browser compatibility
     }
   });
   console.log('✓ Supabase client initialized');
