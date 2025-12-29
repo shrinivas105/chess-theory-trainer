@@ -95,6 +95,38 @@ class UIRenderer {
     document.getElementById('resetBtn').onclick = () => this.app.resetStats();
   }
 
+renderRankMeritTable() {
+  let rows = '';
+
+  for (let i = 0; i < this.rankOrder.length - 1; i++) {
+    const rank = this.rankOrder[i];
+    const nextRank = this.rankOrder[i + 1];
+    const meritNeeded = this.thresholds[i + 1] - this.thresholds[i];
+
+    rows += `
+      <tr>
+        <td style="padding:6px 8px; color:var(--gold);">
+          ${this.iconMap[rank]} ${rank}
+        </td>
+        <td style="padding:6px 8px; color:#bbb;">
+          ${meritNeeded} Merit → ${nextRank}
+        </td>
+      </tr>
+    `;
+  }
+
+  return `
+    <div style="margin-top:14px; padding:10px; background:rgba(0,0,0,0.45); border:1px solid #333; border-radius:4px;">
+      <h4 style="color:var(--gold); font-family:'Cinzel', serif; font-size:0.75rem; margin:0 0 6px 0; border-bottom:1px solid #444;">
+        🏛️ RANK MERIT REFERENCE
+      </h4>
+      <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+        ${rows}
+      </table>
+    </div>
+  `;
+}
+
 renderColorChoice() {
   document.getElementById('app').innerHTML = `
     <div class="menu">
@@ -105,13 +137,15 @@ renderColorChoice() {
       </div>
 
       <div class="battle-laws-brief" style="margin-top:20px; padding:12px; background:rgba(0,0,0,0.5); border:1px solid #333; border-radius:4px; text-align:left;">
-        <h3 style="color:var(--gold); font-family:'Cinzel', serif; font-size:0.8rem; margin-bottom:8px; border-bottom:1px solid #444;">📜 BATTLE LAWS</h3>
-        <p style="font-size:0.99rem; line-height:1.4; color:#bbb; margin:0;">
+        <h3 style="color:var(--gold); font-family:'Cinzel', serif; font-size:1.2rem; margin-bottom:8px; border-bottom:1px solid #444;">📜 BATTLE LAWS</h3>
+        <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin:0;">
           <strong style="color:var(--gold);">Stay within opening theory to earn honor.</strong> Leave the book early, and the battle ends — judgment is final at that moment. Merit is decided by how long you hold the line, the accuracy of your moves, and the strength of the resulting position. Precision outweighs bravery. Accuracy raises merit.
         </p>
-        <p style="font-size:0.99rem; line-height:1.4; color:#bbb; margin-top:6px;">
+        <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin-top:6px;">
           Consistent excellence earns promotion, but each new rank demands higher standards. <strong style="color:var(--gold);">Weak play, careless exits, and repeated failure bring demotion.</strong> The army does not forget dishonor. Flee too early, play too few moves, or abandon theory without a fight — and history will mark you as one who ran from the battlefield.
         </p>
+        <!-- RANK TABLE -->
+        ${this.renderRankMeritTable()}
       </div>
     </div>
   `;
