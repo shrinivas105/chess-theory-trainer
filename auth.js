@@ -1,5 +1,5 @@
 // auth.js - Handles all authentication and progress sync logic
-// Fixed: Proper session management and sync across devices
+// Fixed: Better OAuth redirect handling and error recovery
 
 class AuthModule {
   constructor(app) {
@@ -23,17 +23,35 @@ class AuthModule {
       // Set up listener FIRST
       this.setupAuthListener();
       
-      // Then check current session
-      const { data: { session }, error } = await supabase.auth.getSession();
+      // Check for OAuth errors in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const error = urlParams.get('error');
+      const errorDescription = urlParams.get('error_description');
       
       if (error) {
-        console.error('Session check error:', error);
+        console.error('OAuth error:', error, errorDescription);
+        alert(`Sign in failed: ${errorDescription || error}`);
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      
+      // Then check current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session check error:', sessionError);
       }
       
       if (session && session.user) {
         this.user = session.user;
         this.isLoggedIn = true;
         console.log('✓ User session found:', this.user.email);
+        
+        // Clean URL if coming from OAuth redirect
+        if (urlParams.has('code') || urlParams.has('access_token')) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
         await this.loadCloudProgress();
       } else {
         console.log('No active session - using local storage');
@@ -145,7 +163,7 @@ class AuthModule {
             🔐 Sign in with Google to sync across devices
           </button>
           <p style="font-size:0.8rem;color:#aaa;margin-top:10px;">
-            No account needed — progress is saved locally and works instantly!
+            No account needed – progress is saved locally and works instantly!
           </p>
         </div>
       `;

@@ -1,10 +1,25 @@
 // js/supabase-client.js
-// Fixed: Prevents duplicate declarations and adds proper session persistence
+// Fixed: Proper redirect URL handling for Vercel deployment
 
 const supabaseUrl = 'https://lvnmwycnrkltcechihai.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2bm13eWNucmtsdGNlY2hpaGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU0MDk5MjEsImV4cCI6MjA1MDk4NTkyMX0.CEdveFq79zyZ6u2bpGsP2wRi0jYtI0v4gDCNgjkZ9Fw';
 
-// Only create client if it doesn't exist (prevents duplicate declaration error)
+// Helper to get the correct URL
+function getURL() {
+  let url = 
+    process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this in Vercel env vars
+    process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel
+    'http://localhost:3000/';
+  
+  // Make sure to include https:// when not localhost
+  url = url.startsWith('http') ? url : `https://${url}`;
+  // Make sure to include trailing /
+  url = url.endsWith('/') ? url : `${url}/`;
+  
+  return url;
+}
+
+// Only create client if it doesn't exist
 if (typeof window.supabaseClient === 'undefined') {
   window.supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
@@ -19,7 +34,7 @@ if (typeof window.supabaseClient === 'undefined') {
   console.log('✓ Supabase client initialized');
 }
 
-// Helper functions with better error handling
+// Helper functions
 async function getUser() {
   try {
     const { data: { user }, error } = await window.supabaseClient.auth.getUser();
@@ -36,16 +51,20 @@ async function getUser() {
 
 async function signInWithGoogle() {
   try {
+    const redirectUrl = getURL();
+    console.log('Redirecting to:', redirectUrl);
+    
     const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: { 
-        redirectTo: window.location.origin,
+        redirectTo: redirectUrl,
         queryParams: {
           access_type: 'offline',
-          prompt: 'consent'
+          prompt: 'select_account'
         }
       }
     });
+    
     if (error) throw error;
     console.log('✓ Google sign-in initiated');
     return { success: true };
@@ -61,6 +80,7 @@ async function signOut() {
     const { error } = await window.supabaseClient.auth.signOut();
     if (error) throw error;
     console.log('✓ Signed out successfully');
+    window.location.reload();
   } catch (e) {
     console.error('Sign out error:', e);
   }
