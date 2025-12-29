@@ -109,7 +109,18 @@ class AuthModule {
 
   async loadCloudProgress() {
     try {
-      const progress = await loadProgress();
+      console.log('📥 Attempting to load cloud progress...');
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Load timeout')), 10000)
+      );
+      
+      const progress = await Promise.race([
+        loadProgress(),
+        timeoutPromise
+      ]);
+      
       if (progress) {
         console.log('✓ Cloud progress loaded:', progress);
         
@@ -129,25 +140,39 @@ class AuthModule {
         await this.saveCloudProgress();
       }
     } catch (e) {
-      console.error('Error loading cloud progress:', e);
+      console.error('❌ Error loading cloud progress:', e);
+      console.log('⚠️ Continuing with local data...');
+      // Don't block the app - continue with local storage data
     }
   }
 
   async saveCloudProgress() {
     if (!this.isLoggedIn) {
-      console.log('Not logged in - skipping cloud save');
+      console.log('ℹ️ Not logged in - skipping cloud save');
       return;
     }
 
-    const progress = {
-      master_merit: this.app.legionMerits.master_merit || 0,
-      lichess_merit: this.app.legionMerits.lichess_merit || 0,
-      games_played: this.app.gamesPlayed,
-      recent_battle_ranks_master: this.app.recentBattleRanksMaster,
-      recent_battle_ranks_lichess: this.app.recentBattleRanksLichess
-    };
+    try {
+      console.log('💾 Preparing to save cloud progress...');
+      
+      const progress = {
+        master_merit: this.app.legionMerits.master_merit || 0,
+        lichess_merit: this.app.legionMerits.lichess_merit || 0,
+        games_played: this.app.gamesPlayed,
+        recent_battle_ranks_master: this.app.recentBattleRanksMaster,
+        recent_battle_ranks_lichess: this.app.recentBattleRanksLichess
+      };
 
-    await saveProgress(progress);
+      const result = await saveProgress(progress);
+      
+      if (result && result.success) {
+        console.log('✓ Cloud save successful');
+      } else {
+        console.warn('⚠️ Cloud save had issues:', result);
+      }
+    } catch (e) {
+      console.error('❌ Error in saveCloudProgress:', e);
+    }
   }
 
   async handleSignIn() {
