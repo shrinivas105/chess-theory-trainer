@@ -97,41 +97,6 @@ class UIRenderer {
 
 
 renderColorChoice() {
-  const app = this.app;
-  let rankTable = '';
-
-  if (app?.rankOrder && app?.thresholds && app?.iconMap) {
-    let rows = '';
-
-    for (let i = 0; i < app.rankOrder.length - 1; i++) {
-      const rank = app.rankOrder[i];
-      const nextRank = app.rankOrder[i + 1];
-      const meritNeeded = app.thresholds[i + 1] - app.thresholds[i];
-
-      rows += `
-        <tr>
-          <td style="padding:6px 8px; color:var(--gold);">
-            ${app.iconMap[rank]} ${rank}
-          </td>
-          <td style="padding:6px 8px; color:#bbb; text-align:right;">
-            ${meritNeeded} Merit → ${nextRank}
-          </td>
-        </tr>
-      `;
-    }
-
-    rankTable = `
-      <div style="margin-top:12px; padding:8px; background:rgba(0,0,0,0.45); border:1px solid #333; border-radius:4px;">
-        <h4 style="color:var(--gold); font-family:'Cinzel', serif; font-size:0.75rem; margin-bottom:6px; border-bottom:1px solid #444;">
-          🏛️ RANK MERIT REFERENCE
-        </h4>
-        <table style="width:100%; border-collapse:collapse; font-size:0.75rem;">
-          ${rows}
-        </table>
-      </div>
-    `;
-  }
-
   document.getElementById('app').innerHTML = `
     <div class="menu">
       <p class="menu-subtitle">Select your position in the line of battle.</p>
@@ -141,8 +106,13 @@ renderColorChoice() {
         <button id="blackBtn" class="menu-btn primary">Command Black</button>
       </div>
 
-      <div class="battle-laws-brief" style="margin-top:20px; padding:12px; background:rgba(0,0,0,0.5); border:1px solid #333; border-radius:4px; text-align:left;">
-        <h3 style="color:var(--gold); font-family:'Cinzel', serif; font-size:1.2rem; margin-bottom:8px; border-bottom:1px solid #444;">
+      <div class="battle-laws-brief"
+        style="margin-top:20px; padding:12px; background:rgba(0,0,0,0.5);
+               border:1px solid #333; border-radius:4px; text-align:left;">
+
+        <h3 style="color:var(--gold); font-family:'Cinzel', serif;
+                   font-size:1.2rem; margin-bottom:8px;
+                   border-bottom:1px solid #444;">
           📜 BATTLE LAWS
         </h3>
 
@@ -156,9 +126,45 @@ renderColorChoice() {
         <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin-top:6px;">
           Consistent excellence earns promotion, but each new rank demands higher standards.
           <strong style="color:var(--gold);">Weak play, careless exits, and repeated failure bring demotion.</strong>
+          Flee too early, and history will remember you as one who ran from the battlefield.
         </p>
 
-        ${rankTable}
+        <!-- RANK MERIT REFERENCE -->
+        <div style="margin-top:12px; padding:8px; background:rgba(0,0,0,0.45);
+                    border:1px solid #333; border-radius:4px;">
+          <h4 style="color:var(--gold); font-family:'Cinzel', serif;
+                     font-size:0.75rem; margin-bottom:6px;
+                     border-bottom:1px solid #444;">
+            🏛️ RANK MERIT REFERENCE
+          </h4>
+
+          <table style="width:100%; border-collapse:collapse; font-size:0.75rem;">
+            <tr>
+              <td style="padding:6px 8px; color:var(--gold);">🌱 Recruit</td>
+              <td style="padding:6px 8px; color:#bbb; text-align:right;">0 Merit</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 8px; color:var(--gold);">🛡️ Legionary</td>
+              <td style="padding:6px 8px; color:#bbb; text-align:right;">100 Merit</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 8px; color:var(--gold);">⚔️ Optio</td>
+              <td style="padding:6px 8px; color:#bbb; text-align:right;">250 Merit</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 8px; color:var(--gold);">🦅 Centurion</td>
+              <td style="padding:6px 8px; color:#bbb; text-align:right;">500 Merit</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 8px; color:var(--gold);">🏅 Tribunus</td>
+              <td style="padding:6px 8px; color:#bbb; text-align:right;">900 Merit</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 8px; color:var(--gold);">🏆 Legatus</td>
+              <td style="padding:6px 8px; color:#bbb; text-align:right;">1500 Merit</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
   `;
