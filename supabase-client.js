@@ -126,7 +126,12 @@ async function signOut() {
 async function loadProgress() {
   try {
     const user = await getUser();
-    if (!user) return null;
+    if (!user) {
+      console.log('ℹ️ No user logged in - skipping cloud load');
+      return null;
+    }
+    
+    console.log('🔍 Loading progress for user:', user.id);
     
     const { data, error } = await window.supabaseClient
       .from('player_progress')
@@ -135,18 +140,18 @@ async function loadProgress() {
       .maybeSingle(); // Changed from .single() to handle 0 or 1 results
     
     if (error) {
-      console.error('Load error:', error);
+      console.error('❌ Load error:', error);
       return null;
     }
     
     if (data) {
-      console.log('✓ Progress loaded from cloud');
+      console.log('✓ Progress loaded from cloud:', data);
     } else {
       console.log('ℹ️ No progress record found in cloud');
     }
     return data;
   } catch (e) {
-    console.error('loadProgress exception:', e);
+    console.error('❌ loadProgress exception:', e);
     return null;
   }
 }
@@ -155,9 +160,11 @@ async function saveProgress(progress) {
   try {
     const user = await getUser();
     if (!user) {
-      console.log('Not logged in - skipping cloud save');
-      return;
+      console.log('ℹ️ Not logged in - skipping cloud save');
+      return { success: false, reason: 'not_logged_in' };
     }
+    
+    console.log('💾 Saving progress to cloud for user:', user.id);
     
     const saveData = { 
       user_id: user.id, 
@@ -165,20 +172,24 @@ async function saveProgress(progress) {
       updated_at: new Date().toISOString()
     };
     
-    const { error } = await window.supabaseClient
+    const { data, error } = await window.supabaseClient
       .from('player_progress')
       .upsert(saveData, { 
         onConflict: 'user_id', // Explicitly specify the conflict column
         ignoreDuplicates: false // Ensure updates happen
-      });
+      })
+      .select();
     
     if (error) {
-      console.error('Save error:', error);
+      console.error('❌ Save error:', error);
+      return { success: false, error };
     } else {
       console.log('✓ Progress saved to cloud');
+      return { success: true, data };
     }
   } catch (e) {
-    console.error('saveProgress exception:', e);
+    console.error('❌ saveProgress exception:', e);
+    return { success: false, error: e };
   }
 }
 
