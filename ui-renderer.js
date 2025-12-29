@@ -127,10 +127,11 @@ renderColorChoice() {
   Leave the book early, and the battle ends — judgment is final at that moment.
   Merit is decided by how long you hold the line, the accuracy of your moves,
   and the strength of the resulting position.
-  Based on this, your battle rank is assigned from <strong>Levy → Hastatus → Principes → Triarius → Imperator</strong>,
+  Based on this, your battle rank is assigned from these battle ranks: <strong>Levy, Hastatus, Principes, Triarius, or Imperator</strong>,
   where <em>Levy</em> reflects the weakest performance and <em>Imperator</em> the topmost.
   Merits earned in the battle are added to your total to move up the rank for promotion.
-  In case of poor performance, your rank may be reduced, reflecting demotion on the battlefield.
+  In case of poor performance, your rank may be reduced.
+  For example, three <em>Levy</em> performances in the last five battles will demote your rank from <strong>Legionary → Recruit</strong> and reset your merit.
 </p>
 
         <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin-top:6px;">
