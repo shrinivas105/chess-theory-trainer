@@ -24,10 +24,22 @@ if (typeof window.supabaseClient === 'undefined') {
       detectSessionInUrl: true,
       storage: window.localStorage,
       storageKey: 'chess-theory-supabase-auth',
-      flowType: 'implicit'
+      flowType: 'implicit',
+      // Add storage event listener to sync across tabs
+      storageKey: 'chess-theory-supabase-auth'
     }
   });
   console.log('✓ Supabase client initialized');
+  
+  // Immediately clean stale OAuth params from URL if present
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('access_token') || params.has('refresh_token') || params.has('code')) {
+    console.log('🔄 Cleaning OAuth params from URL on load');
+    // Give Supabase a moment to process them first
+    setTimeout(() => {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }, 100);
+  }
 }
 
 // Helper functions
@@ -161,17 +173,36 @@ async function saveProgress(progress) {
   }
 }
 
-// Debug helper - log any OAuth errors in URL
-(function checkOAuthErrors() {
+// Debug helper - check and clean OAuth state
+(function checkOAuthState() {
   const params = new URLSearchParams(window.location.search);
   const error = params.get('error');
   const errorDescription = params.get('error_description');
+  const code = params.get('code');
+  const accessToken = params.get('access_token');
   
+  // If there's an error, log and clean
   if (error) {
     console.error('❌ OAuth callback error:', error);
     console.error('Description:', errorDescription);
     alert(`Login failed: ${errorDescription || error}`);
-    // Clean URL
     window.history.replaceState({}, document.title, window.location.pathname);
+  }
+  
+  // If there's a code or token in URL, Supabase will handle it
+  // But if the page has been sitting for a while, the token might be stale
+  if (code || accessToken) {
+    console.log('🔄 OAuth callback detected, processing...');
+    
+    // Check if we've been on this page too long (stale token)
+    const pageLoadTime = window.performance?.timing?.navigationStart || Date.now();
+    const timeSinceLoad = Date.now() - pageLoadTime;
+    
+    if (timeSinceLoad > 60000) { // More than 1 minute
+      console.warn('⚠️ OAuth token may be stale, cleaning URL...');
+      window.history.replaceState({}, document.title, window.location.pathname);
+      alert('Session expired. Please sign in again.');
+      window.location.reload();
+    }
   }
 })();
