@@ -98,20 +98,18 @@ class UIRenderer {
 renderColorChoice() {
   document.getElementById('app').innerHTML = `
     <div class="menu">
-      <h1 class="menu-title">COMMAND THE FRONT</h1>
       <p class="menu-subtitle">Select your position in the line of battle.</p>
-
       <div style="display:flex; gap:12px; justify-content:center; margin: 20px 0;">
-        <button id="whiteBtn" class="btn-tactical">Command White</button>
-        <button id="blackBtn" class="btn-tactical">Command Black</button>
+        <button id="whiteBtn" class="menu-btn primary">Command White</button>
+        <button id="blackBtn" class="menu-btn primary">Command Black</button>
       </div>
 
       <div class="battle-laws-brief" style="margin-top:20px; padding:12px; background:rgba(0,0,0,0.5); border:1px solid #333; border-radius:4px; text-align:left;">
         <h3 style="color:var(--gold); font-family:'Cinzel', serif; font-size:0.8rem; margin-bottom:8px; border-bottom:1px solid #444;">📜 BATTLE LAWS</h3>
-        <p style="font-size:0.68rem; line-height:1.4; color:#bbb; margin:0;">
+        <p style="font-size:0.99rem; line-height:1.4; color:#bbb; margin:0;">
           <strong style="color:var(--gold);">Stay within opening theory to earn honor.</strong> Leave the book early, and the battle ends — judgment is final at that moment. Merit is decided by how long you hold the line, the accuracy of your moves, and the strength of the resulting position. Precision outweighs bravery. Accuracy raises merit.
         </p>
-        <p style="font-size:0.68rem; line-height:1.4; color:#bbb; margin-top:6px;">
+        <p style="font-size:0.99rem; line-height:1.4; color:#bbb; margin-top:6px;">
           Consistent excellence earns promotion, but each new rank demands higher standards. <strong style="color:var(--gold);">Weak play, careless exits, and repeated failure bring demotion.</strong> The army does not forget dishonor. Flee too early, play too few moves, or abandon theory without a fight — and history will mark you as one who ran from the battlefield.
         </p>
       </div>

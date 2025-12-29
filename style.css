@@ -166,7 +166,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 }
 
 .battle-laws-brief p {
-  font-size: 0.68rem; /* Tiny font size to fit everything */
+  font-size: 0.99rem; /* Tiny font size to fit everything */
   line-height: 1.4;
   color: #bbb;
   margin: 0;
