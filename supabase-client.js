@@ -4,15 +4,11 @@
 const supabaseUrl = 'https://lvnmwycnrkltcechihai.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2bm13eWNucmtsdGNlY2hpaGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU0MDk5MjEsImV4cCI6MjA1MDk4NTkyMX0.CEdveFq79zyZ6u2bpGsP2wRi0jYtI0v4gDCNgjkZ9Fw';
 
-// Helper to get the correct URL
+// Helper to get the correct URL (browser-safe)
 function getURL() {
-  let url = 
-    process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this in Vercel env vars
-    process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel
-    'http://localhost:3000/';
+  // Use window.location for browser environment
+  let url = window.location.origin;
   
-  // Make sure to include https:// when not localhost
-  url = url.startsWith('http') ? url : `https://${url}`;
   // Make sure to include trailing /
   url = url.endsWith('/') ? url : `${url}/`;
   
