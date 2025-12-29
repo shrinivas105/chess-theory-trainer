@@ -27,18 +27,21 @@ class AuthModule {
       
       // Check for OAuth errors in URL
       const urlParams = new URLSearchParams(window.location.search);
+      console.log('📍 URL params:', urlParams.toString());
+      
       const error = urlParams.get('error');
       const errorDescription = urlParams.get('error_description');
       
       if (error) {
         console.error('❌ OAuth error in URL:', error, errorDescription);
-        // Don't alert here - already handled in supabase-client.js
-        // Just clean URL
         window.history.replaceState({}, document.title, window.location.pathname);
       }
       
       // Then check current session
+      console.log('🔍 Checking for existing session...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      console.log('📦 Session data:', session ? 'Session found' : 'No session', sessionError);
       
       if (sessionError) {
         console.error('❌ Session check error:', sessionError);
@@ -47,7 +50,7 @@ class AuthModule {
       if (session && session.user) {
         this.user = session.user;
         this.isLoggedIn = true;
-        console.log('✓ User session found:', this.user.email);
+        console.log('✅ USER LOGGED IN:', this.user.email);
         
         // Clean URL if coming from OAuth redirect
         if (urlParams.has('code') || urlParams.has('access_token')) {
