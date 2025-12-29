@@ -1,4 +1,5 @@
 // game-logic.js - Core chess game logic and state management
+// FIXED: Demotion now properly updates merit BEFORE saving to cloud
 
 class ChessTheoryApp {
   constructor() {
@@ -61,7 +62,7 @@ class ChessTheoryApp {
     } else {
       this.recentBattleRanksLichess = ranks;
     }
-    this.saveAllProgress();
+    // Note: Don't save here - let caller control when to save
   }
 
   // Game flow methods
@@ -280,7 +281,7 @@ class ChessTheoryApp {
     if (recentRanks.length > 5) recentRanks.shift();
     this.setRecentBattleRanks(this.aiSource, recentRanks);
 
-    // Update legion merit
+    // Update legion merit (this handles promotion/demotion)
     await this.updateLegionMerit(score);
 
     // Render end game summary
@@ -304,7 +305,7 @@ class ChessTheoryApp {
     // Check for promotion
     if (tempLegion.level > oldLegion.level) {
       newMerit = tempLegion.thresholds[tempLegion.level];
-      this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you've won. 🏺`;
+      this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you've won. 🍺`;
       rankChanged = true;
     }
 
@@ -329,13 +330,16 @@ class ChessTheoryApp {
       rankChanged = true;
     }
 
+    // CRITICAL FIX: Update merit BEFORE clearing recent ranks
+    this.legionMerits[meritKey] = newMerit;
+    this.gamesPlayed++;
+
+    // Now clear recent ranks if rank changed (promotion or demotion)
     if (rankChanged) {
       this.setRecentBattleRanks(this.aiSource, []);
     }
 
-    this.legionMerits[meritKey] = newMerit;
-    this.gamesPlayed++;
-
+    // Save everything to both localStorage and cloud
     await this.saveAllProgress();
   }
 
