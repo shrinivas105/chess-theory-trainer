@@ -156,3 +156,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   color: #aaa;
   margin-bottom: 8px;
 }
+.battle-laws-brief {
+  margin-top: 20px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.battle-laws-brief p {
+  font-size: 0.68rem; /* Tiny font size to fit everything */
+  line-height: 1.4;
+  color: #bbb;
+  margin: 0;
+}
+
+.battle-laws-brief strong {
+  color: var(--gold);
+  font-weight: bold;
+}
