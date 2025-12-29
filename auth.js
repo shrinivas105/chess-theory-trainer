@@ -1,5 +1,5 @@
 // auth.js - Handles all authentication and progress sync logic
-// Fixed: Better OAuth redirect handling and error recovery
+// Fixed: Better OAuth redirect handling, error recovery, and database operations
 
 class AuthModule {
   constructor(app) {
@@ -29,9 +29,9 @@ class AuthModule {
       const urlParams = new URLSearchParams(window.location.search);
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       
-      console.log('📍 URL query params:', urlParams.toString());
-      console.log('📍 URL hash params:', hashParams.toString());
-      console.log('📍 Full URL:', window.location.href);
+      console.log('🔍 URL query params:', urlParams.toString());
+      console.log('🔍 URL hash params:', hashParams.toString());
+      console.log('🔍 Full URL:', window.location.href);
       
       const error = urlParams.get('error') || hashParams.get('error');
       const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
@@ -125,7 +125,7 @@ class AuthModule {
         // Sync to localStorage as backup
         this.app.saveToLocalStorage();
       } else {
-        console.log('No cloud progress found, uploading local data...');
+        console.log('ℹ️ No cloud progress found, uploading local data...');
         await this.saveCloudProgress();
       }
     } catch (e) {

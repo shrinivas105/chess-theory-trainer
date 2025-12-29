@@ -1,5 +1,5 @@
 // js/supabase-client.js
-// Fixed: Complete OAuth flow with proper error handling
+// Fixed: Complete OAuth flow with proper error handling and database operations
 
 const supabaseUrl = 'https://lvnmwycnrkltcechihai.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2bm13eWNucmtsdGNlY2hpaGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5MTMyOTgsImV4cCI6MjA4MjQ4OTI5OH0.8SuFBDcBaOFHFAnt3C4mero3Y38AnjshvAUL7a1ncwo';
@@ -132,14 +132,18 @@ async function loadProgress() {
       .from('player_progress')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle(); // Changed from .single() to handle 0 or 1 results
     
-    if (error && error.code !== 'PGRST116') {
+    if (error) {
       console.error('Load error:', error);
       return null;
     }
     
-    console.log('✓ Progress loaded from cloud');
+    if (data) {
+      console.log('✓ Progress loaded from cloud');
+    } else {
+      console.log('ℹ️ No progress record found in cloud');
+    }
     return data;
   } catch (e) {
     console.error('loadProgress exception:', e);
@@ -155,12 +159,17 @@ async function saveProgress(progress) {
       return;
     }
     
+    const saveData = { 
+      user_id: user.id, 
+      ...progress,
+      updated_at: new Date().toISOString()
+    };
+    
     const { error } = await window.supabaseClient
       .from('player_progress')
-      .upsert({ 
-        user_id: user.id, 
-        ...progress,
-        updated_at: new Date().toISOString()
+      .upsert(saveData, { 
+        onConflict: 'user_id', // Explicitly specify the conflict column
+        ignoreDuplicates: false // Ensure updates happen
       });
     
     if (error) {
