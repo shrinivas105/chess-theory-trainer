@@ -20,6 +20,8 @@ class AuthModule {
         return false;
       }
 
+      console.log('🔄 Initializing auth...');
+
       // Set up listener FIRST
       this.setupAuthListener();
       
@@ -29,9 +31,9 @@ class AuthModule {
       const errorDescription = urlParams.get('error_description');
       
       if (error) {
-        console.error('OAuth error:', error, errorDescription);
-        alert(`Sign in failed: ${errorDescription || error}`);
-        // Clean URL
+        console.error('❌ OAuth error in URL:', error, errorDescription);
+        // Don't alert here - already handled in supabase-client.js
+        // Just clean URL
         window.history.replaceState({}, document.title, window.location.pathname);
       }
       
@@ -39,7 +41,7 @@ class AuthModule {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
-        console.error('Session check error:', sessionError);
+        console.error('❌ Session check error:', sessionError);
       }
       
       if (session && session.user) {
@@ -49,18 +51,19 @@ class AuthModule {
         
         // Clean URL if coming from OAuth redirect
         if (urlParams.has('code') || urlParams.has('access_token')) {
+          console.log('🔄 Cleaning OAuth params from URL');
           window.history.replaceState({}, document.title, window.location.pathname);
         }
         
         await this.loadCloudProgress();
       } else {
-        console.log('No active session - using local storage');
+        console.log('ℹ️ No active session - using local storage');
       }
       
       this.authInitialized = true;
       return true;
     } catch (e) {
-      console.error('Auth initialization error:', e);
+      console.error('❌ Auth initialization error:', e);
       this.authInitialized = true;
       return false;
     }

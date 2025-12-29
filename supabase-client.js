@@ -1,5 +1,5 @@
 // js/supabase-client.js
-// Fixed: Proper redirect URL handling for Vercel deployment
+// Fixed: Complete OAuth flow with proper error handling
 
 const supabaseUrl = 'https://lvnmwycnrkltcechihai.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2bm13eWNucmtsdGNlY2hpaGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU0MDk5MjEsImV4cCI6MjA1MDk4NTkyMX0.CEdveFq79zyZ6u2bpGsP2wRi0jYtI0v4gDCNgjkZ9Fw';
@@ -24,7 +24,7 @@ if (typeof window.supabaseClient === 'undefined') {
       detectSessionInUrl: true,
       storage: window.localStorage,
       storageKey: 'chess-theory-supabase-auth',
-      flowType: 'implicit' // Changed from 'pkce' to 'implicit' for better browser compatibility
+      flowType: 'implicit'
     }
   });
   console.log('✓ Supabase client initialized');
@@ -48,12 +48,19 @@ async function getUser() {
 async function signInWithGoogle() {
   try {
     const redirectUrl = getURL();
-    console.log('Redirecting to:', redirectUrl);
+    console.log('🔐 Starting Google sign-in, will redirect to:', redirectUrl);
+    
+    // Clear any existing error state
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('error')) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
     
     const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: { 
         redirectTo: redirectUrl,
+        skipBrowserRedirect: false,
         queryParams: {
           access_type: 'offline',
           prompt: 'select_account'
@@ -61,12 +68,27 @@ async function signInWithGoogle() {
       }
     });
     
-    if (error) throw error;
-    console.log('✓ Google sign-in initiated');
+    if (error) {
+      console.error('❌ OAuth initiation error:', error);
+      throw error;
+    }
+    
+    console.log('✓ Google sign-in initiated, redirecting...');
     return { success: true };
   } catch (e) {
-    console.error('Sign in error:', e);
-    alert('Sign in failed: ' + e.message);
+    console.error('❌ Sign in error:', e);
+    
+    // Show user-friendly error
+    let errorMsg = 'Sign in failed. ';
+    if (e.message.includes('redirect')) {
+      errorMsg += 'Redirect URL not configured. Check Supabase dashboard.';
+    } else if (e.message.includes('provider')) {
+      errorMsg += 'Google provider not enabled. Check Supabase dashboard.';
+    } else {
+      errorMsg += e.message;
+    }
+    
+    alert(errorMsg);
     return { success: false, error: e.message };
   }
 }
@@ -76,9 +98,16 @@ async function signOut() {
     const { error } = await window.supabaseClient.auth.signOut();
     if (error) throw error;
     console.log('✓ Signed out successfully');
+    
+    // Clear local storage
+    localStorage.removeItem('chess-theory-supabase-auth');
+    
+    // Reload page
     window.location.reload();
   } catch (e) {
     console.error('Sign out error:', e);
+    // Force reload anyway
+    window.location.reload();
   }
 }
 
@@ -131,3 +160,18 @@ async function saveProgress(progress) {
     console.error('saveProgress exception:', e);
   }
 }
+
+// Debug helper - log any OAuth errors in URL
+(function checkOAuthErrors() {
+  const params = new URLSearchParams(window.location.search);
+  const error = params.get('error');
+  const errorDescription = params.get('error_description');
+  
+  if (error) {
+    console.error('❌ OAuth callback error:', error);
+    console.error('Description:', errorDescription);
+    alert(`Login failed: ${errorDescription || error}`);
+    // Clean URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+})();
