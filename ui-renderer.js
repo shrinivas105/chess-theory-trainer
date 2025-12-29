@@ -115,13 +115,6 @@ renderColorChoice() {
                    border-bottom:1px solid #444;">
           📜 BATTLE LAWS
         </h3>
-
-        <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin:0;">
-          <strong style="color:var(--gold);">Stay within opening theory to earn honor.</strong>
-          Leave the book early, and the battle ends — judgment is final at that moment.
-          Merit is decided by how long you hold the line, the accuracy of your moves,
-          and the strength of the resulting position.
-        </p>
 <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin:0;">
   <strong style="color:var(--gold);">Stay within opening theory to earn honor.</strong>
   Leave the book early, and the battle ends — judgment is final at that moment.
