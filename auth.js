@@ -27,10 +27,14 @@ class AuthModule {
       
       // Check for OAuth errors in URL
       const urlParams = new URLSearchParams(window.location.search);
-      console.log('📍 URL params:', urlParams.toString());
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
       
-      const error = urlParams.get('error');
-      const errorDescription = urlParams.get('error_description');
+      console.log('📍 URL query params:', urlParams.toString());
+      console.log('📍 URL hash params:', hashParams.toString());
+      console.log('📍 Full URL:', window.location.href);
+      
+      const error = urlParams.get('error') || hashParams.get('error');
+      const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
       
       if (error) {
         console.error('❌ OAuth error in URL:', error, errorDescription);
