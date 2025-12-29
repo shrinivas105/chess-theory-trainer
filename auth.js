@@ -95,6 +95,7 @@ class AuthModule {
         if (!wasLoggedIn) {
           console.log('✓ User signed in, loading cloud data...');
           await this.loadCloudProgress();
+          console.log('✓ Cloud data loaded, rendering app...');
           this.app.render();
         }
       } else if (event === 'SIGNED_OUT') {
