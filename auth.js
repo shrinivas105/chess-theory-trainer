@@ -142,6 +142,11 @@ class AuthModule {
     await saveProgress(progress);
   }
 
+  async handleSignIn() {
+    console.log('🔐 Sign in button clicked');
+    await signInWithGoogle();
+  }
+
   async handleSignOut() {
     await signOut();
     this.user = null;
@@ -162,7 +167,7 @@ class AuthModule {
     } else {
       return `
         <div style="text-align:center;margin:20px 0;">
-          <button class="btn" onclick="signInWithGoogle()">
+          <button class="btn" onclick="app.auth.handleSignIn()">
             🔐 Sign in with Google to sync across devices
           </button>
           <p style="font-size:0.8rem;color:#aaa;margin-top:10px;">
