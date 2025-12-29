@@ -22,16 +22,9 @@ class AuthModule {
 
       console.log('🔄 Initializing auth...');
 
-      // Set up listener FIRST
-      this.setupAuthListener();
-      
       // Check for OAuth errors in URL
       const urlParams = new URLSearchParams(window.location.search);
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      
-      console.log('🔍 URL query params:', urlParams.toString());
-      console.log('🔍 URL hash params:', hashParams.toString());
-      console.log('🔍 Full URL:', window.location.href);
       
       const error = urlParams.get('error') || hashParams.get('error');
       const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
@@ -41,7 +34,7 @@ class AuthModule {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
       
-      // Then check current session
+      // Check current session BEFORE setting up listener
       console.log('🔍 Checking for existing session...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
@@ -67,6 +60,9 @@ class AuthModule {
         console.log('ℹ️ No active session - using local storage');
       }
       
+      // Set up listener AFTER checking session
+      this.setupAuthListener();
+      
       this.authInitialized = true;
       return true;
     } catch (e) {
@@ -87,17 +83,26 @@ class AuthModule {
     supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event, session?.user?.email || 'no user');
       
+      // Ignore INITIAL_SESSION if we already processed SIGNED_IN
+      if (event === 'INITIAL_SESSION' && this.isLoggedIn) {
+        console.log('ℹ️ Skipping INITIAL_SESSION - already logged in');
+        return;
+      }
+      
       const wasLoggedIn = this.isLoggedIn;
       this.user = session?.user ?? null;
       this.isLoggedIn = !!this.user;
 
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+      if (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && this.isLoggedIn)) {
         if (!wasLoggedIn) {
           console.log('✓ User signed in, loading cloud data...');
           await this.loadCloudProgress();
           console.log('✓ Cloud data loaded, rendering app...');
           this.app.render();
         }
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log('✓ Token refreshed');
+        // Don't reload data on token refresh
       } else if (event === 'SIGNED_OUT') {
         console.log('✓ User signed out');
         this.app.render();
