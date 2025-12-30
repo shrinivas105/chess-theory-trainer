@@ -19,6 +19,7 @@ class ChessTheoryApp {
     this.recentGames = [];
     this.pieceImages = pieces;
     this.rankChangeMessage = null;
+    this.currentPGN = null; // For PGN export
 
     // Load progress from localStorage first
     this.legionMerits = JSON.parse(localStorage.getItem('chessTheoryLegionMerits') || '{}');
@@ -29,6 +30,7 @@ class ChessTheoryApp {
     // Initialize modules
     this.auth = new AuthModule(this);
     this.ui = new UIRenderer(this);
+    this.analysisBoard = new AnalysisBoard(this); // Analysis board module
 
     // Initialize auth and render
     this.init();
@@ -89,6 +91,7 @@ class ChessTheoryApp {
     this.lastAIMoveFEN = null;
     this.topGames = [];
     this.recentGames = [];
+    this.currentPGN = null;
   }
 
   async resetStats() {
@@ -127,7 +130,7 @@ class ChessTheoryApp {
       const countEl = document.getElementById('gameCount');
       if (countEl) {
         countEl.textContent = totalGames === 0 
-          ? 'Position data unavailable — continuing...' 
+          ? 'Position data unavailable – continuing...' 
           : `Position reached ${totalGames.toLocaleString()} times`;
       }
     } catch (e) {
@@ -190,7 +193,7 @@ class ChessTheoryApp {
         const others = moveNames.slice(2);
         commanderText = `🎖️ <strong>Commander speaks:</strong><br><br>
         "Soldier, I have seen this position many times.`;
-        commanderText += ` March with <strong>${first}</strong> — the most proven line.`;
+        commanderText += ` March with <strong>${first}</strong> – the most proven line.`;
         if (second) commanderText += ` Or <strong>${second}</strong>, trusted by many.`;
         if (others.length > 0) {
           const othersList = others.join(', ');
@@ -284,8 +287,19 @@ class ChessTheoryApp {
     // Update legion merit (this handles promotion/demotion)
     await this.updateLegionMerit(score);
 
-    // Render end game summary
+    // Generate PGN for this game
     const moveQuality = Scoring.getMoveQuality(this.topMoveChoices, this.playerMoves);
+    this.currentPGN = PGNExporter.generatePGN(
+      this.game,
+      this.playerColor,
+      this.aiSource,
+      battleRank,
+      score,
+      moveQuality,
+      this.finalPlayerEval
+    );
+
+    // Render end game summary
     const displayEval = this.finalPlayerEval > 0 
       ? '+' + this.finalPlayerEval.toFixed(1) 
       : this.finalPlayerEval.toFixed(1);
@@ -305,7 +319,7 @@ class ChessTheoryApp {
     // Check for promotion
     if (tempLegion.level > oldLegion.level) {
       newMerit = tempLegion.thresholds[tempLegion.level];
-      this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you've won. 🍺`;
+      this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you've won. 🏺`;
       rankChanged = true;
     }
 
@@ -342,6 +356,24 @@ class ChessTheoryApp {
     // Save everything to both localStorage and cloud
     await this.saveAllProgress();
   }
+
+  // PGN Export methods
+  downloadPGN() {
+    if (this.currentPGN) {
+      PGNExporter.downloadPGN(this.currentPGN);
+    }
+  }
+
+  copyPGN() {
+    if (this.currentPGN) {
+      PGNExporter.copyPGNToClipboard(this.currentPGN);
+    }
+  }
+
+// Analysis Board methods
+async showAnalysis() {
+  await this.analysisBoard.initializeAnalysis();
+}
 
   // Main render method
   render() {
