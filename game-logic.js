@@ -19,7 +19,7 @@ class ChessTheoryApp {
     this.recentGames = [];
     this.pieceImages = pieces;
     this.rankChangeMessage = null;
-    this.currentPGN = null; // For PGN export
+    this.currentPGN = null;
 
     // Load progress from localStorage first
     this.legionMerits = JSON.parse(localStorage.getItem('chessTheoryLegionMerits') || '{}');
@@ -30,7 +30,7 @@ class ChessTheoryApp {
     // Initialize modules
     this.auth = new AuthModule(this);
     this.ui = new UIRenderer(this);
-    this.analysisBoard = new AnalysisBoard(this); // Analysis board module
+    this.analysisBoard = new AnalysisBoard(this);
 
     // Initialize auth and render
     this.init();
@@ -64,7 +64,6 @@ class ChessTheoryApp {
     } else {
       this.recentBattleRanksLichess = ranks;
     }
-    // Note: Don't save here - let caller control when to save
   }
 
   // Game flow methods
@@ -130,7 +129,7 @@ class ChessTheoryApp {
       const countEl = document.getElementById('gameCount');
       if (countEl) {
         countEl.textContent = totalGames === 0 
-          ? 'Position data unavailable – continuing...' 
+          ? 'Position data unavailable — continuing...' 
           : `Position reached ${totalGames.toLocaleString()} times`;
       }
     } catch (e) {
@@ -149,6 +148,21 @@ class ChessTheoryApp {
       if (move) {
         this.lastMove = { from: move.from, to: move.to };
         this.playerMoves++;
+        
+        // Play sound effects based on move type
+        console.log('Attempting to play sound...');
+        if (typeof RomanBattleEffects !== 'undefined') {
+          if (move.captured) {
+            RomanBattleEffects.playCaptureSound();
+          } else if (move.promotion) {
+            RomanBattleEffects.playPromotionSound();
+          } else {
+            RomanBattleEffects.playMoveSound();
+          }
+        } else {
+          console.error('RomanBattleEffects not loaded!');
+        }
+        
         const moveUCI = move.from + move.to + (move.promotion || '');
         await this.checkMoveQuality(preMoveFEN, moveUCI);
         this.selected = null;
@@ -193,7 +207,7 @@ class ChessTheoryApp {
         const others = moveNames.slice(2);
         commanderText = `🎖️ <strong>Commander speaks:</strong><br><br>
         "Soldier, I have seen this position many times.`;
-        commanderText += ` March with <strong>${first}</strong> – the most proven line.`;
+        commanderText += ` March with <strong>${first}</strong> — the most proven line.`;
         if (second) commanderText += ` Or <strong>${second}</strong>, trusted by many.`;
         if (others.length > 0) {
           const othersList = others.join(', ');
@@ -259,6 +273,21 @@ class ChessTheoryApp {
       
       if (move) {
         this.lastMove = { from: move.from, to: move.to };
+        
+        // Play sound effects for AI moves
+        console.log('AI move - attempting to play sound...');
+        if (typeof RomanBattleEffects !== 'undefined') {
+          if (move.captured) {
+            RomanBattleEffects.playCaptureSound();
+          } else if (move.promotion) {
+            RomanBattleEffects.playPromotionSound();
+          } else {
+            RomanBattleEffects.playMoveSound();
+          }
+        } else {
+          console.error('RomanBattleEffects not loaded for AI move!');
+        }
+        
         this.ui.renderBoard();
         this.queryExplorer();
       }
@@ -278,16 +307,13 @@ class ChessTheoryApp {
     );
     const battleRank = Scoring.getBattleRank(score, this.finalPlayerEval, penaltyReason);
 
-    // Update recent battle ranks
     const recentRanks = this.getRecentBattleRanks(this.aiSource);
     recentRanks.push(battleRank.title);
     if (recentRanks.length > 5) recentRanks.shift();
     this.setRecentBattleRanks(this.aiSource, recentRanks);
 
-    // Update legion merit (this handles promotion/demotion)
     await this.updateLegionMerit(score);
 
-    // Generate PGN for this game
     const moveQuality = Scoring.getMoveQuality(this.topMoveChoices, this.playerMoves);
     this.currentPGN = PGNExporter.generatePGN(
       this.game,
@@ -299,7 +325,6 @@ class ChessTheoryApp {
       this.finalPlayerEval
     );
 
-    // Render end game summary
     const displayEval = this.finalPlayerEval > 0 
       ? '+' + this.finalPlayerEval.toFixed(1) 
       : this.finalPlayerEval.toFixed(1);
@@ -316,14 +341,12 @@ class ChessTheoryApp {
     const tempLegion = Scoring.getLegionRank(newMerit);
     let rankChanged = false;
 
-    // Check for promotion
     if (tempLegion.level > oldLegion.level) {
       newMerit = tempLegion.thresholds[tempLegion.level];
       this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you've won. 🏺`;
       rankChanged = true;
     }
 
-    // Check for demotion
     const newLegion = Scoring.getLegionRank(newMerit);
     const recentRanks = this.getRecentBattleRanks(this.aiSource);
     const levyCount = recentRanks.filter(r => r === 'Levy').length;
@@ -344,20 +367,16 @@ class ChessTheoryApp {
       rankChanged = true;
     }
 
-    // CRITICAL FIX: Update merit BEFORE clearing recent ranks
     this.legionMerits[meritKey] = newMerit;
     this.gamesPlayed++;
 
-    // Now clear recent ranks if rank changed (promotion or demotion)
     if (rankChanged) {
       this.setRecentBattleRanks(this.aiSource, []);
     }
 
-    // Save everything to both localStorage and cloud
     await this.saveAllProgress();
   }
 
-  // PGN Export methods
   downloadPGN() {
     if (this.currentPGN) {
       PGNExporter.downloadPGN(this.currentPGN);
@@ -370,12 +389,21 @@ class ChessTheoryApp {
     }
   }
 
-// Analysis Board methods
-async showAnalysis() {
-  await this.analysisBoard.initializeAnalysis();
-}
+  async showAnalysis() {
+    console.log('📊 Show Analysis called');
+    
+    if (!this.analysisBoard) {
+      console.error('❌ Analysis board not initialized');
+      alert('Analysis board not available. Please refresh the page.');
+      return;
+    }
+    
+    // Make the analysis board accessible globally for onclick handlers
+    window.analysisBoard = this.analysisBoard;
+    
+    await this.analysisBoard.initializeAnalysis();
+  }
 
-  // Main render method
   render() {
     if (!this.aiSource) {
       this.ui.renderMenu();

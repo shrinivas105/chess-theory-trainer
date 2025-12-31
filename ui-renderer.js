@@ -1,4 +1,5 @@
 // ui-renderer.js - Handles all UI rendering logic
+// Fixed with better event handling for analysis button
 
 class UIRenderer {
   constructor(app) {
@@ -43,7 +44,7 @@ class UIRenderer {
       <div class="menu">
         <h1 class="menu-title">LINES OF THE LEGION</h1>
         <p class="menu-subtitle">
-          Hold the line. Survive the opening drawn from real games –
+          Hold the line. Survive the opening drawn from real games —
           until theory ends and true battle begins.
         </p>
 
@@ -95,88 +96,85 @@ class UIRenderer {
     document.getElementById('resetBtn').onclick = () => this.app.resetStats();
   }
 
+  renderColorChoice() {
+    document.getElementById('app').innerHTML = `
+      <div class="menu">
+        <p class="menu-subtitle">Select your position in the line of battle.</p>
 
-renderColorChoice() {
-  document.getElementById('app').innerHTML = `
-    <div class="menu">
-      <p class="menu-subtitle">Select your position in the line of battle.</p>
+        <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
+          <button id="whiteBtn" class="menu-btn primary">Command White</button>
+          <button id="blackBtn" class="menu-btn primary">Command Black</button>
+        </div>
 
-      <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
-        <button id="whiteBtn" class="menu-btn primary">Command White</button>
-        <button id="blackBtn" class="menu-btn primary">Command Black</button>
-      </div>
+        <div class="battle-laws-brief"
+          style="margin-top:20px; padding:12px; background:rgba(0,0,0,0.5);
+                 border:1px solid #333; border-radius:4px; text-align:left;">
 
-      <div class="battle-laws-brief"
-        style="margin-top:20px; padding:12px; background:rgba(0,0,0,0.5);
-               border:1px solid #333; border-radius:4px; text-align:left;">
-
-        <h3 style="color:var(--gold); font-family:'Cinzel', serif;
-                   font-size:1.2rem; margin-bottom:8px;
-                   border-bottom:1px solid #444;">
-          📜 BATTLE LAWS
-        </h3>
-<p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin:0;">
-  <strong style="color:var(--gold);">Stay within opening theory to earn honor.</strong>
-  Leave the book early, and the battle ends – judgment is final at that moment.
-  Merit is decided by how long you hold the line, the accuracy of your moves,
-  and the strength of the resulting position.
-  Based on this, your battle rank is assigned from these battle ranks: <strong>Levy, Hastatus, Principes, Triarius, or Imperator</strong>,
-  where <em>Levy</em> reflects the weakest performance and <em>Imperator</em> the topmost.
-  Merits earned in the battle are added to your total to move up the rank for promotion.
-  In case of poor performance, your rank may be reduced.
-  For example, three <em>Levy</em> performances in the last five battles will demote your rank from <strong>Legionary → Recruit</strong> and reset your merit.
-</p>
-
-        <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin-top:6px;">
-          Consistent excellence earns promotion, but each new rank demands higher standards.
-          <strong style="color:var(--gold);">Weak play, careless exits, and repeated failure bring demotion.</strong>
-          Flee too early, and history will remember you as one who ran from the battlefield.
-        </p>
-
-        <!-- RANK MERIT REFERENCE -->
-        <div style="margin-top:12px; padding:8px; background:rgba(0,0,0,0.45);
-                    border:1px solid #333; border-radius:4px;">
-          <h4 style="color:var(--gold); font-family:'Cinzel', serif;
-                     font-size:0.75rem; margin-bottom:6px;
+          <h3 style="color:var(--gold); font-family:'Cinzel', serif;
+                     font-size:1.2rem; margin-bottom:8px;
                      border-bottom:1px solid #444;">
-            🏛️ RANK MERIT REFERENCE
-          </h4>
+            📜 BATTLE LAWS
+          </h3>
+          <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin:0;">
+            <strong style="color:var(--gold);">Stay within opening theory to earn honor.</strong>
+            Leave the book early, and the battle ends — judgment is final at that moment.
+            Merit is decided by how long you hold the line, the accuracy of your moves,
+            and the strength of the resulting position.
+            Based on this, your battle rank is assigned from these battle ranks: <strong>Levy, Hastatus, Principes, Triarius, or Imperator</strong>,
+            where <em>Levy</em> reflects the weakest performance and <em>Imperator</em> the topmost.
+            Merits earned in the battle are added to your total to move up the rank for promotion.
+            In case of poor performance, your rank may be reduced.
+            For example, three <em>Levy</em> performances in the last five battles will demote your rank from <strong>Legionary → Recruit</strong> and reset your merit.
+          </p>
 
-          <table style="width:100%; border-collapse:collapse; font-size:0.75rem;">
-            <tr>
-              <td style="padding:6px 8px; color:var(--gold);">🌱 Recruit</td>
-              <td style="padding:6px 8px; color:#bbb; text-align:right;">0 Merit</td>
-            </tr>
-            <tr>
-              <td style="padding:6px 8px; color:var(--gold);">🛡️ Legionary</td>
-              <td style="padding:6px 8px; color:#bbb; text-align:right;">100 Merit</td>
-            </tr>
-            <tr>
-              <td style="padding:6px 8px; color:var(--gold);">⚔️ Optio</td>
-              <td style="padding:6px 8px; color:#bbb; text-align:right;">250 Merit</td>
-            </tr>
-            <tr>
-              <td style="padding:6px 8px; color:var(--gold);">🦅 Centurion</td>
-              <td style="padding:6px 8px; color:#bbb; text-align:right;">500 Merit</td>
-            </tr>
-            <tr>
-              <td style="padding:6px 8px; color:var(--gold);">🅰️ Tribunus</td>
-              <td style="padding:6px 8px; color:#bbb; text-align:right;">900 Merit</td>
-            </tr>
-            <tr>
-              <td style="padding:6px 8px; color:var(--gold);">🏆 Legatus</td>
-              <td style="padding:6px 8px; color:#bbb; text-align:right;">1500 Merit</td>
-            </tr>
-          </table>
+          <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin-top:6px;">
+            Consistent excellence earns promotion, but each new rank demands higher standards.
+            <strong style="color:var(--gold);">Weak play, careless exits, and repeated failure bring demotion.</strong>
+            Flee too early, and history will remember you as one who ran from the battlefield.
+          </p>
+
+          <div style="margin-top:12px; padding:8px; background:rgba(0,0,0,0.45);
+                      border:1px solid #333; border-radius:4px;">
+            <h4 style="color:var(--gold); font-family:'Cinzel', serif;
+                       font-size:0.75rem; margin-bottom:6px;
+                       border-bottom:1px solid #444;">
+              🏛️ RANK MERIT REFERENCE
+            </h4>
+
+            <table style="width:100%; border-collapse:collapse; font-size:0.75rem;">
+              <tr>
+                <td style="padding:6px 8px; color:var(--gold);">🌱 Recruit</td>
+                <td style="padding:6px 8px; color:#bbb; text-align:right;">0 Merit</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 8px; color:var(--gold);">🛡️ Legionary</td>
+                <td style="padding:6px 8px; color:#bbb; text-align:right;">100 Merit</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 8px; color:var(--gold);">⚔️ Optio</td>
+                <td style="padding:6px 8px; color:#bbb; text-align:right;">250 Merit</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 8px; color:var(--gold);">🦅 Centurion</td>
+                <td style="padding:6px 8px; color:#bbb; text-align:right;">500 Merit</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 8px; color:var(--gold);">🅰️ Tribunus</td>
+                <td style="padding:6px 8px; color:#bbb; text-align:right;">900 Merit</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 8px; color:var(--gold);">🏆 Legatus</td>
+                <td style="padding:6px 8px; color:#bbb; text-align:right;">1500 Merit</td>
+              </tr>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
-  `;
+    `;
 
-  document.getElementById('whiteBtn').onclick = () => this.app.selectColor('w');
-  document.getElementById('blackBtn').onclick = () => this.app.selectColor('b');
-}
-
+    document.getElementById('whiteBtn').onclick = () => this.app.selectColor('w');
+    document.getElementById('blackBtn').onclick = () => this.app.selectColor('b');
+  }
 
   renderGameContainer() {
     if (document.querySelector('.game-container')) return;
@@ -205,7 +203,7 @@ renderColorChoice() {
     if (countEl) {
       countEl.textContent = this.app.gameCount > 0
         ? `Position reached ${this.app.gameCount.toLocaleString()} times`
-        : 'Position data unavailable – continuing...';
+        : 'Position data unavailable — continuing...';
     }
 
     const hintBtn = document.getElementById('hintBtn');
@@ -244,6 +242,8 @@ renderColorChoice() {
   }
 
   renderEndGameSummary(battleRank, moveQuality, displayEval, gamesToShow) {
+    console.log('📊 Rendering end game summary...');
+    
     const summaryEl = document.getElementById('endSummary');
     const msgEl = document.getElementById('theoryMessage');
 
@@ -288,10 +288,36 @@ renderColorChoice() {
     `;
     summaryEl.style.display = 'block';
 
-    // Attach event listeners
-    document.getElementById('showAnalysisBtn').onclick = () => this.app.showAnalysis();
-    document.getElementById('downloadPGNBtn').onclick = () => this.app.downloadPGN();
-    document.getElementById('copyPGNBtn').onclick = () => this.app.copyPGN();
+    // Attach event listeners with delay and error handling
+    setTimeout(() => {
+      const analysisBtn = document.getElementById('showAnalysisBtn');
+      const downloadBtn = document.getElementById('downloadPGNBtn');
+      const copyBtn = document.getElementById('copyPGNBtn');
+      
+      if (analysisBtn) {
+        console.log('✅ Analysis button found, attaching click handler');
+        analysisBtn.onclick = () => {
+          console.log('🔍 Analysis button clicked!');
+          this.app.showAnalysis();
+        };
+      } else {
+        console.error('❌ Analysis button not found!');
+      }
+      
+      if (downloadBtn) {
+        downloadBtn.onclick = () => {
+          console.log('📥 Download PGN clicked');
+          this.app.downloadPGN();
+        };
+      }
+      
+      if (copyBtn) {
+        copyBtn.onclick = () => {
+          console.log('📋 Copy PGN clicked');
+          this.app.copyPGN();
+        };
+      }
+    }, 100);
 
     let html = `<strong>Historical games from this position:</strong><br>`;
     if (gamesToShow.length > 0) {
@@ -306,7 +332,7 @@ renderColorChoice() {
         let resultText = game.winner === 'white' ? '1-0' : game.winner === 'black' ? '0-1' : '½-½';
         let resultColor = game.winner === 'white' ? '#fff' : game.winner === 'black' ? '#ccc' : '#f1c40f';
         html += `<div class="game-list-item">
-          <strong>${idx + 1}.</strong> ${whitePlayer} (${whiteRating}) – ${blackPlayer} (${blackRating})${year ? `, ${year}` : ''}<br>
+          <strong>${idx + 1}.</strong> ${whitePlayer} (${whiteRating}) — ${blackPlayer} (${blackRating})${year ? `, ${year}` : ''}<br>
           <span style="color:${resultColor};">${resultText}</span> • <a href="${gameUrl}" target="_blank">View ↗</a>
         </div>`;
       });
@@ -315,5 +341,7 @@ renderColorChoice() {
     }
     msgEl.innerHTML = html;
     msgEl.style.display = 'block';
+    
+    console.log('✅ End game summary rendered successfully');
   }
 }

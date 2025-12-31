@@ -1,279 +1,265 @@
-// analysis-board.js - Interactive analysis board in modal overlay
+// analysis-board.js - Post-game analysis with move navigation
+// Fixed version with proper initialization and debugging
 
 class AnalysisBoard {
   constructor(app) {
     this.app = app;
     this.analysisGame = null;
-    this.currentMoveIndex = -1;
     this.moveHistory = [];
-    this.evaluations = [];
+    this.currentMoveIndex = -1;
     this.isAnalyzing = false;
   }
 
   async initializeAnalysis() {
-    // Create a copy of the game for analysis
-    this.analysisGame = new Chess();
-    this.moveHistory = this.app.game.history({ verbose: true });
-    this.currentMoveIndex = -1;
-    this.evaluations = [];
-    this.isAnalyzing = true;
-
-    // Render the analysis modal
-    this.render();
-
-    // Show loading message
-    const moveListEl = document.getElementById('moveList');
-    if (moveListEl) {
-      moveListEl.innerHTML = '<div style="text-align:center;padding:20px;color:#bbb;">⏳ Calculating evaluations...</div>';
-    }
-
-    // Get evaluations for each position
-    await this.calculateEvaluations();
+    console.log('🔍 Initializing analysis board...');
     
-    // Update the display with evaluations
-    this.goToMove(-1);
-  }
-
-  async calculateEvaluations() {
-    const tempGame = new Chess();
-    this.evaluations = [{ positionEval: 0, move: null }]; // Starting position
-
-    for (let i = 0; i < this.moveHistory.length; i++) {
-      tempGame.move(this.moveHistory[i]);
-      const fen = tempGame.fen();
-      const rawEval = await ChessAPI.getEvaluation(fen, this.app.evalCache);
-      
-      const movingColor = this.moveHistory[i].color;
-      const playerEval = Scoring.getPlayerEval(rawEval, this.app.playerColor);
-      
-      this.evaluations.push({
-        positionEval: rawEval,
-        playerEval: playerEval,
-        move: this.moveHistory[i],
-        moveNumber: Math.floor(i / 2) + 1,
-        isWhiteMove: movingColor === 'w'
-      });
-    }
-  }
-
-  goToMove(index) {
-    this.currentMoveIndex = index;
-    this.analysisGame = new Chess();
-    
-    for (let i = 0; i <= index; i++) {
-      this.analysisGame.move(this.moveHistory[i]);
-    }
-    
-    this.renderAnalysisBoard();
-    this.updateMoveList();
-    this.updateEvalBar();
-  }
-
-  firstMove() {
-    this.goToMove(-1);
-  }
-
-  previousMove() {
-    if (this.currentMoveIndex >= 0) {
-      this.goToMove(this.currentMoveIndex - 1);
-    }
-  }
-
-  nextMove() {
-    if (this.currentMoveIndex < this.moveHistory.length - 1) {
-      this.goToMove(this.currentMoveIndex + 1);
-    }
-  }
-
-  lastMove() {
-    this.goToMove(this.moveHistory.length - 1);
-  }
-
-  getEvalColor(positionEval) {
-    if (positionEval > 2) return '#4caf50';
-    if (positionEval > 0.5) return '#8bc34a';
-    if (positionEval > -0.5) return '#ffc107';
-    if (positionEval > -2) return '#ff9800';
-    return '#f44336';
-  }
-
-  getEvalText(evalData) {
-    if (!evalData) return '0.0';
-    const val = evalData.positionEval;
-    if (Math.abs(val) > 9) return val > 0 ? '+M' : '-M';
-    return (val > 0 ? '+' : '') + val.toFixed(1);
-  }
-
-  renderAnalysisBoard() {
-    const boardEl = document.getElementById('analysisBoard');
-    if (!boardEl) return;
-
-    const board = this.analysisGame.board();
-    const isFlipped = this.app.playerColor === 'b';
-    const renderedBoard = isFlipped ? board.slice().reverse().map(r => r.slice().reverse()) : board;
-
-    boardEl.innerHTML = '';
-
-    renderedBoard.forEach((row, r) => {
-      row.forEach((square, c) => {
-        const actualRow = isFlipped ? 7 - r : r;
-        const actualCol = isFlipped ? 7 - c : c;
-        const isLight = (actualRow + actualCol) % 2 === 0;
-
-        const div = document.createElement('div');
-        div.className = `square ${isLight ? 'light' : 'dark'}`;
-        div.style.cursor = 'default';
-
-        if (square) {
-          const img = document.createElement('img');
-          img.src = this.app.pieceImages[square.color + square.type];
-          img.className = 'piece';
-          div.appendChild(img);
-        }
-        boardEl.appendChild(div);
-      });
-    });
-  }
-
-  updateEvalBar() {
-    const evalBarFill = document.getElementById('evalBarFill');
-    const evalText = document.getElementById('evalText');
-    
-    if (!evalBarFill || !evalText) return;
-    
-    const currentEval = this.evaluations[this.currentMoveIndex + 1];
-    if (!currentEval) {
-      evalBarFill.style.height = '50%';
-      evalText.textContent = '0.0';
-      evalText.style.color = '#ffc107';
+    if (!this.app.game) {
+      console.error('❌ No game available for analysis');
+      alert('No game available for analysis');
       return;
     }
 
-    const positionEval = currentEval.positionEval;
-    const percentage = Math.max(0, Math.min(100, 50 + (positionEval * 5)));
-    
-    evalBarFill.style.height = percentage + '%';
-    evalText.textContent = this.getEvalText(currentEval);
-    evalText.style.color = this.getEvalColor(positionEval);
+    try {
+      // Store the current game state
+      this.analysisGame = new Chess();
+      
+      // Get move history from the current game
+      const history = this.app.game.history({ verbose: true });
+      this.moveHistory = history;
+      this.currentMoveIndex = -1;
+      this.isAnalyzing = true;
+
+      console.log(`✅ Analysis initialized with ${history.length} moves`);
+
+      // Render the analysis interface
+      this.renderAnalysisBoard();
+    } catch (error) {
+      console.error('❌ Analysis initialization error:', error);
+      alert('Error initializing analysis: ' + error.message);
+    }
   }
 
-  updateMoveList() {
-    const moveListEl = document.getElementById('moveList');
-    if (!moveListEl) return;
-
-    let html = '';
-    for (let i = 0; i < this.moveHistory.length; i++) {
-      const move = this.moveHistory[i];
-      const evalData = this.evaluations[i + 1];
-      const isWhiteMove = move.color === 'w';
-      const isActive = i === this.currentMoveIndex;
-      const isPlayerMove = move.color === this.app.playerColor;
-
-      if (isWhiteMove) {
-        html += `<div class="move-pair">`;
-        html += `<span class="move-number">${Math.floor(i / 2) + 1}.</span>`;
-      }
-
-      let moveQuality = '';
-      if (isPlayerMove && evalData && i > 0) {
-        const prevEval = this.evaluations[i].positionEval;
-        const currentEval = evalData.positionEval;
-        
-        const evalChange = this.app.playerColor === 'w' 
-          ? currentEval - prevEval 
-          : prevEval - currentEval;
-        
-        if (evalChange < -1.5) moveQuality = ' ??';
-        else if (evalChange < -0.5) moveQuality = ' ?';
-        else if (evalChange < -0.2) moveQuality = ' ?!';
-        else moveQuality = ' ✓';
-      }
-
-      html += `<span class="move-item ${isActive ? 'active' : ''} ${isPlayerMove ? 'player-move' : ''}" 
-                     onclick="window.app.analysisBoard.goToMove(${i})">
-                ${move.san}${moveQuality}
-              </span>`;
-
-      if (!isWhiteMove || i === this.moveHistory.length - 1) {
-        html += `</div>`;
-      }
+  renderAnalysisBoard() {
+    const app = document.getElementById('app');
+    if (!app) {
+      console.error('❌ App element not found');
+      return;
     }
 
-    moveListEl.innerHTML = html || '<div style="text-align:center;color:#888;">No moves to display</div>';
-  }
-
-  render() {
-    // Create modal overlay
-    let modal = document.getElementById('analysisModal');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'analysisModal';
-      modal.className = 'analysis-modal';
-      document.body.appendChild(modal);
-    }
-
-    modal.innerHTML = `
-      <div class="analysis-modal-content">
-        <div class="analysis-modal-header">
-          <h3 style="color:var(--gold); font-family:'Cinzel', serif; margin:0;">
-            📊 Game Analysis
-          </h3>
-          <button class="analysis-close-btn" onclick="window.app.analysisBoard.close()">✕</button>
+    const html = `
+      <div class="game-container analysis-mode">
+        <h2 style="text-align: center; color: var(--roman-gold); margin-bottom: 16px;">
+          ⚔️ Battle Analysis ⚔️
+        </h2>
+        
+        <div class="info-line" style="margin-bottom: 12px;">
+          <span id="analysisPosition">Starting Position</span>
         </div>
-        
-        <div class="analysis-body">
-          <div class="analysis-main">
-            <!-- Analysis Board -->
-            <div class="analysis-board-wrapper">
-              <div id="analysisBoard" class="analysis-board"></div>
-            </div>
 
-            <!-- Evaluation Bar (beside board on desktop, above on mobile) -->
-            <div class="eval-bar-container">
-              <div class="eval-text" id="evalText">0.0</div>
-              <div class="eval-bar">
-                <div id="evalBarFill" class="eval-bar-fill"></div>
-              </div>
-            </div>
-          </div>
+        <div class="board-wrapper" id="analysisBoard" style="display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);">
+          ${this.renderBoard()}
+        </div>
 
-          <!-- Move List -->
-          <div class="move-list-wrapper">
-            <div id="moveList" class="move-list"></div>
+        <div class="analysis-controls" style="margin-top: 16px;">
+          <div class="action-buttons" style="justify-content: center; gap: 8px;">
+            <button class="btn" id="firstMoveBtn" onclick="window.analysisBoard.goToMove(0)">
+              ⏮️ First
+            </button>
+            <button class="btn" id="prevMoveBtn" onclick="window.analysisBoard.previousMove()">
+              ◀️ Prev
+            </button>
+            <button class="btn" id="nextMoveBtn" onclick="window.analysisBoard.nextMove()">
+              Next ▶️
+            </button>
+            <button class="btn" id="lastMoveBtn" onclick="window.analysisBoard.goToMove(${this.moveHistory.length})">
+              Last ⏭️
+            </button>
           </div>
+        </div>
 
-          <!-- Navigation Controls -->
-          <div class="analysis-controls">
-            <button onclick="window.app.analysisBoard.firstMove()" class="analysis-btn" title="First Move">⏮️</button>
-            <button onclick="window.app.analysisBoard.previousMove()" class="analysis-btn" title="Previous">◀️</button>
-            <button onclick="window.app.analysisBoard.nextMove()" class="analysis-btn" title="Next">▶️</button>
-            <button onclick="window.app.analysisBoard.lastMove()" class="analysis-btn" title="Last Move">⏭️</button>
-          </div>
+        <div class="move-list" style="margin-top: 16px; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px;">
+          <h3 style="color: var(--roman-gold); font-size: 0.9rem; margin-bottom: 8px;">Move History:</h3>
+          ${this.renderMoveList()}
+        </div>
 
-          <div style="margin-top:8px; text-align:center; font-size:0.75rem; color:#bbb;">
-            <strong>Legend:</strong> ✓ Good | ?! Inaccuracy | ? Mistake | ?? Blunder
-          </div>
+        <div class="action-buttons" style="margin-top: 16px;">
+          <button class="btn" onclick="window.analysisBoard.exitAnalysis()">
+            ⬅️ Exit Analysis
+          </button>
+          <button class="btn" onclick="app.downloadPGN()">
+            📥 Download PGN
+          </button>
         </div>
       </div>
     `;
 
-    modal.style.display = 'flex';
-    
-    // Close on outside click
-    modal.onclick = (e) => {
-      if (e.target === modal) {
-        this.close();
-      }
-    };
+    app.innerHTML = html;
+    this.updateNavigationButtons();
+    console.log('✅ Analysis board rendered');
   }
 
-  close() {
-    this.isAnalyzing = false;
-    const modal = document.getElementById('analysisModal');
-    if (modal) {
-      modal.style.display = 'none';
+  renderBoard() {
+    const board = this.analysisGame.board();
+    let html = '';
+    
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const piece = board[row][col];
+        const isLight = (row + col) % 2 === 0;
+        const square = 'abcdefgh'[col] + (8 - row);
+        
+        html += `
+          <div class="square ${isLight ? 'light' : 'dark'}" 
+               data-square="${square}">
+            ${piece ? `<img src="${this.app.pieceImages[piece.color][piece.type]}" class="piece" alt="${piece.type}">` : ''}
+          </div>
+        `;
+      }
     }
+    
+    return html;
+  }
+
+  renderMoveList() {
+    if (this.moveHistory.length === 0) {
+      return '<div style="color: #888; font-style: italic;">No moves yet</div>';
+    }
+
+    let html = '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; font-size: 0.85rem;">';
+    
+    for (let i = 0; i < this.moveHistory.length; i += 2) {
+      const moveNum = Math.floor(i / 2) + 1;
+      const whiteMove = this.moveHistory[i];
+      const blackMove = this.moveHistory[i + 1];
+      
+      const whiteClass = this.currentMoveIndex === i ? 'active' : '';
+      const blackClass = this.currentMoveIndex === i + 1 ? 'active' : '';
+      
+      html += `
+        <div style="display: contents;">
+          <div 
+            class="move-item ${whiteClass}" 
+            onclick="window.analysisBoard.goToMove(${i + 1})"
+            style="padding: 4px 8px; cursor: pointer; border-radius: 4px; ${whiteClass ? 'background: var(--roman-gold); color: #000; font-weight: bold;' : 'background: rgba(255,255,255,0.05);'}"
+          >
+            ${moveNum}. ${whiteMove.san}
+          </div>
+          ${blackMove ? `
+            <div 
+              class="move-item ${blackClass}" 
+              onclick="window.analysisBoard.goToMove(${i + 2})"
+              style="padding: 4px 8px; cursor: pointer; border-radius: 4px; ${blackClass ? 'background: var(--roman-gold); color: #000; font-weight: bold;' : 'background: rgba(255,255,255,0.05);'}"
+            >
+              ${blackMove.san}
+            </div>
+          ` : '<div></div>'}
+        </div>
+      `;
+    }
+    
+    html += '</div>';
+    return html;
+  }
+
+  goToMove(moveIndex) {
+    console.log(`Going to move ${moveIndex}`);
+    
+    // Reset game to start
+    this.analysisGame.reset();
+    
+    // Replay moves up to the target index
+    for (let i = 0; i < moveIndex && i < this.moveHistory.length; i++) {
+      const move = this.moveHistory[i];
+      this.analysisGame.move({
+        from: move.from,
+        to: move.to,
+        promotion: move.promotion
+      });
+    }
+    
+    this.currentMoveIndex = moveIndex - 1;
+    this.updateBoard();
+    this.updateNavigationButtons();
+    this.updatePositionInfo();
+  }
+
+  nextMove() {
+    if (this.currentMoveIndex < this.moveHistory.length - 1) {
+      const nextMove = this.moveHistory[this.currentMoveIndex + 1];
+      this.analysisGame.move({
+        from: nextMove.from,
+        to: nextMove.to,
+        promotion: nextMove.promotion
+      });
+      this.currentMoveIndex++;
+      this.updateBoard();
+      this.updateNavigationButtons();
+      this.updatePositionInfo();
+    }
+  }
+
+  previousMove() {
+    if (this.currentMoveIndex >= 0) {
+      this.analysisGame.undo();
+      this.currentMoveIndex--;
+      this.updateBoard();
+      this.updateNavigationButtons();
+      this.updatePositionInfo();
+    }
+  }
+
+  updateBoard() {
+    const boardEl = document.getElementById('analysisBoard');
+    if (boardEl) {
+      boardEl.innerHTML = this.renderBoard();
+    }
+    
+    // Update move list highlighting
+    const moveListEl = document.querySelector('.move-list');
+    if (moveListEl) {
+      const moveListContent = moveListEl.querySelector('div');
+      if (moveListContent) {
+        moveListContent.outerHTML = this.renderMoveList();
+      }
+    }
+  }
+
+  updateNavigationButtons() {
+    const firstBtn = document.getElementById('firstMoveBtn');
+    const prevBtn = document.getElementById('prevMoveBtn');
+    const nextBtn = document.getElementById('nextMoveBtn');
+    const lastBtn = document.getElementById('lastMoveBtn');
+
+    if (firstBtn) firstBtn.disabled = this.currentMoveIndex < 0;
+    if (prevBtn) prevBtn.disabled = this.currentMoveIndex < 0;
+    if (nextBtn) nextBtn.disabled = this.currentMoveIndex >= this.moveHistory.length - 1;
+    if (lastBtn) lastBtn.disabled = this.currentMoveIndex >= this.moveHistory.length - 1;
+  }
+
+  updatePositionInfo() {
+    const posInfo = document.getElementById('analysisPosition');
+    if (posInfo) {
+      if (this.currentMoveIndex < 0) {
+        posInfo.textContent = 'Starting Position';
+      } else {
+        const moveNum = Math.floor(this.currentMoveIndex / 2) + 1;
+        const side = this.currentMoveIndex % 2 === 0 ? 'White' : 'Black';
+        const move = this.moveHistory[this.currentMoveIndex];
+        posInfo.textContent = `Move ${moveNum} (${side}): ${move.san}`;
+      }
+    }
+  }
+
+  exitAnalysis() {
+    console.log('Exiting analysis mode');
+    this.isAnalyzing = false;
+    this.analysisGame = null;
+    this.app.render();
   }
 }
 
-console.log('✓ AnalysisBoard class loaded successfully');
+// Make it globally accessible for onclick handlers
+if (typeof window !== 'undefined') {
+  window.AnalysisBoard = AnalysisBoard;
+  console.log('✅ AnalysisBoard class loaded');
+}
