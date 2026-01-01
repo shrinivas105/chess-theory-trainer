@@ -26,6 +26,53 @@ class UIRenderer {
       <div class="battle-history">
         <div class="battle-history-title">Last ${recentRanks.length} Battle${recentRanks.length > 1 ? 's' : ''}</div>
         <div class="battle-badges">${battleBadges}</div>
+        <div class="tooltip-container">
+          <div class="tooltip-icon">?</div>
+          <div class="tooltip-content">
+            <div class="tooltip-title">Demotion Rules</div>
+            <table class="demotion-table">
+              <thead>
+                <tr>
+                  <th>Current Rank</th>
+                  <th>Poor Performance</th>
+                  <th>Demote To</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Recruit</td>
+                  <td>N/A</td>
+                  <td>N/A</td>
+                </tr>
+                <tr>
+                  <td>Legionary</td>
+                  <td>3 Levy battles</td>
+                  <td>Recruit</td>
+                </tr>
+                <tr>
+                  <td>Optio</td>
+                  <td>3 Levy or 2 Levy + 1 Hastatus</td>
+                  <td>Legionary</td>
+                </tr>
+                <tr>
+                  <td>Centurion</td>
+                  <td>3 Levy/Hastatus battles</td>
+                  <td>Optio</td>
+                </tr>
+                <tr>
+                  <td>Tribunus</td>
+                  <td>3 Levy/Hastatus/Principes battles</td>
+                  <td>Centurion</td>
+                </tr>
+                <tr>
+                  <td>Legatus</td>
+                  <td>N/A</td>
+                  <td>N/A</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
         ${warning ? `<div class="warning-message">${warning}</div>` : ''}
       </div>
     `;
