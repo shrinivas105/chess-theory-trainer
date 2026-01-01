@@ -107,6 +107,7 @@ class UIRenderer {
             ${masterLegion.rankOrder.map(r => `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`).join('')}
           </div>
           ${masterBattleHistory}
+<div style="font-size:0.8rem;color:#aaa;margin-top:4px;">Master Battles: ${this.app.gamesPlayedMaster}</div>
         </div>
         <div class="legion-card club">
           <div class="legion-header">♟️ Club Legion</div>
@@ -120,8 +121,8 @@ class UIRenderer {
             ${clubLegion.rankOrder.map(r => `<div class="rank-step ${r === clubLegion.title ? 'active' : ''}">${r}</div>`).join('')}
           </div>
           ${clubBattleHistory}
+<div style="font-size:0.8rem;color:#aaa;margin-top:4px;">Club Battles: ${this.app.gamesPlayedLichess}</div>
         </div>
-        <div style="margin-top:8px;">⚔️ Battles Fought: ${this.app.gamesPlayed}</div>
       </div>
       <p class="menu-cta">Choose your campaign:</p>
       <div class="menu-actions">

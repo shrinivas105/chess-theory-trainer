@@ -113,72 +113,85 @@ class AuthModule {
   }
 
   async loadCloudProgress() {
-    try {
-      console.log('📥 Attempting to load cloud progress...');
+  try {
+    console.log('📥 Attempting to load cloud progress...');
+    
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Load timeout')), 10000)
+    );
+    
+    const progress = await Promise.race([
+      loadProgress(),
+      timeoutPromise
+    ]);
+    
+    if (progress) {
+      console.log('✓ Cloud progress loaded:', progress);
       
-      // Add timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Load timeout')), 10000)
-      );
-      
-      const progress = await Promise.race([
-        loadProgress(),
-        timeoutPromise
-      ]);
-      
-      if (progress) {
-        console.log('✓ Cloud progress loaded:', progress);
-        
-        // Update app state with cloud data
-        this.app.legionMerits = {
-          master_merit: progress.master_merit || 0,
-          lichess_merit: progress.lichess_merit || 0
-        };
-        this.app.gamesPlayed = progress.games_played || 0;
-        this.app.recentBattleRanksMaster = progress.recent_battle_ranks_master || [];
-        this.app.recentBattleRanksLichess = progress.recent_battle_ranks_lichess || [];
-
-        // Sync to localStorage as backup
-        this.app.saveToLocalStorage();
-      } else {
-        console.log('ℹ️ No cloud progress found, uploading local data...');
-        await this.saveCloudProgress();
-      }
-    } catch (e) {
-      console.error('❌ Error loading cloud progress:', e);
-      console.log('⚠️ Continuing with local data...');
-      // Don't block the app - continue with local storage data
-    }
-  }
-
-  async saveCloudProgress() {
-    if (!this.isLoggedIn) {
-      console.log('ℹ️ Not logged in - skipping cloud save');
-      return;
-    }
-
-    try {
-      console.log('💾 Preparing to save cloud progress...');
-      
-      const progress = {
-        master_merit: this.app.legionMerits.master_merit || 0,
-        lichess_merit: this.app.legionMerits.lichess_merit || 0,
-        games_played: this.app.gamesPlayed,
-        recent_battle_ranks_master: this.app.recentBattleRanksMaster,
-        recent_battle_ranks_lichess: this.app.recentBattleRanksLichess
+      // Merits
+      this.app.legionMerits = {
+        master_merit: progress.master_merit || 0,
+        lichess_merit: progress.lichess_merit || 0
       };
 
-      const result = await saveProgress(progress);
-      
-      if (result && result.success) {
-        console.log('✓ Cloud save successful');
-      } else {
-        console.warn('⚠️ Cloud save had issues:', result);
+      // === GAMES PLAYED MIGRATION ===
+      // If old single field exists → migrate it to Master (or split if you want)
+      if (typeof progress.games_played === 'number') {
+        this.app.gamesPlayedMaster = (this.app.gamesPlayedMaster || 0) + progress.games_played;
+        this.app.gamesPlayedLichess = this.app.gamesPlayedLichess || 0;
+        console.log(`Migrated ${progress.games_played} old games to Master legion`);
       }
-    } catch (e) {
-      console.error('❌ Error in saveCloudProgress:', e);
+
+      // Apply new separate fields if they exist
+      this.app.gamesPlayedMaster = progress.games_played_master ?? this.app.gamesPlayedMaster ?? 0;
+      this.app.gamesPlayedLichess = progress.games_played_lichess ?? this.app.gamesPlayedLichess ?? 0;
+
+      // Recent ranks
+      this.app.recentBattleRanksMaster = progress.recent_battle_ranks_master || [];
+      this.app.recentBattleRanksLichess = progress.recent_battle_ranks_lichess || [];
+
+      // Backup to localStorage
+      this.app.saveToLocalStorage();
+    } else {
+      console.log('ℹ️ No cloud progress found, uploading local...');
+      await this.saveCloudProgress();
     }
+  } catch (e) {
+    console.error('❌ Error loading cloud progress:', e);
+    console.log('⚠️ Falling back to local data');
   }
+}
+
+async saveCloudProgress() {
+  if (!this.isLoggedIn) {
+    console.log('ℹ️ Not logged in - skipping cloud save');
+    return;
+  }
+
+  try {
+    console.log('💾 Saving cloud progress...');
+    
+    const progress = {
+      master_merit: this.app.legionMerits.master_merit || 0,
+      lichess_merit: this.app.legionMerits.lichess_merit || 0,
+      games_played_master: this.app.gamesPlayedMaster || 0,        // ← NEW
+      games_played_lichess: this.app.gamesPlayedLichess || 0,      // ← NEW
+      recent_battle_ranks_master: this.app.recentBattleRanksMaster || [],
+      recent_battle_ranks_lichess: this.app.recentBattleRanksLichess || []
+      // Old 'games_played' is no longer saved
+    };
+
+    const result = await saveProgress(progress);
+    
+    if (result && result.success) {
+      console.log('✓ Cloud save successful (separate counters)');
+    } else {
+      console.warn('⚠️ Cloud save issue:', result);
+    }
+  } catch (e) {
+    console.error('❌ Error in saveCloudProgress:', e);
+  }
+}
 
   async handleSignIn() {
     console.log('🔐 Sign in button clicked');

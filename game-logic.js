@@ -23,7 +23,9 @@ class ChessTheoryApp {
 
     // Load progress from localStorage first
     this.legionMerits = JSON.parse(localStorage.getItem('chessTheoryLegionMerits') || '{}');
-    this.gamesPlayed = parseInt(localStorage.getItem('chessTheoryGamesPlayed') || '0');
+   // this.gamesPlayed = parseInt(localStorage.getItem('chessTheoryGamesPlayed') || '0');
+   this.gamesPlayedMaster = parseInt(localStorage.getItem('chessTheoryGamesPlayedMaster') || '0');
+   this.gamesPlayedLichess = parseInt(localStorage.getItem('chessTheoryGamesPlayedLichess') || '0');
     this.recentBattleRanksMaster = JSON.parse(localStorage.getItem('chessTheoryRecentBattleRanksMaster') || '[]');
     this.recentBattleRanksLichess = JSON.parse(localStorage.getItem('chessTheoryRecentBattleRanksLichess') || '[]');
 
@@ -44,7 +46,9 @@ class ChessTheoryApp {
   // Storage methods
   saveToLocalStorage() {
     localStorage.setItem('chessTheoryLegionMerits', JSON.stringify(this.legionMerits));
-    localStorage.setItem('chessTheoryGamesPlayed', this.gamesPlayed.toString());
+    //localStorage.setItem('chessTheoryGamesPlayed', this.gamesPlayed.toString());
+	localStorage.setItem('chessTheoryGamesPlayedMaster', this.gamesPlayedMaster.toString());
+    localStorage.setItem('chessTheoryGamesPlayedLichess', this.gamesPlayedLichess.toString());
     localStorage.setItem('chessTheoryRecentBattleRanksMaster', JSON.stringify(this.recentBattleRanksMaster));
     localStorage.setItem('chessTheoryRecentBattleRanksLichess', JSON.stringify(this.recentBattleRanksLichess));
   }
@@ -97,24 +101,20 @@ class ChessTheoryApp {
     if (!confirm('Are you sure you want to reset all your stats? This cannot be undone.')) return;
 
     this.legionMerits = {};
-    this.gamesPlayed = 0;
+	this.gamesPlayedMaster = 0;
+	this.gamesPlayedLichess = 0;
     this.recentBattleRanksMaster = [];
     this.recentBattleRanksLichess = [];
 
     localStorage.removeItem('chessTheoryLegionMerits');
-    localStorage.removeItem('chessTheoryGamesPlayed');
+	localStorage.removeItem('chessTheoryGamesPlayedMaster');
+	localStorage.removeItem('chessTheoryGamesPlayedLichess');
     localStorage.removeItem('chessTheoryRecentBattleRanksMaster');
     localStorage.removeItem('chessTheoryRecentBattleRanksLichess');
 
-    if (this.auth.isLoggedIn) {
-      await saveProgress({
-        master_merit: 0,
-        lichess_merit: 0,
-        games_played: 0,
-        recent_battle_ranks_master: [],
-        recent_battle_ranks_lichess: []
-      });
-    }
+   if (this.auth.isLoggedIn) {
+  await this.auth.saveCloudProgress();  // This now saves the correct zeroed fields
+}
 
     this.render();
   }
@@ -368,7 +368,11 @@ class ChessTheoryApp {
     }
 
     this.legionMerits[meritKey] = newMerit;
-    this.gamesPlayed++;
+    if (this.aiSource === 'master') {
+  this.gamesPlayedMaster++;
+} else {
+  this.gamesPlayedLichess++;
+}
 
     if (rankChanged) {
       this.setRecentBattleRanks(this.aiSource, []);
