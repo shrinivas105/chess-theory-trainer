@@ -38,6 +38,7 @@
    CHESS BOARD - OPTIMIZED FOR PERFORMANCE
    ======================================== */
 
+/* Base board wrapper - removes the duplicate styling */
 .board-wrapper {
   width: 100%;
   max-width: 420px;
@@ -51,8 +52,8 @@
   animation: fadeInUp 0.6s ease-out 0.2s both;
   position: relative;
   background: #1a1410;
+  margin: 0 auto;
 }
-
 /* Squares - Hardware Accelerated */
 .square {
   aspect-ratio: 1;
@@ -729,33 +730,50 @@ body {
   box-shadow: 0 8px 20px rgba(231,76,60,0.5);
 }
 
-/* Add this to your style.css to make the board larger */
 
-.board-wrapper {
-  width: 90vw !important;
-  max-width: 600px !important;
-  height: 90vw !important;
-  max-height: 600px !important;
-  margin: 0 auto;
-}
-
-/* For larger screens, make it even bigger */
-@media (min-width: 768px) {
+/* Mobile - Make bigger but stay within container */
+@media (max-width: 768px) {
   .board-wrapper {
-    width: 80vw !important;
-    max-width: 700px !important;
-    height: 80vw !important;
-    max-height: 700px !important;
+    max-width: 90vw;
+    width: 90vw;
+    border-width: 4px;
+  }
+  
+  .game-container {
+    max-width: 95vw;
+    padding: 16px;
+  }
+  
+  .menu {
+    padding: 24px 20px;
+  }
+  
+  .menu-title {
+    font-size: 1.8rem;
   }
 }
 
-/* For desktop, maximize the board */
+/* Tablet - Larger board */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .board-wrapper {
+    max-width: 500px;
+    width: 85vw;
+  }
+  
+  .game-container {
+    max-width: 600px;
+  }
+}
+
+/* Desktop - Maximum size within container */
 @media (min-width: 1024px) {
   .board-wrapper {
-    width: 70vw !important;
-    max-width: 800px !important;
-    height: 70vw !important;
-    max-height: 800px !important;
+    max-width: 550px;
+    width: 550px;
+  }
+  
+  .game-container {
+    max-width: 650px;
   }
 }
 
@@ -779,22 +797,4 @@ body {
   width: 80%;
   height: 80%;
   object-fit: contain;
-}
-
-
-
-/* Mobile */
-@media (max-width: 768px) {
-  .board-wrapper {
-    max-width: 350px;
-    border-width: 4px;
-  }
-  
-  .menu {
-    padding: 24px 20px;
-  }
-  
-  .menu-title {
-    font-size: 1.8rem;
-  }
 }
