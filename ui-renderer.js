@@ -117,7 +117,7 @@ class UIRenderer {
             ? `<div class="legion-next">${clubLegion.title} → ${clubLegion.nextRank}: ${clubLegion.pointsNeeded} more</div>`
             : `<div class="legion-next">Highest rank achieved</div>`}
           <div class="rank-progress">
-            ${clubLegion.rankOrder.map(r => `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`).join('')}
+            ${clubLegion.rankOrder.map(r => `<div class="rank-step ${r === clubLegion.title ? 'active' : ''}">${r}</div>`).join('')}
           </div>
           ${clubBattleHistory}
         </div>
