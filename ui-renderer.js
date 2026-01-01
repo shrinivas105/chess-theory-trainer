@@ -137,85 +137,182 @@ class UIRenderer {
   document.getElementById('resetBtn').onclick = () => this.app.resetStats();
 }
 
-  renderColorChoice() {
-    document.getElementById('app').innerHTML = `
-      <div class="menu">
-        <p class="menu-subtitle">Select your position in the line of battle.</p>
+ renderColorChoice() {
+  document.getElementById('app').innerHTML = `
+    <div class="menu">
+      <p class="menu-subtitle">Select your position in the line of battle.</p>
 
-        <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
-          <button id="whiteBtn" class="menu-btn primary">Command White</button>
-          <button id="blackBtn" class="menu-btn primary">Command Black</button>
-        </div>
+      <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
+        <button id="whiteBtn" class="menu-btn primary">Command White</button>
+        <button id="blackBtn" class="menu-btn primary">Command Black</button>
+      </div>
 
-        <div class="battle-laws-brief"
-          style="margin-top:20px; padding:12px; background:rgba(0,0,0,0.5);
-                 border:1px solid #333; border-radius:4px; text-align:left;">
+      <div class="battle-laws-brief"
+        style="margin-top:16px; padding:12px; background:rgba(0,0,0,0.5);
+               border:1px solid #333; border-radius:4px; text-align:left;">
 
-          <h3 style="color:var(--gold); font-family:'Cinzel', serif;
-                     font-size:1.2rem; margin-bottom:8px;
-                     border-bottom:1px solid #444;">
-            📜 BATTLE LAWS
-          </h3>
-          <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin:0;">
-            <strong style="color:var(--gold);">Stay within opening theory to earn honor.</strong>
-            Leave the book early, and the battle ends — judgment is final at that moment.
-            Merit is decided by how long you hold the line, the accuracy of your moves,
-            and the strength of the resulting position.
-            Based on this, your battle rank is assigned from these battle ranks: <strong>Levy, Hastatus, Principes, Triarius, or Imperator</strong>,
-            where <em>Levy</em> reflects the weakest performance and <em>Imperator</em> the topmost.
-            Merits earned in the battle are added to your total to move up the rank for promotion.
-            In case of poor performance, your rank may be reduced.
-            For example, three <em>Levy</em> performances in the last five battles will demote your rank from <strong>Legionary → Recruit</strong> and reset your merit.
+        <h3 style="color:var(--gold); font-family:'Cinzel', serif;
+                   font-size:1.1rem; margin-bottom:8px;
+                   border-bottom:1px solid #444;">
+          📜 GAME RULES
+        </h3>
+
+        <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin:0;">
+          <strong style="color:var(--gold);">Stay within opening theory to earn honor.</strong>
+          Leave the book early, and the battle ends — judgment is final at that moment.
+          Merit is decided by how long you hold the line, the accuracy of your moves,
+          and the strength of the resulting position.
+          Based on this, your battle rank is assigned from these battle ranks:
+          <strong>Levy, Hastatus, Principes, Triarius, or Imperator</strong>,
+          where <em>Levy</em> reflects the weakest performance and
+          <em>Imperator</em> the topmost.
+          Merits earned in the battle are added to your total to move up the rank
+          for promotion. In case of poor performance, your rank may be reduced.
+          For example, three <em>Levy</em> performances in the last five battles
+          will demote your rank from <strong>Legionary → Recruit</strong>
+          and reset your merit.
+          Consistent excellence earns promotion, but each new rank demands higher standards.
+          <strong style="color:var(--gold);">
+            Weak play, careless exits, and repeated failure bring demotion.
+          </strong>
+          Flee too early, and history will remember you as one who ran from the battlefield.
+        </p>
+
+        <button id="toggleRules"
+          style="margin-top:10px; background:none; border:none;
+                 color:var(--gold); font-size:0.75rem; cursor:pointer;">
+          ▶ View Full Rules
+        </button>
+
+        <!-- FULL RULES -->
+        <div id="fullRules" style="display:none; margin-top:10px;
+             padding-top:10px; border-top:1px solid #444;
+             max-height:260px; overflow-y:auto;">
+
+          <h4 style="color:var(--gold); font-family:'Cinzel', serif;
+                     font-size:0.9rem; margin-bottom:6px;">
+            📘 DETAILED RULES 
+          </h4>
+		  <p style="font-size:0.8rem; line-height:1.4; color:#bbb;">
+  Your ultimate aim is to earn 1,500 Merit and ascend to <strong style="color:var(--gold);">Legatus</strong> — the highest rank of the Roman army.
+</p>
+
+          <h4 style="margin-top:10px; color:var(--gold); font-size:0.8rem;">
+            1. THE BATTLE
+          </h4>
+          <ul style="font-size:0.75rem; color:#bbb; padding-left:16px;">
+            <li><strong>Masters Mode:</strong> Elite games. The battle ends if the resulting position has fewer than 5 games in history.</li>
+            <li><strong>Club Mode:</strong> Club games. The battle ends if the resulting position has fewer than 20 games in history.</li>
+            <li>One hint per battle (Top 5 moves)</li>
+          </ul>
+
+          <h4 style="margin-top:8px; color:var(--gold); font-size:0.8rem;">
+            2. MERIT SCORING
+          </h4>
+          <ul style="font-size:0.75rem; color:#bbb; padding-left:16px;">
+          <li>Number of moves played while staying within theory</li>
+<li>Quality of moves compared to top historical choices</li>
+<li>Final position evaluation when the battle ends</li>
+
+          </ul>
+
+          <h4 style="margin-top:8px; color:var(--gold); font-size:0.8rem;">
+            3. BATTLE RANKS
+          </h4>
+          <p style="font-size:0.75rem; color:#bbb;">
+            🪓 Levy (0–39) · 🛡️ Hastatus (40–54) · ⚔️ Principes (55–69)<br>
+            🦅 Triarius (70–84) · 👑 Imperator (85–100)
           </p>
 
-          <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin-top:6px;">
-            Consistent excellence earns promotion, but each new rank demands higher standards.
-            <strong style="color:var(--gold);">Weak play, careless exits, and repeated failure bring demotion.</strong>
-            Flee too early, and history will remember you as one who ran from the battlefield.
+          <h4 style="margin-top:8px; color:var(--gold); font-size:0.8rem;">
+            4. LEGION RANKS
+          </h4>
+          <p style="font-size:0.75rem; color:#bbb;">
+            Recruit (0) → Legionary (100) → Optio (250)<br>
+            Centurion (500) → Tribunus (900) → Legatus (1500)
           </p>
 
-          <div style="margin-top:12px; padding:8px; background:rgba(0,0,0,0.45);
-                      border:1px solid #333; border-radius:4px;">
-            <h4 style="color:var(--gold); font-family:'Cinzel', serif;
-                       font-size:0.75rem; margin-bottom:6px;
-                       border-bottom:1px solid #444;">
-              🏛️ RANK MERIT REFERENCE
-            </h4>
+          <h4 style="margin-top:8px; color:var(--gold); font-size:0.8rem;">
+            5. DEMOTION & DISCIPLINE
+          </h4>
+          <table style="width:100%; border-collapse:collapse; font-size:0.72rem;
+                        background:rgba(0,0,0,0.35); border:1px solid #333;">
+            <thead>
+              <tr style="background:rgba(0,0,0,0.55);">
+                <th style="padding:6px; border:1px solid #333; color:var(--gold); text-align:left;">
+                  Current Rank
+                </th>
+                <th style="padding:6px; border:1px solid #333; color:var(--gold); text-align:left;">
+                  Poor Performance<br>(Last 5 Battles)
+                </th>
+                <th style="padding:6px; border:1px solid #333; color:var(--gold); text-align:left;">
+                  Demoted To
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:6px; border:1px solid #333;">Recruit</td>
+                <td style="padding:6px; border:1px solid #333; color:#777;">N/A</td>
+                <td style="padding:6px; border:1px solid #333; color:#777;">N/A</td>
+              </tr>
+              <tr>
+                <td style="padding:6px; border:1px solid #333;">Legionary</td>
+                <td style="padding:6px; border:1px solid #333;">3 Levy battles</td>
+                <td style="padding:6px; border:1px solid #333;">Recruit</td>
+              </tr>
+              <tr>
+                <td style="padding:6px; border:1px solid #333;">Optio</td>
+                <td style="padding:6px; border:1px solid #333;">
+                  3 Levy<br>or 2 Levy + 1 Hastatus
+                </td>
+                <td style="padding:6px; border:1px solid #333;">Legionary</td>
+              </tr>
+              <tr>
+                <td style="padding:6px; border:1px solid #333;">Centurion</td>
+                <td style="padding:6px; border:1px solid #333;">
+                  3 Levy / Hastatus
+                </td>
+                <td style="padding:6px; border:1px solid #333;">Optio</td>
+              </tr>
+              <tr>
+                <td style="padding:6px; border:1px solid #333;">Tribunus</td>
+                <td style="padding:6px; border:1px solid #333;">
+                  3 Levy / Hastatus / Principes
+                </td>
+                <td style="padding:6px; border:1px solid #333;">Centurion</td>
+              </tr>
+              <tr>
+                <td style="padding:6px; border:1px solid #333;">Legatus</td>
+                <td style="padding:6px; border:1px solid #333; color:#777;">N/A</td>
+                <td style="padding:6px; border:1px solid #333; color:#777;">N/A</td>
+              </tr>
+            </tbody>
+          </table>
 
-            <table style="width:100%; border-collapse:collapse; font-size:0.75rem;">
-              <tr>
-                <td style="padding:6px 8px; color:var(--gold);">🌱 Recruit</td>
-                <td style="padding:6px 8px; color:#bbb; text-align:right;">0 Merit</td>
-              </tr>
-              <tr>
-                <td style="padding:6px 8px; color:var(--gold);">🛡️ Legionary</td>
-                <td style="padding:6px 8px; color:#bbb; text-align:right;">100 Merit</td>
-              </tr>
-              <tr>
-                <td style="padding:6px 8px; color:var(--gold);">⚔️ Optio</td>
-                <td style="padding:6px 8px; color:#bbb; text-align:right;">250 Merit</td>
-              </tr>
-              <tr>
-                <td style="padding:6px 8px; color:var(--gold);">🦅 Centurion</td>
-                <td style="padding:6px 8px; color:#bbb; text-align:right;">500 Merit</td>
-              </tr>
-              <tr>
-                <td style="padding:6px 8px; color:var(--gold);">🅰️ Tribunus</td>
-                <td style="padding:6px 8px; color:#bbb; text-align:right;">900 Merit</td>
-              </tr>
-              <tr>
-                <td style="padding:6px 8px; color:var(--gold);">🏆 Legatus</td>
-                <td style="padding:6px 8px; color:#bbb; text-align:right;">1500 Merit</td>
-              </tr>
-            </table>
-          </div>
+          
+
+          <p style="font-size:0.75rem; color:var(--gold); text-align:center;">
+            All the best — reach the pinnacle of the Roman army.
+          </p>
         </div>
       </div>
-    `;
+    </div>
+  `;
 
-    document.getElementById('whiteBtn').onclick = () => this.app.selectColor('w');
-    document.getElementById('blackBtn').onclick = () => this.app.selectColor('b');
-  }
+  document.getElementById('whiteBtn').onclick = () => this.app.selectColor('w');
+  document.getElementById('blackBtn').onclick = () => this.app.selectColor('b');
+
+  const toggle = document.getElementById('toggleRules');
+  const full = document.getElementById('fullRules');
+
+  toggle.onclick = () => {
+    const open = full.style.display === 'block';
+    full.style.display = open ? 'none' : 'block';
+    toggle.textContent = open ? '▶ View Full Rules' : '▼ Hide Full Rules';
+  };
+}
+
 
   renderGameContainer() {
     if (document.querySelector('.game-container')) return;
