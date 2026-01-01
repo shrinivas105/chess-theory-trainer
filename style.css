@@ -732,8 +732,8 @@ body {
 /* Mobile - Bigger board */
 @media (max-width: 768px) {
   .game-container {
-    max-width: 95vw;
-    padding: 10px;
+    max-width: 98vw;  /* Increased from 95vw for fuller screen use */
+    padding: 8px;     /* Slightly less padding to maximize board */
   }
   
   .board-wrapper {
@@ -752,16 +752,16 @@ body {
 /* Tablet - Larger board */
 @media (min-width: 769px) and (max-width: 1023px) {
   .game-container {
-    max-width: 650px;
-    padding: 12px;
+    max-width: 750px;  /* Increased from 650px */
+    padding: 10px;
   }
 }
 
 /* Desktop - Maximum board size */
 @media (min-width: 1024px) {
   .game-container {
-    max-width: 750px;
-    padding: 12px;
+    max-width: 850px;  /* Increased from 750px – adjust higher if your screen is 4K+ */
+    padding: 10px;
   }
 }
 
@@ -782,7 +782,7 @@ body {
 }
 
 .piece {
-  width: 80%;
-  height: 80%;
+  width: 90%;   /* Increased from 80% for better fill on larger board */
+  height: 90%;  /* Keeps pieces proportional without clipping */
   object-fit: contain;
 }
