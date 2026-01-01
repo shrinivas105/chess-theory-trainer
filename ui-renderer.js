@@ -8,75 +8,75 @@ class UIRenderer {
   }
 
   renderBattleHistory(source) {
-    const meritKey = `${source}_merit`;
-    const currentMerit = this.app.legionMerits[meritKey] || 0;
-    const legionInfo = Scoring.getLegionRank(currentMerit);
-    const recentRanks = this.app.getRecentBattleRanks(source);
-    const warning = Scoring.getDemotionWarning(legionInfo.title, recentRanks);
+  const meritKey = `${source}_merit`;
+  const currentMerit = this.app.legionMerits[meritKey] || 0;
+  const legionInfo = Scoring.getLegionRank(currentMerit);
+  const recentRanks = this.app.getRecentBattleRanks(source);
+  const warning = Scoring.getDemotionWarning(legionInfo.title, recentRanks);
 
-    if (recentRanks.length === 0) return '';
+  if (recentRanks.length === 0) return '';
 
-    const battleBadges = recentRanks.map(rank => {
-      const letter = rank[0];
-      const className = rank.toLowerCase();
-      return `<div class="battle-badge ${className}">${letter}</div>`;
-    }).join('');
+  const battleBadges = recentRanks.map(rank => {
+    const letter = rank[0];
+    const className = rank.toLowerCase();
+    return `<div class="battle-badge ${className}">${letter}</div>`;
+  }).join('');
 
-    return `
-      <div class="battle-history">
-        <div class="battle-history-title">Last ${recentRanks.length} Battle${recentRanks.length > 1 ? 's' : ''}</div>
-        <div class="battle-badges">${battleBadges}</div>
-        <div class="tooltip-container">
-          <div class="tooltip-icon">?</div>
-          <div class="tooltip-content">
-            <div class="tooltip-title">Demotion Rules</div>
-            <table class="demotion-table">
-              <thead>
-                <tr>
-                  <th>Current Rank</th>
-                  <th>Poor Performance</th>
-                  <th>Demote To</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Recruit</td>
-                  <td>N/A</td>
-                  <td>N/A</td>
-                </tr>
-                <tr>
-                  <td>Legionary</td>
-                  <td>3 Levy battles</td>
-                  <td>Recruit</td>
-                </tr>
-                <tr>
-                  <td>Optio</td>
-                  <td>3 Levy or 2 Levy + 1 Hastatus</td>
-                  <td>Legionary</td>
-                </tr>
-                <tr>
-                  <td>Centurion</td>
-                  <td>3 Levy/Hastatus battles</td>
-                  <td>Optio</td>
-                </tr>
-                <tr>
-                  <td>Tribunus</td>
-                  <td>3 Levy/Hastatus/Principes battles</td>
-                  <td>Centurion</td>
-                </tr>
-                <tr>
-                  <td>Legatus</td>
-                  <td>N/A</td>
-                  <td>N/A</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+  return `
+    <div class="battle-history" style="display: flex; flex-direction: column; align-items: center; gap: 4px; max-width: 250px; margin: 0 auto;">
+      <div class="battle-history-title">Last ${recentRanks.length} Battle${recentRanks.length > 1 ? 's' : ''}</div>
+      <div class="battle-badges" style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 4px; justify-content: center;">${battleBadges}</div>
+      <div class="tooltip-container" style="margin-top: 4px;">
+        <div class="tooltip-icon">?</div>
+        <div class="tooltip-content">
+          <div class="tooltip-title">Demotion Rules</div>
+          <table class="demotion-table">
+            <thead>
+              <tr>
+                <th>Current Rank</th>
+                <th>Poor Performance(last 5 battles)</th>
+                <th>Demote To</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Recruit</td>
+                <td>N/A</td>
+                <td>N/A</td>
+              </tr>
+              <tr>
+                <td>Legionary</td>
+                <td>3 Levy battles</td>
+                <td>Recruit</td>
+              </tr>
+              <tr>
+                <td>Optio</td>
+                <td>3 Levy or 2 Levy + 1 Hastatus</td>
+                <td>Legionary</td>
+              </tr>
+              <tr>
+                <td>Centurion</td>
+                <td>3 Levy/Hastatus battles</td>
+                <td>Optio</td>
+              </tr>
+              <tr>
+                <td>Tribunus</td>
+                <td>3 Levy/Hastatus/Principes battles</td>
+                <td>Centurion</td>
+              </tr>
+              <tr>
+                <td>Legatus</td>
+                <td>N/A</td>
+                <td>N/A</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        ${warning ? `<div class="warning-message">${warning}</div>` : ''}
       </div>
-    `;
-  }
+      ${warning ? `<div class="warning-message" style="margin-top: 4px; font-size: 0.8rem; text-align: center; line-height: 1.2;">${warning}</div>` : ''}
+    </div>
+  `;
+}
 
  renderMenu() {
   const masterMerit = this.app.legionMerits.master_merit || 0;
