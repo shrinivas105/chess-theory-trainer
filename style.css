@@ -41,7 +41,6 @@
 /* Base board wrapper - removes the duplicate styling */
 .board-wrapper {
   width: 100%;
-  max-width: 420px;
   aspect-ratio: 1;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
@@ -606,15 +605,15 @@ body {
   font-weight: 900;
 }
 
-/* Game Container */
+/* Game Container - Matches board width exactly */
 .game-container {
-  max-width: 500px;
+  max-width: 95vw;
   width: 100%;
   background: rgba(15,10,5,0.95);
   border: 3px solid var(--roman-gold);
   border-radius: 16px;
   padding: 20px;
-  margin: 15px 0;
+  margin: 15px auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -731,17 +730,15 @@ body {
 }
 
 
-/* Mobile - Make bigger but stay within container */
+* Mobile - Bigger board */
 @media (max-width: 768px) {
-  .board-wrapper {
-    max-width: 90vw;
-    width: 90vw;
-    border-width: 4px;
-  }
-  
   .game-container {
     max-width: 95vw;
     padding: 16px;
+  }
+  
+  .board-wrapper {
+    border-width: 4px;
   }
   
   .menu {
@@ -753,28 +750,18 @@ body {
   }
 }
 
-/* Tablet - Larger board */
-@media (min-width: 769px) and (max-width: 1023px) {
-  .board-wrapper {
-    max-width: 500px;
-    width: 85vw;
-  }
-  
+/@media (min-width: 769px) and (max-width: 1023px) {
   .game-container {
     max-width: 600px;
   }
 }
 
-/* Desktop - Maximum size within container */
+/* Desktop - Maximum board size */
 @media (min-width: 1024px) {
-  .board-wrapper {
-    max-width: 550px;
-    width: 550px;
-  }
-  
   .game-container {
-    max-width: 650px;
+    max-width: 700px;
   }
+}
 }
 
 #board {
