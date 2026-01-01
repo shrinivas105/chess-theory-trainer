@@ -1,5 +1,6 @@
 // ui-renderer.js - Handles all UI rendering logic
 // Fixed with better event handling for analysis button
+// Updated with Roman rank colors in end game summary
 
 class UIRenderer {
   constructor(app) {
@@ -30,71 +31,63 @@ class UIRenderer {
     `;
   }
 
-  renderMenu() {
-    const masterMerit = this.app.legionMerits.master_merit || 0;
-    const clubMerit = this.app.legionMerits.lichess_merit || 0;
-    const masterLegion = Scoring.getLegionRank(masterMerit);
-    const clubLegion = Scoring.getLegionRank(clubMerit);
-    const masterBattleHistory = this.renderBattleHistory('master');
-    const clubBattleHistory = this.renderBattleHistory('lichess');
-
-    const authSection = this.app.auth.renderAuthSection();
-
-    document.getElementById('app').innerHTML = `
-      <div class="menu">
-        <h1 class="menu-title">LINES OF THE LEGION</h1>
-        <p class="menu-subtitle">
-          Hold the line. Survive the opening drawn from real games —
-          until theory ends and true battle begins.
-        </p>
-
-        ${authSection}
-
-        <div style="font-size:.9rem;line-height:1.5;">
-          <div class="legion-card masters">
-            <div class="legion-header">🏆 Masters Legion</div>
-            <div class="legion-status">
-              ${masterLegion.title} (${masterMerit} merit) ${masterLegion.icon}
-            </div>
-            ${masterLegion.nextRank
-              ? `<div class="legion-next">${masterLegion.title} → ${masterLegion.nextRank}: ${masterLegion.pointsNeeded} more</div>`
-              : `<div class="legion-next">Highest rank achieved</div>`}
-            <div class="rank-progress">
-              ${masterLegion.rankOrder.map(r => `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`).join('')}
-            </div>
-            ${masterBattleHistory}
+ renderMenu() {
+  const masterMerit = this.app.legionMerits.master_merit || 0;
+  const clubMerit = this.app.legionMerits.lichess_merit || 0;
+  const masterLegion = Scoring.getLegionRank(masterMerit);
+  const clubLegion = Scoring.getLegionRank(clubMerit);
+  const masterBattleHistory = this.renderBattleHistory('master');
+  const clubBattleHistory = this.renderBattleHistory('lichess');
+  const authSection = this.app.auth.renderAuthSection();
+  document.getElementById('app').innerHTML = `
+    <div class="menu">
+      <h1 class="menu-title">LINES OF THE LEGION</h1>
+      <p class="menu-subtitle">
+        Hold the line. Survive the opening drawn from real games —
+        until theory ends and true battle begins.
+      </p>
+      ${authSection}
+      <div style="font-size:.9rem;line-height:1.5;">
+        <div class="legion-card masters">
+          <div class="legion-header">🏆 Masters Legion</div>
+          <div class="legion-status">
+            ${masterLegion.title} (${masterMerit} merit) ${masterLegion.icon}
           </div>
-
-          <div class="legion-card club">
-            <div class="legion-header">♟️ Club Legion</div>
-            <div class="legion-status">
-              ${clubLegion.title} (${clubMerit} merit) ${clubLegion.icon}
-            </div>
-            ${clubLegion.nextRank
-              ? `<div class="legion-next">${clubLegion.title} → ${clubLegion.nextRank}: ${clubLegion.pointsNeeded} more</div>`
-              : `<div class="legion-next">Highest rank achieved</div>`}
-            <div class="rank-progress">
-              ${clubLegion.rankOrder.map(r => `<div class="rank-step ${r === clubLegion.title ? 'active' : ''}">${r}</div>`).join('')}
-            </div>
-            ${clubBattleHistory}
+          ${masterLegion.nextRank
+            ? `<div class="legion-next">${masterLegion.title} → ${masterLegion.nextRank}: ${masterLegion.pointsNeeded} more</div>`
+            : `<div class="legion-next">Highest rank achieved</div>`}
+          <div class="rank-progress">
+            ${masterLegion.rankOrder.map(r => `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`).join('')}
           </div>
-
-          <div style="margin-top:8px;">⚔️ Battles Fought: ${this.app.gamesPlayed}</div>
+          ${masterBattleHistory}
         </div>
-
-        <p class="menu-cta">Choose your campaign:</p>
-        <div class="menu-actions">
-          <button id="masterBtn" class="menu-btn primary">🥷 Master</button>
-          <button id="lichessBtn" class="menu-btn primary">🤺 Club</button>
+        <div class="legion-card club">
+          <div class="legion-header">♟️ Club Legion</div>
+          <div class="legion-status">
+            ${clubLegion.title} (${clubMerit} merit) ${clubLegion.icon}
+          </div>
+          ${clubLegion.nextRank
+            ? `<div class="legion-next">${clubLegion.title} → ${clubLegion.nextRank}: ${clubLegion.pointsNeeded} more</div>`
+            : `<div class="legion-next">Highest rank achieved</div>`}
+          <div class="rank-progress">
+            ${clubLegion.rankOrder.map(r => `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`).join('')}
+          </div>
+          ${clubBattleHistory}
         </div>
-        <button id="resetBtn" class="menu-btn reset">↺ Reset Progress</button>
+        <div style="margin-top:8px;">⚔️ Battles Fought: ${this.app.gamesPlayed}</div>
       </div>
-    `;
-
-    document.getElementById('masterBtn').onclick = () => this.app.selectSource('master');
-    document.getElementById('lichessBtn').onclick = () => this.app.selectSource('lichess');
-    document.getElementById('resetBtn').onclick = () => this.app.resetStats();
-  }
+      <p class="menu-cta">Choose your campaign:</p>
+      <div class="menu-actions">
+        <button id="masterBtn" class="menu-btn primary">🥷 Master</button>
+        <button id="lichessBtn" class="menu-btn primary">🤺 Club</button>
+      </div>
+      <button id="resetBtn" class="menu-btn reset">↺ Reset Progress</button>
+    </div>
+  `;
+  document.getElementById('masterBtn').onclick = () => this.app.selectSource('master');
+  document.getElementById('lichessBtn').onclick = () => this.app.selectSource('lichess');
+  document.getElementById('resetBtn').onclick = () => this.app.resetStats();
+}
 
   renderColorChoice() {
     document.getElementById('app').innerHTML = `
@@ -209,7 +202,7 @@ class UIRenderer {
     const hintBtn = document.getElementById('hintBtn');
     if (hintBtn) {
       hintBtn.disabled = !isPlayerTurn || this.app.hintUsed;
-      hintBtn.textContent = this.app.hintUsed ? '✓ Consulted' : '🎖️ Consult Commander';
+      hintBtn.textContent = this.app.hintUsed ? '✔ Consulted' : '🎖️ Consult Commander';
       hintBtn.onclick = isPlayerTurn && !this.app.hintUsed ? () => this.app.getHints() : null;
     }
 
@@ -258,9 +251,20 @@ class UIRenderer {
       ? `<div style="color:#e74c3c;font-size:.85rem;margin-top:6px;">Penalty: ${battleRank.penaltyReason}</div>`
       : '';
 
+    // Get rank-specific color based on Roman customs
+    const rankColors = {
+      'Levy': '#2ecc71',
+      'Hastatus': '#ecf0f1',
+      'Principes': '#e74c3c',
+      'Triarius': '#3498db',
+      'Imperator': '#9b59b6'
+    };
+    const rankColor = rankColors[battleRank.title] || '#d4af37';
+    const textColor = battleRank.title === 'Hastatus' ? '#000' : '#fff';
+
     summaryEl.innerHTML = `
       ${rankChangeHtml}
-      <h3>${battleRank.icon} ${battleRank.title} • Score: ${battleRank.score}/100</h3>
+      <h3 style="color: ${rankColor}; text-shadow: 0 0 20px ${rankColor};">${battleRank.icon} ${battleRank.title} • Score: ${battleRank.score}/100</h3>
       <div class="stats-grid">
         <div>Moves<br><strong>${this.app.playerMoves}</strong></div>
         <div>Quality<br><strong>${moveQuality}%</strong></div>
@@ -269,7 +273,11 @@ class UIRenderer {
       <div style="font-style:italic;color:#bbb;margin:8px 0;">"${battleRank.msg}"</div>
       <div style="font-size:.85rem;color:#aaa;"><em>${battleRank.sub}</em></div>
       <div class="rank-progress">
-        ${['Levy', 'Hastatus', 'Principes', 'Triarius', 'Imperator'].map(r => `<div class="rank-step ${r === battleRank.title ? 'active' : ''}">${r}</div>`).join('')}
+        ${['Levy', 'Hastatus', 'Principes', 'Triarius', 'Imperator'].map(r => {
+          const color = rankColors[r];
+          const isActive = r === battleRank.title;
+          return `<div class="rank-step ${isActive ? 'active' : ''}" style="${isActive ? `background: linear-gradient(135deg, ${color}, ${color}); color: ${r === 'Hastatus' ? '#000' : '#fff'}; border-color: ${color};` : ''}">${r}</div>`;
+        }).join('')}
       </div>
       ${penaltyMsg}
       

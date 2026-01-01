@@ -168,11 +168,12 @@
   padding: 18px;
   border-radius: 12px;
   background: rgba(15,10,5,0.9);
-  border: 2px solid #2a2a2a;
+  border: 2px solid var(--stone-gray);
   width: fit-content;
   max-width: 100%;
   position: relative;
   transition: all 0.3s ease;
+  animation: slideInFromLeft 0.6s ease-out;
 }
 
 /* Masters Legion - Maroon Costume + Gold Armor */
@@ -272,9 +273,7 @@
 
 body {
   font-family: 'Cinzel', Georgia, serif;
-  background: 
-    linear-gradient(135deg, rgba(139, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.8) 100%),
-    #050505;
+  background: #b4c29e;  
   background-attachment: fixed;
   color: var(--parchment);
   min-height: 100vh;
@@ -284,38 +283,80 @@ body {
   padding: 20px 12px;
 }
 
+/* Menu Container */
 .menu {
   max-width: 760px;
   margin: auto;
   padding: 32px 28px;
-  background: rgba(20,10,5,0.95);
-  border: 3px solid #ffffff;
+  background: 
+    linear-gradient(180deg, rgba(20,10,5,0.95) 0%, rgba(10,5,2,0.98) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(212,175,55,0.03) 2px, rgba(212,175,55,0.03) 4px);
+  border: 3px solid var(--roman-gold);
   border-radius: 16px;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+  box-shadow: 
+    0 30px 60px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(212,175,55,0.3),
+    0 0 40px rgba(212,175,55,0.2);
+  position: relative;
   animation: fadeInUp 0.8s ease-out;
+  z-index: 1;
 }
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Eagle+Lake&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel&display=swap');
 
 .menu-title {
-  font-size: 2.2rem;
-  letter-spacing: 0.15em;
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem;
   text-align: center;
-  margin: 0 0 8px;
-  color: var(--maroon-costume);
-  font-weight: 700;
-  text-transform: uppercase;
-  text-shadow: 
-    2px 2px 4px rgba(0,0,0,0.8),
-    0 0 20px rgba(128,0,3,0.6);
-  animation: victoryShine 1.2s ease-out;
+  letter-spacing: 4px;
+  background: linear-gradient(to bottom, #f6e27a 0%, #ffd700 30%, #cb9b51 60%, #b8860b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 4px 8px rgba(0,0,0,0.5);
+  position: relative;
+  animation: goldShimmer 2s ease-in-out;
+}
+
+
+//
+.menu-title::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shineSweep 2s ease-in-out infinite;
 }
 
 .menu-subtitle {
-  text-align: center;
-  font-size: 0.85rem;
-  color: #bbb;
-  margin: 0 auto 24px;
-  line-height: 1.7;
   font-style: italic;
+  font-size: 0.8rem;
+  font-family: 'Jim Nightshade', cursive;
+  color: #e0e0e0;
+    text-align: center;
+  background: linear-gradient(to right, #a0a0a0 0%, #ffffff 30%, #e8e8e8 50%, #ffffff 70%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 15px rgba(255,255,255,0.4);
+  animation: silverPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes goldShimmer {
+  0%, 100% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 4px 8px rgba(0,0,0,0.5); }
+  50% { text-shadow: 0 0 40px rgba(255, 215, 0, 0.9), 0 6px 12px rgba(0,0,0,0.7); }
+}
+
+@keyframes shineSweep {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+@keyframes silverPulse {
+  0% { text-shadow: 0 0 10px rgba(255,255,255,0.3); opacity: 0.9; }
+  100% { text-shadow: 0 0 25px rgba(255,255,255,0.6); opacity: 1; }
 }
 
 .menu-btn {
@@ -433,41 +474,46 @@ body {
   transform: scale(1.1);
 }
 
-/* All battle badges use maroon gradient */
+/* Battle badges - Roman custom colors */
 .battle-badge.levy { 
-  background: linear-gradient(135deg, var(--maroon-costume), #600002);
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
   color: #fff; 
 }
 .battle-badge.hastatus { 
-  background: linear-gradient(135deg, #a00004, var(--maroon-costume));
-  color: #fff; 
+  background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+  color: #000;
+  font-weight: 800;
 }
 .battle-badge.principes { 
-  background: linear-gradient(135deg, #c00005, #a00004);
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
   color: #fff; 
 }
 .battle-badge.triarius { 
-  background: linear-gradient(135deg, #d00006, #b00005);
+  background: linear-gradient(135deg, #3498db, #2980b9);
   color: #fff; 
 }
 .battle-badge.imperator { 
-  background: linear-gradient(135deg, #ff0007, #d00006);
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
   color: #fff;
   font-weight: 900;
 }
 
+/* Game Container */
 .game-container {
   max-width: 500px;
   width: 100%;
   background: rgba(15,10,5,0.95);
-  border: 3px solid #ffffff;
+  border: 3px solid var(--roman-gold);
   border-radius: 16px;
   padding: 20px;
   margin: 15px 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+  box-shadow: 
+    0 30px 60px rgba(0,0,0,0.8),
+    0 0 40px rgba(212,175,55,0.2);
+  animation: marchIn 0.8s ease-out;
 }
 
 .btn {
