@@ -729,8 +729,7 @@ body {
   box-shadow: 0 8px 20px rgba(231,76,60,0.5);
 }
 
-
-* Mobile - Bigger board */
+/* Mobile - Bigger board */
 @media (max-width: 768px) {
   .game-container {
     max-width: 95vw;
@@ -750,7 +749,8 @@ body {
   }
 }
 
-/@media (min-width: 769px) and (max-width: 1023px) {
+/* Tablet - Larger board */
+@media (min-width: 769px) and (max-width: 1023px) {
   .game-container {
     max-width: 600px;
   }
@@ -761,7 +761,6 @@ body {
   .game-container {
     max-width: 700px;
   }
-}
 }
 
 #board {
