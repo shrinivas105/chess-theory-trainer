@@ -1,774 +1,4 @@
-/* ========================================
-   ROMAN BATTLE CHESS BOARD THEME
-   Stone battlefield with Roman aesthetics
-   ======================================== */
-
-/* Chess Board Container */
-.board-wrapper {
-  width: 100%;
-  max-width: 420px;
-  aspect-ratio: 1;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  border: 6px solid var(--roman-gold);
-  border-radius: 4px;
-  align-self: center;
-  box-shadow: 
-    0 15px 40px rgba(0,0,0,0.8),
-    inset 0 0 30px rgba(212,175,55,0.15),
-    0 0 0 2px rgba(139,0,0,0.3);
-  animation: fadeInUp 0.6s ease-out 0.2s both;
-  position: relative;
-  background: #1a1410;
-}
-
-/* Decorative corner emblems */
-.board-wrapper::before,
-.board-wrapper::after {
-  content: '⚔️';
-  position: absolute;
-  font-size: 1.2rem;
-  z-index: 100;
-  opacity: 0.7;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
-}
-
-.board-wrapper::before {
-  top: -20px;
-  left: -20px;
-}
-
-.board-wrapper::after {
-  bottom: -20px;
-  right: -20px;
-}
-
-/* Chess Squares - Roman Stone Theme */
-.square {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  position: relative;
-  border: 1px solid rgba(0,0,0,0.1);
-  overflow: hidden;
-}
-
-/* Light squares - Roman marble/limestone */
-.square.light {
-  background: 
-    linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%),
-    radial-gradient(ellipse at top left, #f5e6d3 0%, #e8d4b8 100%);
-  background-size: 100% 100%, cover;
-}
-
-/* Dark squares - Weathered stone */
-.square.dark {
-  background: 
-    linear-gradient(135deg, rgba(0,0,0,0.2) 0%, transparent 100%),
-    radial-gradient(ellipse at top left, #8b7355 0%, #6b5a44 100%);
-  background-size: 100% 100%, cover;
-}
-
-/* Stone texture overlay on all squares */
-.square::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 1px,
-      rgba(0,0,0,0.02) 1px,
-      rgba(0,0,0,0.02) 2px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 1px,
-      rgba(0,0,0,0.02) 1px,
-      rgba(0,0,0,0.02) 2px
-    );
-  pointer-events: none;
-  opacity: 0.3;
-}
-
-/* Hover effect - Battle ready glow */
-.square:hover:not(.disabled) {
-  filter: brightness(1.15) contrast(1.1);
-  transform: scale(1.02);
-  z-index: 10;
-  box-shadow: inset 0 0 20px rgba(212,175,55,0.3);
-}
-
-.square.light:hover:not(.disabled) {
-  background: 
-    radial-gradient(circle at center, rgba(212,175,55,0.2) 0%, transparent 70%),
-    linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%),
-    radial-gradient(ellipse at top left, #f5e6d3 0%, #e8d4b8 100%);
-}
-
-.square.dark:hover:not(.disabled) {
-  background: 
-    radial-gradient(circle at center, rgba(212,175,55,0.3) 0%, transparent 70%),
-    linear-gradient(135deg, rgba(0,0,0,0.2) 0%, transparent 100%),
-    radial-gradient(ellipse at top left, #8b7355 0%, #6b5a44 100%);
-}
-
-/* Selected square - Golden Roman selection */
-.square.selected {
-  background: 
-    radial-gradient(circle at center, #ffd700 0%, #d4af37 100%) !important;
-  box-shadow: 
-    inset 0 0 20px rgba(212,175,55,0.8),
-    0 0 30px rgba(212,175,55,0.6),
-    inset 0 0 0 3px rgba(139,69,19,0.4);
-  animation: glowPulse 1.5s ease-in-out infinite;
-  transform: scale(0.98);
-  border: 2px solid #8b6914;
-}
-
-/* Last move highlight - Battle scar marker */
-.square.last-move {
-  background: 
-    radial-gradient(circle at center, rgba(139,0,0,0.4) 0%, transparent 60%),
-    radial-gradient(ellipse at top left, #f5e6d3 0%, #e8d4b8 100%) !important;
-  box-shadow: inset 0 0 15px rgba(139,0,0,0.3);
-  animation: swordSlash 0.5s ease-out;
-}
-
-.square.dark.last-move {
-  background: 
-    radial-gradient(circle at center, rgba(139,0,0,0.5) 0%, transparent 60%),
-    radial-gradient(ellipse at top left, #8b7355 0%, #6b5a44 100%) !important;
-}
-
-/* Disabled squares */
-.square.disabled {
-  pointer-events: none;
-  opacity: 0.85;
-  filter: grayscale(0.2);
-}
-
-/* Chess Pieces - Roman Statue Style */
-.piece {
-  width: 85%;
-  height: 85%;
-  filter: 
-    drop-shadow(0 6px 12px rgba(0,0,0,0.9))
-    drop-shadow(0 2px 4px rgba(0,0,0,0.6));
-  pointer-events: none;
-  transition: all 0.25s ease;
-  position: relative;
-  z-index: 5;
-}
-
-/* Enhanced piece appearance */
-.square:not(.disabled) .piece {
-  filter: 
-    drop-shadow(0 6px 12px rgba(0,0,0,0.9))
-    drop-shadow(0 2px 4px rgba(0,0,0,0.6))
-    contrast(1.1)
-    saturate(1.1);
-}
-
-/* Piece hover - Lift effect like picking up a game piece */
-.square:hover:not(.disabled) .piece {
-  transform: scale(1.15) translateY(-5px);
-  filter: 
-    drop-shadow(0 12px 20px rgba(0,0,0,0.9))
-    drop-shadow(0 4px 8px rgba(212,175,55,0.4))
-    contrast(1.15)
-    saturate(1.2)
-    brightness(1.1);
-}
-
-/* Selected piece - Highlighted for battle */
-.square.selected .piece {
-  transform: scale(1.1) translateY(-3px) rotate(-5deg);
-  filter: 
-    drop-shadow(0 10px 20px rgba(212,175,55,0.6))
-    drop-shadow(0 4px 8px rgba(0,0,0,0.8))
-    brightness(1.2)
-    saturate(1.3);
-  animation: pieceReady 0.6s ease-out;
-}
-
-/* Last moved piece - Recently moved warrior */
-.square.last-move .piece {
-  animation: pieceLanded 0.4s ease-out;
-}
-
-@keyframes pieceReady {
-  0% {
-    transform: scale(0.9) translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: scale(1.15) translateY(-8px) rotate(-8deg);
-  }
-  100% {
-    transform: scale(1.1) translateY(-3px) rotate(-5deg);
-  }
-}
-
-@keyframes pieceLanded {
-  0% {
-    transform: scale(1.2) translateY(-10px);
-    filter: brightness(1.3);
-  }
-  50% {
-    transform: scale(0.95) translateY(2px);
-  }
-  100% {
-    transform: scale(1) translateY(0);
-    filter: brightness(1);
-  }
-}
-
-/* Battle damage markers on captured squares (optional visual enhancement) */
-.square.captured::after {
-  content: '⚔️';
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  font-size: 0.5rem;
-  opacity: 0.3;
-  z-index: 1;
-}
-
-/* Coordinate labels (if you want to add rank/file labels) */
-.board-wrapper[data-show-coords="true"] .square:nth-child(8n+1)::before {
-  content: attr(data-rank);
-  position: absolute;
-  left: 2px;
-  top: 2px;
-  font-size: 0.6rem;
-  color: rgba(0,0,0,0.3);
-  font-weight: bold;
-  z-index: 2;
-}
-
-/* Roman board edge decoration */
-.board-wrapper::after {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
-  border: 2px solid rgba(139,0,0,0.2);
-  border-radius: 6px;
-  pointer-events: none;
-  box-shadow: inset 0 0 20px rgba(212,175,55,0.1);
-}
-
-/* Battlefield atmosphere overlay */
-.board-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(ellipse at 30% 30%, rgba(212,175,55,0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 70%, rgba(139,0,0,0.03) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 3;
-}
-
-/* Piece shadow enhancement for 3D effect */
-.square {
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.square.light {
-  box-shadow: 
-    inset 0 1px 3px rgba(0,0,0,0.08),
-    inset 0 -1px 1px rgba(255,255,255,0.3);
-}
-
-.square.dark {
-  box-shadow: 
-    inset 0 2px 4px rgba(0,0,0,0.3),
-    inset 0 -1px 1px rgba(255,255,255,0.1);
-}
-
-/* Battle scars pattern (subtle weathering on squares) */
-.square::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(circle at 20% 30%, rgba(0,0,0,0.02) 0%, transparent 3%),
-    radial-gradient(circle at 80% 70%, rgba(0,0,0,0.02) 0%, transparent 2%),
-    radial-gradient(circle at 50% 50%, rgba(0,0,0,0.01) 0%, transparent 5%);
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-/* Roman numerals for ranks (optional addition) */
-.board-wrapper[data-roman-numerals="true"] .square[data-rank]::before {
-  font-family: 'Cinzel', Georgia, serif;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-}
-
-/* Enhanced interaction feedback */
-.square:active:not(.disabled) {
-  transform: scale(0.96);
-  box-shadow: inset 0 4px 8px rgba(0,0,0,0.4);
-}
-
-/* Piece capture animation hint */
-@keyframes captureFlash {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 1; }
-}
-
-.square.capture-target::before {
-  content: '⚔️';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2rem;
-  color: rgba(139,0,0,0.6);
-  animation: captureFlash 1s ease-in-out;
-  z-index: 4;
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-  .board-wrapper {
-    max-width: 350px;
-    border-width: 4px;
-  }
-  
-  .piece {
-    width: 80%;
-    height: 80%;
-  }
-  
-  .square:hover:not(.disabled) .piece {
-    transform: scale(1.1) translateY(-3px);
-  }
-}
-
-/* Tablet adjustments */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .board-wrapper {
-    max-width: 400px;
-  }
-}
-
-/* ========================================
-   ROMAN BATTLE THEME - Enhanced Animations
-   ======================================== */
-
-:root {
-  --roman-gold: #d4af37;
-  --roman-red: #8b0000;
-  --legion-green: #5d8a33;
-  --stone-gray: #2a2a2a;
-  --parchment: #f4e8d0;
-  --blood-red: #c41e3a;
-}
-
-/* Keyframe Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInFromLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInFromRight {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes glowPulse {
-  0%, 100% {
-    box-shadow: 0 0 5px var(--roman-gold), 0 0 10px var(--roman-gold);
-  }
-  50% {
-    box-shadow: 0 0 20px var(--roman-gold), 0 0 30px var(--roman-gold), 0 0 40px var(--roman-gold);
-  }
-}
-
-@keyframes shieldShine {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
-
-@keyframes battleFlag {
-  0%, 100% {
-    transform: rotate(-2deg);
-  }
-  50% {
-    transform: rotate(2deg);
-  }
-}
-
-@keyframes marchIn {
-  from {
-    transform: translateX(-100vw);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes swordSlash {
-  0% {
-    transform: rotate(-10deg) scale(0.95);
-  }
-  50% {
-    transform: rotate(5deg) scale(1.05);
-  }
-  100% {
-    transform: rotate(0deg) scale(1);
-  }
-}
-
-@keyframes victoryShine {
-  0% {
-    opacity: 0;
-    transform: scale(0.8) rotate(-10deg);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1) rotate(5deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-@keyframes defeatShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-10px) rotate(-2deg); }
-  75% { transform: translateX(10px) rotate(2deg); }
-}
-
-@keyframes torchFlicker {
-  0%, 100% { opacity: 1; text-shadow: 0 0 10px #ff6b35; }
-  50% { opacity: 0.8; text-shadow: 0 0 20px #ff6b35, 0 0 30px #ff4500; }
-}
-
-@keyframes bannerWave {
-  0%, 100% { 
-    transform: skewX(0deg); 
-    background-position: 0% 50%;
-  }
-  50% { 
-    transform: skewX(-2deg); 
-    background-position: 100% 50%;
-  }
-}
-
-/* Body & Background */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Cinzel', 'Trajan Pro', Georgia, serif;
-  background: 
-    linear-gradient(135deg, rgba(139, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.8) 100%),
-    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px),
-    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><path d="M0 0h80v80H0z" fill="%23050505"/><path d="M20 20l10-10M60 20l10 10M20 60l-10 10M60 60l10-10" stroke="%23111" stroke-width="0.5"/></svg>');
-  background-size: cover, auto, 80px 80px;
-  background-attachment: fixed;
-  color: var(--parchment);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 12px;
-  position: relative;
-  overflow-x: hidden;
-}
-
-/* Atmospheric overlay */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Menu Container */
-.menu {
-  max-width: 760px;
-  margin: auto;
-  padding: 32px 28px;
-  background: 
-    linear-gradient(180deg, rgba(20,10,5,0.95) 0%, rgba(10,5,2,0.98) 100%),
-    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(212,175,55,0.03) 2px, rgba(212,175,55,0.03) 4px);
-  border: 3px solid var(--roman-gold);
-  border-radius: 16px;
-  box-shadow: 
-    0 30px 60px rgba(0,0,0,0.8),
-    inset 0 1px 0 rgba(212,175,55,0.3),
-    0 0 40px rgba(212,175,55,0.2);
-  position: relative;
-  animation: fadeInUp 0.8s ease-out;
-  z-index: 1;
-}
-
-/* Decorative corners */
-.menu::before,
-.menu::after {
-  content: '⚔️';
-  position: absolute;
-  font-size: 1.5rem;
-  color: var(--roman-gold);
-  opacity: 0.6;
-  animation: torchFlicker 3s ease-in-out infinite;
-}
-
-.menu::before {
-  top: 15px;
-  left: 15px;
-}
-
-.menu::after {
-  top: 15px;
-  right: 15px;
-}
-
-/* Title */
-.menu-title {
-  font-size: 2.2rem;
-  letter-spacing: 0.15em;
-  text-align: center;
-  margin: 0 0 8px;
-  color: var(--roman-gold);
-  font-family: 'Cinzel', Georgia, serif;
-  font-weight: 700;
-  text-transform: uppercase;
-  text-shadow: 
-    2px 2px 4px rgba(0,0,0,0.8),
-    0 0 20px rgba(212,175,55,0.5);
-  animation: victoryShine 1.2s ease-out;
-  position: relative;
-}
-
-.menu-title::after {
-  content: '🏛️';
-  display: block;
-  font-size: 1.2rem;
-  margin-top: 8px;
-  animation: battleFlag 4s ease-in-out infinite;
-}
-
-.menu-subtitle {
-  text-align: center;
-  font-size: 0.85rem;
-  color: #bbb;
-  max-width: 580px;
-  margin: 0 auto 24px;
-  line-height: 1.7;
-  font-style: italic;
-  font-family: 'Lato', Arial, sans-serif;
-  animation: fadeInUp 1s ease-out 0.3s both;
-}
-
-/* Legion Cards */
-.legion-card {
-  margin: 20px auto;
-  padding: 18px;
-  border-radius: 12px;
-  background: rgba(15,10,5,0.9);
-  border: 2px solid var(--stone-gray);
-  width: fit-content;
-  max-width: 100%;
-  position: relative;
-  transition: all 0.3s ease;
-  animation: slideInFromLeft 0.6s ease-out;
-}
-
-.legion-card:nth-child(even) {
-  animation: slideInFromRight 0.6s ease-out;
-}
-
-.legion-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
-
-.legion-card.masters {
-  border: 3px solid var(--roman-gold);
-  background: 
-    linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(139,69,19,0.1) 100%),
-    rgba(20,15,10,0.95);
-  box-shadow: 
-    0 8px 20px rgba(212,175,55,0.3),
-    inset 0 1px 0 rgba(212,175,55,0.2);
-  animation: slideInFromLeft 0.6s ease-out, glowPulse 3s ease-in-out infinite;
-}
-
-.legion-card.club {
-  border: 3px solid var(--legion-green);
-  background: 
-    linear-gradient(135deg, rgba(93,138,51,0.15) 0%, rgba(74,112,40,0.1) 100%),
-    rgba(15,20,10,0.95);
-  box-shadow: 
-    0 8px 20px rgba(93,138,51,0.3),
-    inset 0 1px 0 rgba(93,138,51,0.2);
-}
-
-/* Legion Header */
-.legion-header {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: var(--roman-gold);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-  animation: swordSlash 0.5s ease-out;
-}
-
-/* Battle Count */
-.battle-count {
-  text-align: center;
-  margin-top: 10px;
-  margin-bottom: 8px;
-  font-size: 0.95rem;
-  color: #d4af37;
-  font-weight: 600;
-  text-shadow: 0 0 10px rgba(212,175,55,0.4);
-  animation: fadeInUp 1s ease-out 0.5s both;
-}
-
-/* Buttons */
-.menu-btn {
-  width: 100%;
-  padding: 16px;
-  margin: 8px 0;
-  background: linear-gradient(135deg, var(--legion-green) 0%, #4a7028 100%);
-  color: #fff;
-  border: 2px solid rgba(255,255,255,0.2);
-  border-radius: 12px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 
-    0 6px 0 #3a5020,
-    0 8px 15px rgba(0,0,0,0.4);
-  position: relative;
-  overflow: hidden;
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.menu-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-  transition: left 0.5s;
-}
-
-.menu-btn:hover::before {
-  left: 100%;
-}
-
-.menu-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 
-    0 8px 0 #3a5020,
-    0 12px 25px rgba(0,0,0,0.5);
-  border-color: rgba(255,255,255,0.4);
-}
-
-.menu-btn:active {
-  transform: translateY(2px);
-  box-shadow: 
-    0 2px 0 #3a5020,
-    0 4px 10px rgba(0,0,0,0.4);
-}
-
-.menu-btn.primary {
-  width: 140px;
-  padding: 12px 0;
-  font-size: 1rem;
-  background: linear-gradient(135deg, var(--roman-gold) 0%, #b8941f 100%);
-  box-shadow: 
-    0 6px 0 #8b6f1a,
-    0 8px 15px rgba(212,175,55,0.4);
-  animation: fadeInUp 0.8s ease-out;
-}
-
-.menu-btn.primary:hover {
-  box-shadow: 
-    0 8px 0 #8b6f1a,
-    0 12px 25px rgba(212,175,55,0.6);
-}
-
-.menu-btn.primary:active {
-  box-shadow: 
-    0 2px 0 #8b6f1a,
-    0 4px 10px rgba(212,175,55,0.4);
-}
-
-/* Reset Button */
+/* Reset Button - Keep subtle */
 #resetBtn,
 .menu-btn.reset {
   background: transparent;
@@ -779,27 +9,378 @@ body::before {
   padding: 10px 16px;
   margin: 8px auto;
   width: auto;
-  animation: fadeInUp 1s ease-out 0.7s both;
 }
 
 #resetBtn:hover,
 .menu-btn.reset:hover {
-  color: var(--blood-red);
-  border-color: var(--blood-red);
+  color: #c41e3a;
+  border-color: #c41e3a;
   background: rgba(196,30,58,0.1);
   transform: none;
   box-shadow: 0 0 15px rgba(196,30,58,0.3);
+}/* ========================================
+   ROMAN BATTLE CHESS - OPTIMIZED THEME
+   Masters: Maroon + Gold | Club: Maroon + Silver
+   Board: Dusty Earth Battlefield
+   ======================================== */
+
+:root {
+  --roman-gold: #d4af37;
+  --roman-silver: #c0c0c0;
+  --maroon-costume: #800003;
+  --dusty-earth: #c4a57b;
+  --sparse-grass: #9b8b5f;
+  --parchment: #f4e8d0;
+  --blood-red: #c41e3a;
 }
 
-/* Rank Progress */
+/* ========================================
+   CHESS BOARD - OPTIMIZED FOR PERFORMANCE
+   ======================================== */
+
+.board-wrapper {
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  border: 6px solid #ffffff;
+  border-radius: 4px;
+  align-self: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+  position: relative;
+  background: #1a1410;
+}
+
+/* Squares - Hardware Accelerated */
+.square {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: filter 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  border: 1px solid rgba(0,0,0,0.08);
+  overflow: hidden;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Light squares - Dusty Earth */
+.square.light {
+  background: radial-gradient(ellipse at top left, #c4a57b 0%, #b89968 100%);
+}
+
+/* Dark squares - Sparse Grass */
+.square.dark {
+  background: radial-gradient(ellipse at top left, #9b8b5f 0%, #8a7a4f 100%);
+}
+
+/* Hover - Optimized */
+.square:hover:not(.disabled) {
+  filter: brightness(1.1);
+  z-index: 10;
+  box-shadow: inset 0 0 15px rgba(212,175,55,0.25);
+}
+
+.square.light:hover:not(.disabled) {
+  background: 
+    radial-gradient(circle at center, rgba(212,175,55,0.15) 0%, transparent 70%),
+    radial-gradient(ellipse at top left, #c4a57b 0%, #b89968 100%);
+}
+
+.square.dark:hover:not(.disabled) {
+  background: 
+    radial-gradient(circle at center, rgba(212,175,55,0.2) 0%, transparent 70%),
+    radial-gradient(ellipse at top left, #9b8b5f 0%, #8a7a4f 100%);
+}
+
+/* Selected Square */
+.square.selected {
+  background: radial-gradient(circle at center, #ffd700 0%, #d4af37 100%) !important;
+  box-shadow: inset 0 0 15px rgba(212,175,55,0.7), 0 0 25px rgba(212,175,55,0.5);
+  border: 2px solid #8b6914;
+}
+
+/* Last Move */
+.square.last-move {
+  background: 
+    radial-gradient(circle at center, rgba(139,0,0,0.3) 0%, transparent 60%),
+    radial-gradient(ellipse at top left, #c4a57b 0%, #b89968 100%) !important;
+  box-shadow: inset 0 0 12px rgba(139,0,0,0.25);
+}
+
+.square.dark.last-move {
+  background: 
+    radial-gradient(circle at center, rgba(139,0,0,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse at top left, #9b8b5f 0%, #8a7a4f 100%) !important;
+}
+
+/* ========================================
+   PIECES - OPTIMIZED
+   ======================================== */
+
+.piece {
+  width: 85%;
+  height: 85%;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.85));
+  pointer-events: none;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  position: relative;
+  z-index: 5;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.square:hover:not(.disabled) .piece {
+  transform: scale(1.08) translateY(-3px) translateZ(0);
+  filter: 
+    drop-shadow(0 8px 16px rgba(0,0,0,0.9))
+    drop-shadow(0 3px 6px rgba(212,175,55,0.3))
+    brightness(1.08);
+}
+
+.square.selected .piece {
+  transform: scale(1.05) translateY(-2px) translateZ(0);
+  filter: 
+    drop-shadow(0 8px 16px rgba(212,175,55,0.5))
+    brightness(1.15);
+}
+
+.square.last-move .piece {
+  animation: pieceLanded 0.3s ease-out;
+}
+
+@keyframes pieceLanded {
+  0% { transform: scale(1.15) translateY(-6px) translateZ(0); }
+  60% { transform: scale(0.97) translateY(1px) translateZ(0); }
+  100% { transform: scale(1) translateY(0) translateZ(0); }
+}
+
+/* ========================================
+   LEGION CARDS - MASTERS (GOLD) & CLUB (SILVER)
+   ======================================== */
+
+.legion-card {
+  margin: 20px auto;
+  padding: 18px;
+  border-radius: 12px;
+  background: rgba(15,10,5,0.9);
+  border: 2px solid #2a2a2a;
+  width: fit-content;
+  max-width: 100%;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Masters Legion - Maroon Costume + Gold Armor */
+.legion-card.masters {
+  border: 3px solid var(--roman-gold);
+  background: 
+    linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(128,0,3,0.15) 100%),
+    rgba(20,15,10,0.95);
+  box-shadow: 
+    0 8px 20px rgba(212,175,55,0.3),
+    0 0 30px rgba(128,0,3,0.15);
+}
+
+.legion-card.masters:hover {
+  box-shadow: 
+    0 12px 30px rgba(212,175,55,0.4),
+    0 0 40px rgba(128,0,3,0.2);
+}
+
+.legion-card.masters .legion-header {
+  color: var(--roman-gold);
+  text-shadow: 
+    2px 2px 4px rgba(0,0,0,0.8),
+    0 0 15px rgba(212,175,55,0.4);
+}
+
+/* Club Legion - Maroon Costume + Silver Armor */
+.legion-card.club {
+  border: 3px solid var(--roman-silver);
+  background: 
+    linear-gradient(135deg, rgba(192,192,192,0.12) 0%, rgba(128,0,3,0.15) 100%),
+    rgba(15,20,15,0.95);
+  box-shadow: 
+    0 8px 20px rgba(192,192,192,0.3),
+    0 0 30px rgba(128,0,3,0.15);
+}
+
+.legion-card.club:hover {
+  box-shadow: 
+    0 12px 30px rgba(192,192,192,0.4),
+    0 0 40px rgba(128,0,3,0.2);
+}
+
+.legion-card.club .legion-header {
+  color: var(--roman-silver);
+  text-shadow: 
+    2px 2px 4px rgba(0,0,0,0.8),
+    0 0 15px rgba(192,192,192,0.4);
+}
+
+.legion-header {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInFromLeft {
+  from { opacity: 0; transform: translateX(-50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInFromRight {
+  from { opacity: 0; transform: translateX(50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes victoryShine {
+  0% { opacity: 0; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Cinzel', Georgia, serif;
+  background: 
+    linear-gradient(135deg, rgba(139, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.8) 100%),
+    #050505;
+  background-attachment: fixed;
+  color: var(--parchment);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 12px;
+}
+
+.menu {
+  max-width: 760px;
+  margin: auto;
+  padding: 32px 28px;
+  background: rgba(20,10,5,0.95);
+  border: 3px solid #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.menu-title {
+  font-size: 2.2rem;
+  letter-spacing: 0.15em;
+  text-align: center;
+  margin: 0 0 8px;
+  color: var(--maroon-costume);
+  font-weight: 700;
+  text-transform: uppercase;
+  text-shadow: 
+    2px 2px 4px rgba(0,0,0,0.8),
+    0 0 20px rgba(128,0,3,0.6);
+  animation: victoryShine 1.2s ease-out;
+}
+
+.menu-subtitle {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #bbb;
+  margin: 0 auto 24px;
+  line-height: 1.7;
+  font-style: italic;
+}
+
+.menu-btn {
+  width: 100%;
+  padding: 16px;
+  margin: 8px 0;
+  background: linear-gradient(135deg, var(--maroon-costume) 0%, #600002 100%);
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: 'Cinzel', serif;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 0 #4a0001, 0 8px 15px rgba(0,0,0,0.4);
+}
+
+.menu-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 0 #4a0001, 0 12px 25px rgba(0,0,0,0.5);
+}
+
+.menu-btn.primary {
+  width: 140px;
+  padding: 12px 0;
+}
+
+/* Master Button - Gold */
+#masterBtn,
+.menu-btn.master {
+  background: linear-gradient(135deg, var(--roman-gold) 0%, #b8941f 100%);
+  box-shadow: 0 6px 0 #8b6f1a, 0 8px 15px rgba(212,175,55,0.4);
+  border-color: rgba(212,175,55,0.3);
+}
+
+#masterBtn:hover,
+.menu-btn.master:hover {
+  box-shadow: 0 8px 0 #8b6f1a, 0 12px 25px rgba(212,175,55,0.6);
+  border-color: rgba(212,175,55,0.5);
+}
+
+/* Club Button - Silver */
+#lichessBtn,
+.menu-btn.club-btn {
+  background: linear-gradient(135deg, var(--roman-silver) 0%, #a0a0a0 100%);
+  box-shadow: 0 6px 0 #808080, 0 8px 15px rgba(192,192,192,0.4);
+  border-color: rgba(192,192,192,0.3);
+  color: #000;
+  font-weight: 800;
+}
+
+#lichessBtn:hover,
+.menu-btn.club-btn:hover {
+  box-shadow: 0 8px 0 #808080, 0 12px 25px rgba(192,192,192,0.6);
+  border-color: rgba(192,192,192,0.5);
+}
+
 .rank-progress {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
   margin: 12px 0;
-  animation: fadeInUp 0.8s ease-out 0.4s both;
 }
 
 .rank-step {
@@ -809,48 +390,27 @@ body::before {
   font-size: 0.8rem;
   border: 1px solid #333;
   transition: all 0.3s ease;
-  animation: fadeInUp 0.3s ease-out backwards;
 }
-
-.rank-step:nth-child(1) { animation-delay: 0.5s; }
-.rank-step:nth-child(2) { animation-delay: 0.6s; }
-.rank-step:nth-child(3) { animation-delay: 0.7s; }
-.rank-step:nth-child(4) { animation-delay: 0.8s; }
-.rank-step:nth-child(5) { animation-delay: 0.9s; }
-.rank-step:nth-child(6) { animation-delay: 1s; }
 
 .rank-step.active {
-  background: linear-gradient(135deg, var(--roman-gold), #b8941f);
-  color: #000;
+  background: linear-gradient(135deg, var(--maroon-costume), #600002);
+  color: #fff;
   font-weight: bold;
-  border-color: var(--roman-gold);
-  box-shadow: 0 0 20px rgba(212,175,55,0.6);
+  border-color: var(--maroon-costume);
+  box-shadow: 0 0 20px rgba(128,0,3,0.6);
   transform: scale(1.15);
-  animation: victoryShine 0.6s ease-out, glowPulse 2s ease-in-out infinite;
 }
 
-/* Battle History */
 .battle-history {
   padding: 10px 12px;
   background: rgba(20,10,5,0.8);
   border-radius: 8px;
   font-size: 0.8rem;
-  border: 2px solid rgba(212,175,55,0.3);
+  border: 2px solid rgba(255,255,255,0.3);
   margin-top: 12px;
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
-  animation: fadeInUp 1s ease-out 0.6s both;
-}
-
-.battle-history-title {
-  font-size: 0.85rem;
-  font-weight: bold;
-  color: var(--roman-gold);
-  margin-bottom: 6px;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .battle-badges {
@@ -867,168 +427,52 @@ body::before {
   font-size: 0.75rem;
   box-shadow: 0 2px 5px rgba(0,0,0,0.4);
   transition: transform 0.2s;
-  animation: fadeInUp 0.4s ease-out backwards;
 }
-
-.battle-badge:nth-child(1) { animation-delay: 0.7s; }
-.battle-badge:nth-child(2) { animation-delay: 0.8s; }
-.battle-badge:nth-child(3) { animation-delay: 0.9s; }
-.battle-badge:nth-child(4) { animation-delay: 1s; }
-.battle-badge:nth-child(5) { animation-delay: 1.1s; }
 
 .battle-badge:hover {
-  transform: scale(1.1) rotate(-3deg);
+  transform: scale(1.1);
 }
 
-.battle-badge.levy { background: #e74c3c; color: #fff; }
-.battle-badge.hastatus { background: #e67e22; color: #fff; }
-.battle-badge.principes { background: #f39c12; color: #222; }
-.battle-badge.triarius { background: #27ae60; color: #fff; }
-.battle-badge.imperator { background: var(--roman-gold); color: #222; }
+/* All battle badges use maroon gradient */
+.battle-badge.levy { 
+  background: linear-gradient(135deg, var(--maroon-costume), #600002);
+  color: #fff; 
+}
+.battle-badge.hastatus { 
+  background: linear-gradient(135deg, #a00004, var(--maroon-costume));
+  color: #fff; 
+}
+.battle-badge.principes { 
+  background: linear-gradient(135deg, #c00005, #a00004);
+  color: #fff; 
+}
+.battle-badge.triarius { 
+  background: linear-gradient(135deg, #d00006, #b00005);
+  color: #fff; 
+}
+.battle-badge.imperator { 
+  background: linear-gradient(135deg, #ff0007, #d00006);
+  color: #fff;
+  font-weight: 900;
+}
 
-/* Game Container */
 .game-container {
   max-width: 500px;
   width: 100%;
   background: rgba(15,10,5,0.95);
-  border: 3px solid var(--roman-gold);
+  border: 3px solid #ffffff;
   border-radius: 16px;
   padding: 20px;
   margin: 15px 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: 
-    0 30px 60px rgba(0,0,0,0.8),
-    0 0 40px rgba(212,175,55,0.2);
-  animation: marchIn 0.8s ease-out;
-}
-
-/* Chess Board */
-.board-wrapper {
-  width: 100%;
-  max-width: 420px;
-  aspect-ratio: 1;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  border: 4px solid var(--roman-gold);
-  border-radius: 8px;
-  align-self: center;
-  box-shadow: 
-    0 10px 30px rgba(0,0,0,0.6),
-    inset 0 0 20px rgba(212,175,55,0.1);
-  animation: fadeInUp 0.6s ease-out 0.2s both;
-}
-
-.square {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.square.light { background: #f0d9b5; }
-.square.dark { background: #b58863; }
-
-.square:hover:not(.disabled) {
-  filter: brightness(1.2);
-  transform: scale(1.05);
-  z-index: 10;
-}
-
-.square.selected {
-  background: #ffd700 !important;
-  box-shadow: inset 0 0 0 4px var(--roman-gold);
-  animation: glowPulse 1.5s ease-in-out infinite;
-}
-
-.square.last-move {
-  background: rgba(212,175,55,0.5) !important;
-  animation: swordSlash 0.5s ease-out;
-}
-
-.piece {
-  width: 84%;
-  height: 84%;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8));
-  pointer-events: none;
-  transition: transform 0.2s;
-}
-
-.square:hover .piece {
-  transform: scale(1.1);
-}
-
-/* Messages */
-.theory-message,
-.end-summary {
-  background: rgba(20,10,5,0.98);
-  padding: 16px 18px;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  border: 2px solid rgba(212,175,55,0.4);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-  max-height: 400px;
-  overflow-y: auto;
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.end-summary h3 {
-  font-size: 1.3rem;
-  margin-bottom: 12px;
-  color: var(--roman-gold);
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-  animation: victoryShine 0.8s ease-out;
-}
-
-/* Promotion/Demotion Messages */
-.promotion-message {
-  background: linear-gradient(135deg, rgba(39,174,96,0.9), rgba(27,143,78,0.9));
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  font-weight: bold;
-  text-align: center;
-  border: 2px solid var(--legion-green);
-  font-size: 0.95rem;
-  color: #fff;
-  box-shadow: 0 8px 20px rgba(39,174,96,0.5);
-  animation: victoryShine 1s ease-out;
-}
-
-.demotion-message {
-  background: linear-gradient(135deg, rgba(231,76,60,0.9), rgba(192,57,43,0.9));
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  font-weight: bold;
-  text-align: center;
-  border: 2px solid var(--blood-red);
-  font-size: 0.95rem;
-  color: #fff;
-  box-shadow: 0 8px 20px rgba(231,76,60,0.5);
-  animation: defeatShake 0.5s ease-out;
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 10px;
-  flex-wrap: wrap;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8);
 }
 
 .btn {
   padding: 12px 20px;
-  background: linear-gradient(135deg, var(--legion-green), #4a7028);
+  background: linear-gradient(135deg, var(--maroon-costume), #600002);
   color: #fff;
   border: 2px solid rgba(255,255,255,0.2);
   border-radius: 10px;
@@ -1039,38 +483,50 @@ body::before {
   transition: all 0.3s ease;
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(0,0,0,0.5);
-  border-color: rgba(255,255,255,0.4);
-}
-
-.btn:active {
-  transform: translateY(0);
+  background: linear-gradient(135deg, #a00004, #800003);
 }
 
 .btn:disabled {
   background: #444;
   opacity: 0.5;
   cursor: not-allowed;
-  border-color: #333;
 }
 
-/* Info Line */
 .info-line {
   font-size: 0.95rem;
-  color: var(--roman-gold);
+  color: var(--maroon-costume);
   text-align: center;
   margin: 6px 0;
   font-weight: 600;
-  text-shadow: 0 0 10px rgba(212,175,55,0.3);
-  animation: fadeInUp 0.6s ease-out 0.4s both;
+  text-shadow: 0 0 10px rgba(128,0,3,0.4);
 }
 
-/* Stats Grid */
+.end-summary {
+  background: rgba(20,10,5,0.98);
+  padding: 16px 18px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border: 2px solid rgba(255,255,255,0.4);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+
+.end-summary h3 {
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+  color: var(--maroon-costume);
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 
+    2px 2px 4px rgba(0,0,0,0.8),
+    0 0 15px rgba(128,0,3,0.5);
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -1084,60 +540,49 @@ body::before {
   padding: 10px;
   background: rgba(0,0,0,0.4);
   border-radius: 8px;
-  border: 1px solid rgba(212,175,55,0.3);
-  transition: transform 0.2s;
-}
-
-.stats-grid div:hover {
-  transform: scale(1.05);
-  border-color: rgba(212,175,55,0.6);
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
 .stats-grid div strong {
   display: block;
-  color: var(--roman-gold);
+  color: var(--maroon-costume);
   font-size: 1.3rem;
   margin-top: 4px;
   font-weight: bold;
+  text-shadow: 0 0 8px rgba(128,0,3,0.4);
 }
 
-/* Warning Message */
-.warning-message {
-  background: rgba(231,76,60,0.3);
-  border: 2px solid var(--blood-red);
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-top: 10px;
-  font-size: 0.8rem;
-  line-height: 1.4;
-  color: #ff8888;
+.promotion-message {
+  background: linear-gradient(135deg, rgba(39,174,96,0.9), rgba(27,143,78,0.9));
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
   font-weight: bold;
   text-align: center;
-  animation: defeatShake 0.5s ease-out;
+  border: 2px solid #27ae60;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(39,174,96,0.5);
 }
 
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 10px;
+.demotion-message {
+  background: linear-gradient(135deg, rgba(231,76,60,0.9), rgba(192,57,43,0.9));
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-weight: bold;
+  text-align: center;
+  border: 2px solid var(--blood-red);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(231,76,60,0.5);
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.4);
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--roman-gold);
-  border-radius: 5px;
-  border: 2px solid rgba(0,0,0,0.4);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #b8941f;
-}
-
-/* Responsive */
+/* Mobile */
 @media (max-width: 768px) {
+  .board-wrapper {
+    max-width: 350px;
+    border-width: 4px;
+  }
+  
   .menu {
     padding: 24px 20px;
   }
@@ -1145,17 +590,4 @@ body::before {
   .menu-title {
     font-size: 1.8rem;
   }
-  
-  .legion-card {
-    padding: 14px;
-  }
-  
-  .board-wrapper {
-    max-width: 350px;
-  }
-  
-  .btn {
-    padding: 10px 16px;
-    font-size: 0.85rem;
-  }
-
+}
