@@ -653,11 +653,11 @@ body {
 
 .info-line {
   font-size: 0.95rem;
-  color: var(--maroon-costume);
+  color: #ffffff;
   text-align: center;
   margin: 6px 0;
   font-weight: 600;
-  text-shadow: 0 0 10px rgba(128,0,3,0.4);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
 
 .end-summary {

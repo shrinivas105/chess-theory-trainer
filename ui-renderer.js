@@ -157,6 +157,9 @@ class UIRenderer {
           📜 GAME RULES
         </h3>
 
+ <p style="font-size:0.8rem; line-height:1.4; color:#bbb;">
+  Your ultimate aim is to earn 1,500 Merit and ascend to <strong style="color:var(--gold);">Legatus</strong> — the highest rank of the Roman army.
+</p>
         <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin:0;">
           <strong style="color:var(--gold);">Stay within opening theory to earn honor.</strong>
           Leave the book early, and the battle ends — judgment is final at that moment.
@@ -177,7 +180,9 @@ class UIRenderer {
           </strong>
           Flee too early, and history will remember you as one who ran from the battlefield.
         </p>
-
+         <p style="font-size:0.75rem; color:var(--gold); text-align:center;">
+            All the best — reach the pinnacle of the Roman army.
+          </p>
         <button id="toggleRules"
           style="margin-top:10px; background:none; border:none;
                  color:var(--gold); font-size:0.75rem; cursor:pointer;">
@@ -193,10 +198,6 @@ class UIRenderer {
                      font-size:0.9rem; margin-bottom:6px;">
             📘 DETAILED RULES 
           </h4>
-		  <p style="font-size:0.8rem; line-height:1.4; color:#bbb;">
-  Your ultimate aim is to earn 1,500 Merit and ascend to <strong style="color:var(--gold);">Legatus</strong> — the highest rank of the Roman army.
-</p>
-
           <h4 style="margin-top:10px; color:var(--gold); font-size:0.8rem;">
             1. THE BATTLE
           </h4>
@@ -289,12 +290,6 @@ class UIRenderer {
               </tr>
             </tbody>
           </table>
-
-          
-
-          <p style="font-size:0.75rem; color:var(--gold); text-align:center;">
-            All the best — reach the pinnacle of the Roman army.
-          </p>
         </div>
       </div>
     </div>
