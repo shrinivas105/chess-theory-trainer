@@ -38,8 +38,8 @@ class ChessAPI {
   static async queryGames(source, fen) {
     const base = source === 'master' ? 'masters' : 'lichess';
     let url = `https://explorer.lichess.ovh/${base}?variant=standard&fen=${encodeURIComponent(fen)}`;
-    if (source === 'master') url += '&topGames=10';
-    else url += '&recentGames=10&ratings=1600,1800,2000,2200,2500';
+    if (source === 'master') url += '&topGames=4';
+    else url += '&recentGames=5&ratings=1600,1800,2000,2200,2500';
     try {
       const response = await fetch(url);
       if (!response.ok) return { topGames: [], recentGames: [] };

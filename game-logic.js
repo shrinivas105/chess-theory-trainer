@@ -238,7 +238,7 @@ class ChessTheoryApp {
       const data = await ChessAPI.queryExplorer(this.aiSource, fen);
       const totalGames = (data.white || 0) + (data.draws || 0) + (data.black || 0);
       this.gameCount = totalGames;
-      const minGames = this.aiSource === 'master' ? 5 : 20;
+      const minGames = this.aiSource === 'master' ? 1 : 15;
       
       if (totalGames < minGames || !data.moves || data.moves.length === 0) {
         const gamesData = await ChessAPI.queryGames(this.aiSource, fen);
