@@ -81,35 +81,48 @@ class UIRenderer {
       </p>
       ${authSection}
       <div style="font-size:.9rem;line-height:1.5;">
-        <div class="legion-card masters">
-          <div class="legion-header">🏆 Masters Legion</div>
-          <div class="legion-status">
-            ${masterLegion.title} (${masterMerit} merit) ${masterLegion.icon}
-          </div>
-          ${masterLegion.nextRank
-            ? `<div class="legion-next">${masterLegion.title} → ${masterLegion.nextRank}: ${masterLegion.pointsNeeded} more</div>`
-            : `<div class="legion-next">Highest rank achieved</div>`}
-          <div class="rank-progress">
-            ${masterLegion.rankOrder.map(r => `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`).join('')}
-          </div>
-          ${masterBattleHistory}
-<div style="font-size:0.8rem;color:#aaa;margin-top:4px;">Master Battles: ${this.app.gamesPlayedMaster}</div>
-        </div>
-        <div class="legion-card club">
-          <div class="legion-header">♟️ Club Legion</div>
-          <div class="legion-status">
-            ${clubLegion.title} (${clubMerit} merit) ${clubLegion.icon}
-          </div>
-          ${clubLegion.nextRank
-            ? `<div class="legion-next">${clubLegion.title} → ${clubLegion.nextRank}: ${clubLegion.pointsNeeded} more</div>`
-            : `<div class="legion-next">Highest rank achieved</div>`}
-          <div class="rank-progress">
-            ${clubLegion.rankOrder.map(r => `<div class="rank-step ${r === clubLegion.title ? 'active' : ''}">${r}</div>`).join('')}
-          </div>
-          ${clubBattleHistory}
-<div style="font-size:0.8rem;color:#aaa;margin-top:4px;">Club Battles: ${this.app.gamesPlayedLichess}</div>
-        </div>
-      </div>
+
+  <!-- CLUB LEGION FIRST -->
+  <div class="legion-card club">
+    <div class="legion-header">♟️ Club Legion</div>
+    <div class="legion-status">
+      ${clubLegion.title} (${clubMerit} merit) ${clubLegion.icon}
+    </div>
+    ${clubLegion.nextRank
+      ? `<div class="legion-next">${clubLegion.title} → ${clubLegion.nextRank}: ${clubLegion.pointsNeeded} more</div>`
+      : `<div class="legion-next">Highest rank achieved</div>`}
+    <div class="rank-progress">
+      ${clubLegion.rankOrder.map(r =>
+        `<div class="rank-step ${r === clubLegion.title ? 'active' : ''}">${r}</div>`
+      ).join('')}
+    </div>
+    ${clubBattleHistory}
+    <div style="font-size:0.8rem;color:#aaa;margin-top:4px;">
+      Club Battles: ${this.app.gamesPlayedLichess}
+    </div>
+  </div>
+
+  <!-- MASTERS LEGION SECOND -->
+  <div class="legion-card masters">
+    <div class="legion-header">🏆 Masters Legion</div>
+    <div class="legion-status">
+      ${masterLegion.title} (${masterMerit} merit) ${masterLegion.icon}
+    </div>
+    ${masterLegion.nextRank
+      ? `<div class="legion-next">${masterLegion.title} → ${masterLegion.nextRank}: ${masterLegion.pointsNeeded} more</div>`
+      : `<div class="legion-next">Highest rank achieved</div>`}
+    <div class="rank-progress">
+      ${masterLegion.rankOrder.map(r =>
+        `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`
+      ).join('')}
+    </div>
+    ${masterBattleHistory}
+    <div style="font-size:0.8rem;color:#aaa;margin-top:4px;">
+      Master Battles: ${this.app.gamesPlayedMaster}
+    </div>
+  </div>
+
+</div>
       <p class="menu-cta">Choose your campaign:</p>
       <div class="menu-actions">
         <button id="masterBtn" class="menu-btn primary">🥷 Master</button>

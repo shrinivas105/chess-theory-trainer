@@ -641,7 +641,7 @@ body {
   max-width: 95vw;
   width: 100%;
   background: rgba(15,10,5,0.95);
-  border: 3px solid var(--roman-gold);
+  border: 2px solid var(--roman-gold);
   border-radius: 16px;
   padding: 12px;
   margin: 15px auto;
