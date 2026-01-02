@@ -90,11 +90,25 @@ class UIRenderer {
     <div class="menu">
       <h1 class="menu-title">LINES OF THE LEGION</h1>
       <p class="menu-subtitle">
-        Survive recorded battle. Rise in the Roman army.
+        Hold the line. Survive the opening drawn from real games —
+        until theory ends and true battle begins.
       </p>
       ${authSection}
       <div style="font-size:.9rem;line-height:1.5;">
-
+        <div class="legion-card masters">
+          <div class="legion-header">🏆 Masters Legion</div>
+          <div class="legion-status">
+            ${masterLegion.title} (${masterMerit} merit) ${masterLegion.icon}
+          </div>
+          ${masterLegion.nextRank
+            ? `<div class="legion-next">${masterLegion.title} → ${masterLegion.nextRank}: ${masterLegion.pointsNeeded} more</div>`
+            : `<div class="legion-next">Highest rank achieved</div>`}
+          <div class="rank-progress">
+            ${masterLegion.rankOrder.map(r => `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`).join('')}
+          </div>
+          ${masterBattleHistory}
+<div style="font-size:0.8rem;color:#aaa;margin-top:4px;">Master Battles: ${this.app.gamesPlayedMaster}</div>
+        </div>
         <div class="legion-card club">
           <div class="legion-header">♟️ Club Legion</div>
           <div class="legion-status">
@@ -108,20 +122,6 @@ class UIRenderer {
           </div>
           ${clubBattleHistory}
 <div style="font-size:0.8rem;color:#aaa;margin-top:4px;">Club Battles: ${this.app.gamesPlayedLichess}</div>
-        </div>
-                <div class="legion-card masters">
-          <div class="legion-header">🏆 Masters Legion</div>
-          <div class="legion-status">
-            ${masterLegion.title} (${masterMerit} merit) ${masterLegion.icon}
-          </div>
-          ${masterLegion.nextRank
-            ? `<div class="legion-next">${masterLegion.title} → ${masterLegion.nextRank}: ${masterLegion.pointsNeeded} more</div>`
-            : `<div class="legion-next">Highest rank achieved</div>`}
-          <div class="rank-progress">
-            ${masterLegion.rankOrder.map(r => `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`).join('')}
-          </div>
-          ${masterBattleHistory}
-<div style="font-size:0.8rem;color:#aaa;margin-top:4px;">Master Battles: ${this.app.gamesPlayedMaster}</div>
         </div>
       </div>
       <p class="menu-cta">Choose your campaign:</p>
@@ -140,7 +140,7 @@ class UIRenderer {
  renderColorChoice() {
   document.getElementById('app').innerHTML = `
     <div class="menu">
-      <p class="menu-bwselection">Select your position in the line of battle.</p>
+      <p class="menu-subtitle">Select your position in the line of battle.</p>
 
       <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
         <button id="whiteBtn" class="menu-btn primary">Command White</button>
