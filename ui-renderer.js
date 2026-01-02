@@ -90,8 +90,7 @@ class UIRenderer {
     <div class="menu">
       <h1 class="menu-title">LINES OF THE LEGION</h1>
       <p class="menu-subtitle">
-        Hold the line. Survive the opening drawn from real games —
-        until theory ends and true battle begins.
+        Survive recorded battle. Rise in the Roman army.
       </p>
       ${authSection}
       <div style="font-size:.9rem;line-height:1.5;">
@@ -140,7 +139,7 @@ class UIRenderer {
  renderColorChoice() {
   document.getElementById('app').innerHTML = `
     <div class="menu">
-      <p class="menu-subtitle">Select your position in the line of battle.</p>
+      <p class="menu-bwsection>Select your position in the line of battle.</p>
 
       <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
         <button id="whiteBtn" class="menu-btn primary">Command White</button>
