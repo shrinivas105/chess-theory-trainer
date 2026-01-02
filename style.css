@@ -329,14 +329,17 @@ body {
 }
 
 .menu-subtitle {
-  font-size: 0.8rem;
- font-family: 'Cinzel', serif;
-  color: #e0e0e0;
+  font-style: italic;
+  font-size: 0.6rem;
+    font-family: 'Cinzel', serif;
+  color: #ffffff;
     text-align: center;
   background: linear-gradient(to right, #a0a0a0 0%, #ffffff 30%, #e8e8e8 50%, #ffffff 70%, #a0a0a0 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 15px rgba(255,255,255,0.4);
+  animation: silverPulse 4s ease-in-out infinite alternate;
 }
 
 .menu-bwsection {
