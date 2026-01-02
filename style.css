@@ -316,6 +316,7 @@ body {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 4px 8px rgba(0,0,0,0.5);
+    animation: none !important;  /* disable shimmer */
   position: relative;
 }
 
@@ -325,6 +326,7 @@ body {
   top: 0; left: -100%;
   width: 50%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: none !important;  /* disable shimmer */
 }
 
 .menu-subtitle {
@@ -338,20 +340,20 @@ body {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 15px rgba(255,255,255,0.4);
-  animation: silverPulse 4s ease-in-out infinite alternate;
+  animation: none !important;  
 }
 
 .menu-bwsection {
   font-size: 1.2rem;
  font-family: 'Cinzel', serif;
-  color: #e0e0e0;
+  color: #ffffff;
     text-align: center;
   background: linear-gradient(to right, #a0a0a0 0%, #ffffff 30%, #e8e8e8 50%, #ffffff 70%, #a0a0a0 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 15px rgba(255,255,255,0.4);
-  animation: silverPulse 4s ease-in-out infinite alternate;
+    animation: none !important; 
 }
 
 @keyframes goldShimmer {
