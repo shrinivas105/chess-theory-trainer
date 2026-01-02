@@ -317,7 +317,6 @@ body {
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 4px 8px rgba(0,0,0,0.5);
   position: relative;
-  animation: goldShimmer 2s ease-in-out;
 }
 
 .menu-title::before {
@@ -338,12 +337,10 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 15px rgba(255,255,255,0.4);
-  animation: silverPulse 4s ease-in-out infinite alternate;
 }
 
 .menu-bwsection {
-  font-size: 0.8rem;
+  font-size: 1.2rem;
  font-family: 'Cinzel', serif;
   color: #e0e0e0;
     text-align: center;
