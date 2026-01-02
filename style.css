@@ -478,7 +478,6 @@ body {
 /* =========================
    Tooltip (RIGHT SIDE)
    ========================= */
-
 .tooltip-container {
   position: relative;
   display: inline-flex;
@@ -536,6 +535,7 @@ body {
   transform: translateY(-50%) translateX(4px);
 }
 
+/* Desktop arrow - points LEFT to icon */
 .tooltip-content::after {
   content: '';
   position: absolute;
@@ -544,6 +544,32 @@ body {
   transform: translateY(-50%);
   border: 8px solid transparent;
   border-right-color: var(--roman-gold);
+}
+
+/* Mobile: Show tooltip ABOVE icon instead of to the right */
+@media (max-width: 768px) {
+  .tooltip-content {
+    left: 50%;
+    top: auto;
+    bottom: calc(100% + 12px);
+    transform: translateX(-50%);
+    min-width: 280px;
+    max-width: 90vw;
+  }
+  
+  .tooltip-container:hover .tooltip-content {
+    transform: translateX(-50%) translateY(-4px);
+  }
+  
+  /* Mobile arrow - points DOWN to icon */
+  .tooltip-content::after {
+    top: auto;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-right-color: transparent;
+    border-top-color: var(--roman-gold);
+  }
 }
 
 .tooltip-title {
@@ -555,7 +581,6 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-
 /* IMPORTANT: prevent clipping */
 .battle-history,
 .club-legion,
