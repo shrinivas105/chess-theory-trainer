@@ -206,26 +206,26 @@ async saveCloudProgress() {
   }
 
   renderAuthSection() {
-    if (this.isLoggedIn) {
-      return `
-        <div style="text-align:center;margin:20px 0;">
-          <strong>✓ Synced as ${this.user.email.split('@')[0]}</strong><br>
-          <button class="btn" style="margin-top:8px;" onclick="app.auth.handleSignOut()">
-            Sign Out
-          </button>
-        </div>
-      `;
-    } else {
-      return `
-        <div style="text-align:center;margin:20px 0;">
-          <button class="btn" onclick="app.auth.handleSignIn()">
-            🔐 Sign in with Google to sync across devices
-          </button>
-          <p style="font-size:0.8rem;color:#aaa;margin-top:10px;">
-            No account needed – progress is saved locally and works instantly!
-          </p>
-        </div>
-      `;
-    }
+  if (this.isLoggedIn) {
+    return `
+      <div style="position:absolute;top:12px;right:12px;font-size:0.75rem;color:#888;">
+        ✓ ${this.user.email.split('@')[0]}
+        <button style="margin-left:6px;padding:4px 8px;font-size:0.7rem;background:transparent;border:1px solid #555;color:#888;border-radius:4px;cursor:pointer;" onclick="app.auth.handleSignOut()">
+          Sign Out
+        </button>
+      </div>
+    `;
+  } else {
+    return `
+      <div style="position:absolute;top:12px;right:12px;">
+        <button style="padding:6px 12px;font-size:0.75rem;background:rgba(212,175,55,0.2);border:1px solid var(--roman-gold);color:var(--roman-gold);border-radius:6px;cursor:pointer;transition:all 0.3s ease;" 
+                onmouseover="this.style.background='rgba(212,175,55,0.3)'" 
+                onmouseout="this.style.background='rgba(212,175,55,0.2)'"
+                onclick="app.auth.handleSignIn()">
+          🔐 Sync
+        </button>
+      </div>
+    `;
   }
+}
 }
