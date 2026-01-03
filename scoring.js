@@ -56,6 +56,8 @@ class Scoring {
     const triarius = recentRanks.filter(r => r === 'Triarius').length;
     const imperator = recentRanks.filter(r => r === 'Imperator').length;
     const eliteCount = triarius + imperator;
+    const battlesPlayed = recentRanks.length;
+    const battlesLeft = 5 - battlesPlayed;
     
     // Legionary: Warning after 1 Levy
     if (rankTitle === 'Legionary' && levy === 1) {
@@ -69,18 +71,51 @@ class Scoring {
     
     // Centurion: Need at least 1 Triarius/Imperator in last 5
     if (rankTitle === 'Centurion') {
-      if (recentRanks.length >= 4 && eliteCount === 0) {
+      if (battlesPlayed >= 4 && eliteCount === 0) {
         return '⚔️ Commander: Centurion, you have shown no excellence! Score Triarius or Imperator in the last battle or be <span style="color:#e74c3c">demoted to Optio!</span>';
       }
     }
     
     // Tribunus: Need at least 3 Triarius/Imperator in last 5
     if (rankTitle === 'Tribunus') {
-      const battlesLeft = 5 - recentRanks.length;
       const neededElite = 3 - eliteCount;
       
-      if (neededElite > 0 && battlesLeft === 1 && neededElite === 1) {
-        return '⚔️ Commander: Tribunus, you need Triarius or Imperator in the last battle to maintain your rank or face <span style="color:#e74c3c">demotion to Centurion!</span>';
+      // Progressive warnings based on how many battles played
+      if (neededElite > 0) {
+        // After 1 battle with no elite
+        if (battlesPlayed === 1 && eliteCount === 0) {
+          return '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 4 battles to maintain rank!';
+        }
+        
+        // After 2 battles with <1 elite
+        if (battlesPlayed === 2 && eliteCount < 1) {
+          return '⚔️ Commander: Tribunus, you MUST score <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 3 battles or face demotion to Centurion!';
+        }
+        
+        // After 3 battles - show warning based on what's needed
+        if (battlesPlayed === 3) {
+          if (neededElite === 3) {
+            // 0 elite so far - mathematically impossible, will be demoted
+            return '⚔️ Commander: Tribunus, <span style="color:#e74c3c">IMPOSSIBLE</span> to score 3 elite in 2 battles! Demotion imminent!';
+          } else if (neededElite === 2) {
+            // 1 elite so far - need 2 more in 2 battles
+            return '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">2 more Triarius/Imperator</span> in your last 2 battles or be demoted to Centurion!';
+          } else if (neededElite === 1) {
+            // 2 elite so far - need 1 more
+            return '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">1 more Triarius/Imperator</span> in your last 2 battles to maintain rank!';
+          }
+        }
+        
+        // After 4 battles - final warning
+        if (battlesPlayed === 4) {
+          if (neededElite >= 2) {
+            // Need 2+ in 1 battle - impossible
+            return '⚔️ Commander: Tribunus, <span style="color:#e74c3c">IMPOSSIBLE</span> to secure required elite battles! Demotion imminent!';
+          } else if (neededElite === 1) {
+            // Need exactly 1 more
+            return '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">Triarius or Imperator</span> in the last battle to maintain your rank or face demotion to Centurion!';
+          }
+        }
       }
     }
     
