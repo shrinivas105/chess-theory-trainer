@@ -1,6 +1,7 @@
 class Scoring {
   static getPlayerEval(e, c) { return c === 'b' ? -e : e; }
   static getMoveQuality(t, p) { return p > 0 ? Math.round((t / p) * 100) : 0; }
+  
   static getTotalScore(m, t, e) {
     const ms = m * 4 * 0.25;
     const qs = this.getMoveQuality(t, m) * 0.40;
@@ -12,6 +13,7 @@ class Scoring {
     const s = Math.min(Math.round(b * mul), mul === 0.3 ? 30 : mul === 0.8 ? 60 : 100);
     return { score: s, penaltyReason: r };
   }
+  
   static getBattleRank(s, e, r) {
     const t = [85, 70, 55, 40];
     let n;
@@ -19,7 +21,7 @@ class Scoring {
     else if (e < -1.5) n = s >= t[3] ? 'Hastatus' : 'Levy';
     else n = s >= t[0] ? 'Imperator' : s >= t[1] ? 'Triarius' : s >= t[2] ? 'Principes' : s >= t[3] ? 'Hastatus' : 'Levy';
     const rks = {
-      Levy: { icon: "🪓", title: "Levy", msg: r || "Thrown onto the field unblooded — ranks break at first contact.", sub: "Fundamentals missing. Blunders erase all standing." },
+      Levy: { icon: "🪖", title: "Levy", msg: r || "Thrown onto the field unblooded — ranks break at first contact.", sub: "Fundamentals missing. Blunders erase all standing." },
       Hastatus: { icon: "🛡️", title: "Hastatus", msg: r || "You held the front line, shield locked, testing the enemy.", sub: "A sound beginning — discipline and precision needed." },
       Principes: { icon: "⚔️", title: "Principes", msg: r || "You fought with order and purpose, pressing where it mattered.", sub: "Strong theory, reliable structure, few weaknesses." },
       Triarius: { icon: "🦅", title: "Triarius", msg: r || "When the battle wavered, you advanced and broke the stalemate.", sub: "Veteran-level command of position and timing." },
@@ -27,8 +29,9 @@ class Scoring {
     };
     return { ...rks[n], score: s, penaltyReason: r };
   }
+  
   static getLegionRank(m = 0) {
-    const thresholds = [0, 100, 250, 500, 900, 1500];
+    const thresholds = [0, 200, 500, 900, 1300, 1750];
     const rankOrder = ['Recruit', 'Legionary', 'Optio', 'Centurion', 'Tribunus', 'Legatus'];
     let level = 0;
     for (let i = 0; i < thresholds.length; i++) {
@@ -44,15 +47,153 @@ class Scoring {
     }
     return { title, icon: iconMap[title], merit: m, nextRank, pointsNeeded, rankOrder, thresholds, level };
   }
+  
   static getDemotionWarning(rankTitle, recentRanks) {
     if (rankTitle === 'Recruit' || recentRanks.length === 0) return null;
+    
     const levy = recentRanks.filter(r => r === 'Levy').length;
     const hastatus = recentRanks.filter(r => r === 'Hastatus').length;
-    const principes = recentRanks.filter(r => r === 'Principes').length;
-    if (rankTitle === 'Legionary' && levy === 2) return '⚔️ Commander: Legionary, two Levy failures stain your record. One more = <span style="color:#e74c3c">stripped to Recruit!</span>';
-    if (rankTitle === 'Optio' && levy === 2) return '⚔️ Commander: Optio, two Levies mark your failures. One more Levy or Hastatus = <span style="color:#e74c3c">broken to Legionary!</span>';
-    if ((rankTitle === 'Centurion' || rankTitle === 'Tribunus') && (levy + hastatus) === 2) return `⚔️ Commander: ${rankTitle}, two weak battles disgrace your eagles. One more = <span style="color:#e74c3c">demoted to Optio!</span>`;
-    if (rankTitle === 'Legatus' && (levy + hastatus + principes) >= 2) return '⚔️ Commander: Legatus, your recent battles shame the legion. One more weak rank = <span style="color:#e74c3c">stripped of command!</span>';
+    const triarius = recentRanks.filter(r => r === 'Triarius').length;
+    const imperator = recentRanks.filter(r => r === 'Imperator').length;
+    const eliteCount = triarius + imperator;
+    
+    // Legionary: Warning after 1 Levy
+    if (rankTitle === 'Legionary' && levy === 1) {
+      return '⚔️ Commander: Legionary, one Levy failure stains your record. One more = <span style="color:#e74c3c">stripped to Recruit!</span>';
+    }
+    
+    // Optio: Warning after 1 Levy OR 1 Hastatus
+    if (rankTitle === 'Optio' && (levy === 1 || hastatus === 1)) {
+      return '⚔️ Commander: Optio, one weak battle marks your failure. One more Levy or Hastatus = <span style="color:#e74c3c">broken to Legionary!</span>';
+    }
+    
+    // Centurion: Need at least 1 Triarius/Imperator in last 5
+    if (rankTitle === 'Centurion') {
+      if (recentRanks.length >= 4 && eliteCount === 0) {
+        return '⚔️ Commander: Centurion, you have shown no excellence! Score Triarius or Imperator in the last battle or be <span style="color:#e74c3c">demoted to Optio!</span>';
+      }
+    }
+    
+    // Tribunus: Need at least 3 Triarius/Imperator in last 5
+    if (rankTitle === 'Tribunus') {
+      const battlesLeft = 5 - recentRanks.length;
+      const neededElite = 3 - eliteCount;
+      
+      if (neededElite > 0 && battlesLeft === 1 && neededElite === 1) {
+        return '⚔️ Commander: Tribunus, you need Triarius or Imperator in the last battle to maintain your rank or face <span style="color:#e74c3c">demotion to Centurion!</span>';
+      }
+    }
+    
     return null;
+  }
+  
+  // New method to check if demotion should occur
+  static checkDemotion(rankTitle, recentRanks, newBattleRank) {
+    if (rankTitle === 'Recruit') return null;
+    
+    const levy = recentRanks.filter(r => r === 'Levy').length;
+    const hastatus = recentRanks.filter(r => r === 'Hastatus').length;
+    const triarius = recentRanks.filter(r => r === 'Triarius').length;
+    const imperator = recentRanks.filter(r => r === 'Imperator').length;
+    const eliteCount = triarius + imperator;
+    
+    // Legionary: 2 Levy → Recruit
+    if (rankTitle === 'Legionary' && levy >= 2) {
+      return {
+        demote: true,
+        newRank: 'Recruit',
+        newMerit: 0,
+        message: '⚔️ Commander: Two Levy failures! You are stripped to Recruit! Prove your worth again!'
+      };
+    }
+    
+    // Optio: 2 Levy OR 2 Hastatus OR (1 Levy + 1 Hastatus) → Legionary
+    if (rankTitle === 'Optio' && (levy >= 2 || hastatus >= 2 || (levy >= 1 && hastatus >= 1))) {
+      return {
+        demote: true,
+        newRank: 'Legionary',
+        newMerit: 200,
+        message: '⚔️ Commander: Repeated weak battles! You are broken to Legionary! Rise or perish!'
+      };
+    }
+    
+    // Centurion: ANY Levy or Hastatus → immediate demotion
+    if (rankTitle === 'Centurion' && (newBattleRank === 'Levy' || newBattleRank === 'Hastatus')) {
+      return {
+        demote: true,
+        newRank: 'Optio',
+        newMerit: 500,
+        message: '⚔️ Commander: A Centurion showing such weakness! You are demoted to Optio! Disgraceful!'
+      };
+    }
+    
+    // Centurion: No Triarius/Imperator after 5 battles → demotion
+    if (rankTitle === 'Centurion' && recentRanks.length >= 5 && eliteCount === 0) {
+      return {
+        demote: true,
+        newRank: 'Optio',
+        newMerit: 500,
+        message: '⚔️ Commander: Five battles without excellence! You are demoted to Optio! Unacceptable!'
+      };
+    }
+    
+    // Tribunus: ANY Levy or Hastatus → immediate demotion
+    if (rankTitle === 'Tribunus' && (newBattleRank === 'Levy' || newBattleRank === 'Hastatus')) {
+      return {
+        demote: true,
+        newRank: 'Centurion',
+        newMerit: 900,
+        message: '⚔️ Commander: A Tribunus falling to such depths! You are stripped to Centurion! Shameful!'
+      };
+    }
+    
+    // Tribunus: Mathematical impossibility - can't get 3 elite in remaining battles
+    if (rankTitle === 'Tribunus') {
+      const battlesLeft = 5 - recentRanks.length;
+      const neededElite = 3 - eliteCount;
+      
+      if (neededElite > battlesLeft) {
+        return {
+          demote: true,
+          newRank: 'Centurion',
+          newMerit: 900,
+          message: '⚔️ Commander: You cannot achieve the required excellence! You are demoted to Centurion!'
+        };
+      }
+    }
+    
+    return null;
+  }
+  
+  // New method to check if promotion requirements are met
+  static canPromote(currentRank, merit, recentRanks) {
+    const thresholds = [0, 200, 500, 900, 1300, 1750];
+    const rankOrder = ['Recruit', 'Legionary', 'Optio', 'Centurion', 'Tribunus', 'Legatus'];
+    const currentLevel = rankOrder.indexOf(currentRank);
+    
+    if (currentLevel >= 5) return true; // Already at max
+    
+    const nextLevel = currentLevel + 1;
+    const nextRank = rankOrder[nextLevel];
+    const nextThreshold = thresholds[nextLevel];
+    
+    // Check if merit threshold is met
+    if (merit < nextThreshold) return false;
+    
+    // Centurion promotion: Need at least 1 Triarius/Imperator
+    if (nextRank === 'Tribunus') {
+      const triarius = recentRanks.filter(r => r === 'Triarius').length;
+      const imperator = recentRanks.filter(r => r === 'Imperator').length;
+      if ((triarius + imperator) < 1) return false;
+    }
+    
+    // Tribunus promotion: Need at least 3 Triarius/Imperator
+    if (nextRank === 'Legatus') {
+      const triarius = recentRanks.filter(r => r === 'Triarius').length;
+      const imperator = recentRanks.filter(r => r === 'Imperator').length;
+      if ((triarius + imperator) < 3) return false;
+    }
+    
+    return true;
   }
 }

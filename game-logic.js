@@ -1,5 +1,5 @@
 // game-logic.js - Core chess game logic and state management
-// FIXED: Demotion now properly updates merit BEFORE saving to cloud
+// UPDATED: New merit thresholds and promotion/demotion system
 
 class ChessTheoryApp {
   constructor() {
@@ -23,9 +23,8 @@ class ChessTheoryApp {
 
     // Load progress from localStorage first
     this.legionMerits = JSON.parse(localStorage.getItem('chessTheoryLegionMerits') || '{}');
-   // this.gamesPlayed = parseInt(localStorage.getItem('chessTheoryGamesPlayed') || '0');
-   this.gamesPlayedMaster = parseInt(localStorage.getItem('chessTheoryGamesPlayedMaster') || '0');
-   this.gamesPlayedLichess = parseInt(localStorage.getItem('chessTheoryGamesPlayedLichess') || '0');
+    this.gamesPlayedMaster = parseInt(localStorage.getItem('chessTheoryGamesPlayedMaster') || '0');
+    this.gamesPlayedLichess = parseInt(localStorage.getItem('chessTheoryGamesPlayedLichess') || '0');
     this.recentBattleRanksMaster = JSON.parse(localStorage.getItem('chessTheoryRecentBattleRanksMaster') || '[]');
     this.recentBattleRanksLichess = JSON.parse(localStorage.getItem('chessTheoryRecentBattleRanksLichess') || '[]');
 
@@ -46,8 +45,7 @@ class ChessTheoryApp {
   // Storage methods
   saveToLocalStorage() {
     localStorage.setItem('chessTheoryLegionMerits', JSON.stringify(this.legionMerits));
-    //localStorage.setItem('chessTheoryGamesPlayed', this.gamesPlayed.toString());
-	localStorage.setItem('chessTheoryGamesPlayedMaster', this.gamesPlayedMaster.toString());
+    localStorage.setItem('chessTheoryGamesPlayedMaster', this.gamesPlayedMaster.toString());
     localStorage.setItem('chessTheoryGamesPlayedLichess', this.gamesPlayedLichess.toString());
     localStorage.setItem('chessTheoryRecentBattleRanksMaster', JSON.stringify(this.recentBattleRanksMaster));
     localStorage.setItem('chessTheoryRecentBattleRanksLichess', JSON.stringify(this.recentBattleRanksLichess));
@@ -101,20 +99,20 @@ class ChessTheoryApp {
     if (!confirm('Are you sure you want to reset all your stats? This cannot be undone.')) return;
 
     this.legionMerits = {};
-	this.gamesPlayedMaster = 0;
-	this.gamesPlayedLichess = 0;
+    this.gamesPlayedMaster = 0;
+    this.gamesPlayedLichess = 0;
     this.recentBattleRanksMaster = [];
     this.recentBattleRanksLichess = [];
 
     localStorage.removeItem('chessTheoryLegionMerits');
-	localStorage.removeItem('chessTheoryGamesPlayedMaster');
-	localStorage.removeItem('chessTheoryGamesPlayedLichess');
+    localStorage.removeItem('chessTheoryGamesPlayedMaster');
+    localStorage.removeItem('chessTheoryGamesPlayedLichess');
     localStorage.removeItem('chessTheoryRecentBattleRanksMaster');
     localStorage.removeItem('chessTheoryRecentBattleRanksLichess');
 
-   if (this.auth.isLoggedIn) {
-  await this.auth.saveCloudProgress();  // This now saves the correct zeroed fields
-}
+    if (this.auth.isLoggedIn) {
+      await this.auth.saveCloudProgress();
+    }
 
     this.render();
   }
@@ -312,7 +310,7 @@ class ChessTheoryApp {
     if (recentRanks.length > 5) recentRanks.shift();
     this.setRecentBattleRanks(this.aiSource, recentRanks);
 
-    await this.updateLegionMerit(score);
+    await this.updateLegionMerit(score, battleRank.title);
 
     const moveQuality = Scoring.getMoveQuality(this.topMoveChoices, this.playerMoves);
     this.currentPGN = PGNExporter.generatePGN(
@@ -333,7 +331,7 @@ class ChessTheoryApp {
     this.ui.renderEndGameSummary(battleRank, moveQuality, displayEval, gamesToShow);
   }
 
-  async updateLegionMerit(score) {
+  async updateLegionMerit(score, battleRankTitle) {
     const meritKey = `${this.aiSource}_merit`;
     const oldMerit = this.legionMerits[meritKey] || 0;
     const oldLegion = Scoring.getLegionRank(oldMerit);
@@ -341,41 +339,39 @@ class ChessTheoryApp {
     const tempLegion = Scoring.getLegionRank(newMerit);
     let rankChanged = false;
 
-    if (tempLegion.level > oldLegion.level) {
-      newMerit = tempLegion.thresholds[tempLegion.level];
-      this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you've won. 🏺`;
-      rankChanged = true;
-    }
-
-    const newLegion = Scoring.getLegionRank(newMerit);
+    // Get recent battle ranks for demotion check
     const recentRanks = this.getRecentBattleRanks(this.aiSource);
-    const levyCount = recentRanks.filter(r => r === 'Levy').length;
-    const hastatusCount = recentRanks.filter(r => r === 'Hastatus').length;
-    const principesCount = recentRanks.filter(r => r === 'Principes').length;
-    let demoted = false;
 
-    if (newLegion.title === 'Legionary' && levyCount >= 3) demoted = true;
-    else if (newLegion.title === 'Optio' && (levyCount >= 3 || (levyCount >= 2 && hastatusCount >= 1))) demoted = true;
-    else if ((newLegion.title === 'Centurion' || newLegion.title === 'Tribunus') && (levyCount + hastatusCount) >= 3) demoted = true;
-    else if (newLegion.title === 'Legatus' && (levyCount + hastatusCount + principesCount) >= 3) demoted = true;
-
-    if (demoted && newLegion.level > 0) {
-      const newLevel = newLegion.level - 1;
-      const newRankTitle = newLegion.rankOrder[newLevel];
-      newMerit = newLegion.thresholds[newLevel];
-      this.rankChangeMessage = `⚔️ Commander: Your failures demand punishment. You are demoted to ${newRankTitle}! Rise or perish!`;
+    // Check for demotion FIRST
+    const demotionCheck = Scoring.checkDemotion(oldLegion.title, recentRanks, battleRankTitle);
+    
+    if (demotionCheck && demotionCheck.demote) {
+      // Apply demotion
+      newMerit = demotionCheck.newMerit;
+      this.rankChangeMessage = demotionCheck.message;
       rankChanged = true;
+      // Clear battle history on demotion
+      this.setRecentBattleRanks(this.aiSource, []);
+    } else {
+      // Check if player can be promoted (merit + requirements met)
+      if (Scoring.canPromote(oldLegion.title, newMerit, recentRanks) && tempLegion.level > oldLegion.level) {
+        // Promotion happens
+        newMerit = tempLegion.thresholds[tempLegion.level];
+        this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you've won. 🏺`;
+        rankChanged = true;
+        // Clear battle history on promotion
+        this.setRecentBattleRanks(this.aiSource, []);
+      }
     }
 
+    // Update merit
     this.legionMerits[meritKey] = newMerit;
+    
+    // Update games played count
     if (this.aiSource === 'master') {
-  this.gamesPlayedMaster++;
-} else {
-  this.gamesPlayedLichess++;
-}
-
-    if (rankChanged) {
-      this.setRecentBattleRanks(this.aiSource, []);
+      this.gamesPlayedMaster++;
+    } else {
+      this.gamesPlayedLichess++;
     }
 
     await this.saveAllProgress();

@@ -1,5 +1,5 @@
 // auth.js - Handles all authentication and progress sync logic
-// Fixed: Better OAuth redirect handling, error recovery, and database operations
+// UPDATED: Compatible with new merit thresholds (0, 200, 500, 900, 1300, 1750)
 
 class AuthModule {
   constructor(app) {
@@ -113,85 +113,85 @@ class AuthModule {
   }
 
   async loadCloudProgress() {
-  try {
-    console.log('📥 Attempting to load cloud progress...');
-    
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Load timeout')), 10000)
-    );
-    
-    const progress = await Promise.race([
-      loadProgress(),
-      timeoutPromise
-    ]);
-    
-    if (progress) {
-      console.log('✓ Cloud progress loaded:', progress);
+    try {
+      console.log('📥 Attempting to load cloud progress...');
       
-      // Merits
-      this.app.legionMerits = {
-        master_merit: progress.master_merit || 0,
-        lichess_merit: progress.lichess_merit || 0
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Load timeout')), 10000)
+      );
+      
+      const progress = await Promise.race([
+        loadProgress(),
+        timeoutPromise
+      ]);
+      
+      if (progress) {
+        console.log('✓ Cloud progress loaded:', progress);
+        
+        // Merits - Load directly
+        this.app.legionMerits = {
+          master_merit: progress.master_merit || 0,
+          lichess_merit: progress.lichess_merit || 0
+        };
+
+        // === GAMES PLAYED MIGRATION ===
+        // If old single field exists → migrate it to Master (or split if you want)
+        if (typeof progress.games_played === 'number') {
+          this.app.gamesPlayedMaster = (this.app.gamesPlayedMaster || 0) + progress.games_played;
+          this.app.gamesPlayedLichess = this.app.gamesPlayedLichess || 0;
+          console.log(`📊 Migrated ${progress.games_played} old games to Master legion`);
+        }
+
+        // Apply new separate fields if they exist
+        this.app.gamesPlayedMaster = progress.games_played_master ?? this.app.gamesPlayedMaster ?? 0;
+        this.app.gamesPlayedLichess = progress.games_played_lichess ?? this.app.gamesPlayedLichess ?? 0;
+
+        // Recent ranks - Load directly
+        this.app.recentBattleRanksMaster = progress.recent_battle_ranks_master || [];
+        this.app.recentBattleRanksLichess = progress.recent_battle_ranks_lichess || [];
+
+        // Backup to localStorage
+        this.app.saveToLocalStorage();
+      } else {
+        console.log('ℹ️ No cloud progress found, uploading local...');
+        await this.saveCloudProgress();
+      }
+    } catch (e) {
+      console.error('❌ Error loading cloud progress:', e);
+      console.log('⚠️ Falling back to local data');
+    }
+  }
+
+  async saveCloudProgress() {
+    if (!this.isLoggedIn) {
+      console.log('ℹ️ Not logged in - skipping cloud save');
+      return;
+    }
+
+    try {
+      console.log('💾 Saving cloud progress...');
+      
+      const progress = {
+        master_merit: this.app.legionMerits.master_merit || 0,
+        lichess_merit: this.app.legionMerits.lichess_merit || 0,
+        games_played_master: this.app.gamesPlayedMaster || 0,
+        games_played_lichess: this.app.gamesPlayedLichess || 0,
+        recent_battle_ranks_master: this.app.recentBattleRanksMaster || [],
+        recent_battle_ranks_lichess: this.app.recentBattleRanksLichess || []
+        // Old 'games_played' is no longer saved
       };
 
-      // === GAMES PLAYED MIGRATION ===
-      // If old single field exists → migrate it to Master (or split if you want)
-      if (typeof progress.games_played === 'number') {
-        this.app.gamesPlayedMaster = (this.app.gamesPlayedMaster || 0) + progress.games_played;
-        this.app.gamesPlayedLichess = this.app.gamesPlayedLichess || 0;
-        console.log(`Migrated ${progress.games_played} old games to Master legion`);
+      const result = await saveProgress(progress);
+      
+      if (result && result.success) {
+        console.log('✓ Cloud save successful (new merit system)');
+      } else {
+        console.warn('⚠️ Cloud save issue:', result);
       }
-
-      // Apply new separate fields if they exist
-      this.app.gamesPlayedMaster = progress.games_played_master ?? this.app.gamesPlayedMaster ?? 0;
-      this.app.gamesPlayedLichess = progress.games_played_lichess ?? this.app.gamesPlayedLichess ?? 0;
-
-      // Recent ranks
-      this.app.recentBattleRanksMaster = progress.recent_battle_ranks_master || [];
-      this.app.recentBattleRanksLichess = progress.recent_battle_ranks_lichess || [];
-
-      // Backup to localStorage
-      this.app.saveToLocalStorage();
-    } else {
-      console.log('ℹ️ No cloud progress found, uploading local...');
-      await this.saveCloudProgress();
+    } catch (e) {
+      console.error('❌ Error in saveCloudProgress:', e);
     }
-  } catch (e) {
-    console.error('❌ Error loading cloud progress:', e);
-    console.log('⚠️ Falling back to local data');
   }
-}
-
-async saveCloudProgress() {
-  if (!this.isLoggedIn) {
-    console.log('ℹ️ Not logged in - skipping cloud save');
-    return;
-  }
-
-  try {
-    console.log('💾 Saving cloud progress...');
-    
-    const progress = {
-      master_merit: this.app.legionMerits.master_merit || 0,
-      lichess_merit: this.app.legionMerits.lichess_merit || 0,
-      games_played_master: this.app.gamesPlayedMaster || 0,        // ← NEW
-      games_played_lichess: this.app.gamesPlayedLichess || 0,      // ← NEW
-      recent_battle_ranks_master: this.app.recentBattleRanksMaster || [],
-      recent_battle_ranks_lichess: this.app.recentBattleRanksLichess || []
-      // Old 'games_played' is no longer saved
-    };
-
-    const result = await saveProgress(progress);
-    
-    if (result && result.success) {
-      console.log('✓ Cloud save successful (separate counters)');
-    } else {
-      console.warn('⚠️ Cloud save issue:', result);
-    }
-  } catch (e) {
-    console.error('❌ Error in saveCloudProgress:', e);
-  }
-}
 
   async handleSignIn() {
     console.log('🔐 Sign in button clicked');
@@ -206,26 +206,26 @@ async saveCloudProgress() {
   }
 
   renderAuthSection() {
-  if (this.isLoggedIn) {
-    return `
-      <div style="position:absolute;top:12px;right:12px;font-size:0.75rem;color:#888;">
-        ✓ ${this.user.email.split('@')[0]}
-        <button style="margin-left:6px;padding:4px 8px;font-size:0.7rem;background:transparent;border:1px solid #555;color:#888;border-radius:4px;cursor:pointer;" onclick="app.auth.handleSignOut()">
-          Sign Out
-        </button>
-      </div>
-    `;
-  } else {
-    return `
-      <div style="position:absolute;top:12px;right:12px;">
-        <button style="padding:6px 12px;font-size:0.75rem;background:rgba(212,175,55,0.2);border:1px solid var(--roman-gold);color:var(--roman-gold);border-radius:6px;cursor:pointer;transition:all 0.3s ease;" 
-                onmouseover="this.style.background='rgba(212,175,55,0.3)'" 
-                onmouseout="this.style.background='rgba(212,175,55,0.2)'"
-                onclick="app.auth.handleSignIn()">
-          🔐 Sync
-        </button>
-      </div>
-    `;
+    if (this.isLoggedIn) {
+      return `
+        <div style="position:absolute;top:12px;right:12px;font-size:0.75rem;color:#888;">
+          ✓ ${this.user.email.split('@')[0]}
+          <button style="margin-left:6px;padding:4px 8px;font-size:0.7rem;background:transparent;border:1px solid #555;color:#888;border-radius:4px;cursor:pointer;" onclick="app.auth.handleSignOut()">
+            Sign Out
+          </button>
+        </div>
+      `;
+    } else {
+      return `
+        <div style="position:absolute;top:12px;right:12px;">
+          <button style="padding:6px 12px;font-size:0.75rem;background:rgba(212,175,55,0.2);border:1px solid var(--roman-gold);color:var(--roman-gold);border-radius:6px;cursor:pointer;transition:all 0.3s ease;" 
+                  onmouseover="this.style.background='rgba(212,175,55,0.3)'" 
+                  onmouseout="this.style.background='rgba(212,175,55,0.2)'"
+                  onclick="app.auth.handleSignIn()">
+            🔐 Sync
+          </button>
+        </div>
+      `;
+    }
   }
-}
 }
