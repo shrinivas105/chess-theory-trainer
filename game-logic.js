@@ -1,5 +1,5 @@
 // game-logic.js - Core chess game logic and state management
-// UPDATED: New merit thresholds, promotion/demotion system with safety net
+// UPDATED: New merit thresholds, promotion/demotion system with safety net, and 10% move filter
 
 class ChessTheoryApp {
   constructor() {
@@ -232,6 +232,7 @@ class ChessTheoryApp {
     const fen = this.game.fen();
     if (this.lastAIMoveFEN === fen) return;
     this.lastAIMoveFEN = fen;
+    
     try {
       const data = await ChessAPI.queryExplorer(this.aiSource, fen);
       const totalGames = (data.white || 0) + (data.draws || 0) + (data.black || 0);
@@ -246,10 +247,32 @@ class ChessTheoryApp {
         return;
       }
       
-      let rand = Math.random() * totalGames;
+      // Calculate total from top 5 moves only
+      const top5Total = data.moves.reduce((sum, m) => 
+        sum + m.white + m.draws + m.black, 0);
+      
+      // Filter out moves < 10% of top 5 total
+      const MIN_PERCENTAGE = 0.10;
+      const minMoveGames = top5Total * MIN_PERCENTAGE;
+      
+      const filteredMoves = data.moves.filter(m => {
+        const moveGames = m.white + m.draws + m.black;
+        return moveGames >= minMoveGames;
+      });
+      
+      // If all filtered out (edge case), keep at least top move
+      const movesToUse = filteredMoves.length > 0 ? filteredMoves : [data.moves[0]];
+      
+      // Calculate new total from filtered moves
+      const filteredTotal = movesToUse.reduce((sum, m) => 
+        sum + m.white + m.draws + m.black, 0);
+      
+      // Weighted random selection from filtered moves
+      let rand = Math.random() * filteredTotal;
       let cumulative = 0;
-      let selectedMove = data.moves[0];
-      for (const m of data.moves) {
+      let selectedMove = movesToUse[0];
+      
+      for (const m of movesToUse) {
         cumulative += m.white + m.draws + m.black;
         if (rand <= cumulative) {
           selectedMove = m;
