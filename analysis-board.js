@@ -68,11 +68,6 @@ class AnalysisBoard {
           <svg id="arrowLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></svg>
         </div>
 
-        <div id="moveComparisonInfo" style="margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; font-size: 0.85rem; display: none;">
-          <div style="margin-bottom: 8px; font-weight: bold; color: var(--roman-gold);">📊 Move Comparison:</div>
-          <div id="moveComparisonContent"></div>
-        </div>
-
         <div class="analysis-controls" style="margin-top: 16px;">
           <div class="action-buttons" style="justify-content: center; gap: 8px;">
             <button class="btn" id="firstMoveBtn" onclick="window.analysisBoard.goToMove(0)">
@@ -88,11 +83,6 @@ class AnalysisBoard {
               Last ⭢
             </button>
           </div>
-        </div>
-
-        <div class="move-list" style="margin-top: 16px; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px;">
-          <h3 style="color: var(--roman-gold); font-size: 0.9rem; margin-bottom: 8px;">Move History:</h3>
-          ${this.renderMoveList()}
         </div>
 
         <div style="margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.8rem;">
@@ -181,22 +171,27 @@ class AnalysisBoard {
       const whiteClass = this.currentMoveIndex === i ? 'active' : '';
       const blackClass = this.currentMoveIndex === i + 1 ? 'active' : '';
       
+      // Determine if moves are player moves based on player color
+      const isWhitePlayer = this.app.playerColor === 'w';
+      const whiteIsPlayer = isWhitePlayer;
+      const blackIsPlayer = !isWhitePlayer;
+      
       html += `
         <div style="display: contents;">
           <div 
             class="move-item ${whiteClass}" 
             onclick="window.analysisBoard.goToMove(${i + 1})"
-            style="padding: 4px 8px; cursor: pointer; border-radius: 4px; ${whiteClass ? 'background: var(--roman-gold); color: #000; font-weight: bold;' : 'background: rgba(255,255,255,0.05);'}"
+            style="padding: 4px 8px; cursor: pointer; border-radius: 4px; ${whiteClass ? 'background: var(--roman-gold); color: #000; font-weight: bold;' : 'background: rgba(255,255,255,0.05);'}; ${whiteIsPlayer ? '' : 'opacity: 0.6;'}"
           >
-            ${moveNum}. ${whiteMove.san}
+            ${moveNum}. ${whiteMove.san}${whiteIsPlayer ? '' : ' 🤖'}
           </div>
           ${blackMove ? `
             <div 
               class="move-item ${blackClass}" 
               onclick="window.analysisBoard.goToMove(${i + 2})"
-              style="padding: 4px 8px; cursor: pointer; border-radius: 4px; ${blackClass ? 'background: var(--roman-gold); color: #000; font-weight: bold;' : 'background: rgba(255,255,255,0.05);'}"
+              style="padding: 4px 8px; cursor: pointer; border-radius: 4px; ${blackClass ? 'background: var(--roman-gold); color: #000; font-weight: bold;' : 'background: rgba(255,255,255,0.05);'}; ${blackIsPlayer ? '' : 'opacity: 0.6;'}"
             >
-              ${blackMove.san}
+              ${blackMove.san}${blackIsPlayer ? '' : ' 🤖'}
             </div>
           ` : '<div></div>'}
         </div>
@@ -338,18 +333,27 @@ class AnalysisBoard {
   }
 
   async updateMoveComparison() {
-    const infoEl = document.getElementById('moveComparisonInfo');
-    const contentEl = document.getElementById('moveComparisonContent');
     const arrowLayer = document.getElementById('arrowLayer');
     
-    if (!infoEl || !contentEl || !arrowLayer) return;
+    if (!arrowLayer) return;
     
     // Clear arrows
     arrowLayer.innerHTML = '';
     
-    // Only show comparison if we're looking at a move (not starting position)
+    // Only show comparison if we're looking at a PLAYER move (not starting position or AI move)
     if (this.currentMoveIndex < 0) {
-      infoEl.style.display = 'none';
+      return;
+    }
+    
+    // Check if current move is a player move
+    const playerMove = this.moveHistory[this.currentMoveIndex];
+    const moveNumber = this.currentMoveIndex;
+    const isWhiteMove = moveNumber % 2 === 0;
+    const isPlayerMove = (this.app.playerColor === 'w' && isWhiteMove) || 
+                         (this.app.playerColor === 'b' && !isWhiteMove);
+    
+    // Skip if this is an AI move
+    if (!isPlayerMove) {
       return;
     }
     
@@ -366,13 +370,9 @@ class AnalysisBoard {
       }
       
       const positionFen = tempGame.fen();
-      const playerMove = this.moveHistory[this.currentMoveIndex];
       
       // Fetch top moves from database (use cached if available)
       if (!this.topMovesData[positionFen]) {
-        contentEl.textContent = 'Loading database moves...';
-        infoEl.style.display = 'block';
-        
         const data = await ChessAPI.queryExplorer(this.app.aiSource, positionFen);
         this.topMovesData[positionFen] = data.moves || [];
       }
@@ -380,7 +380,6 @@ class AnalysisBoard {
       const topMoves = this.topMovesData[positionFen].slice(0, 5);
       
       if (topMoves.length === 0) {
-        infoEl.style.display = 'none';
         return;
       }
       
@@ -391,52 +390,8 @@ class AnalysisBoard {
       // Draw arrows
       this.drawMoveArrows(playerMove, topMoves.slice(0, 3), playerMoveIndex);
       
-      // Build comparison text
-      let html = '<div style="display: flex; flex-direction: column; gap: 6px;">';
-      
-      // Show top 5 moves with stats
-      topMoves.forEach((move, idx) => {
-        const isPlayerMove = move.uci === playerMoveUci;
-        const totalGames = move.white + move.draws + move.black;
-        const winRate = totalGames > 0 ? ((move.white / totalGames) * 100).toFixed(1) : 0;
-        
-        const bgColor = isPlayerMove ? 'rgba(52, 152, 219, 0.3)' : 'rgba(255,255,255,0.05)';
-        const borderColor = isPlayerMove ? '#3498db' : 'transparent';
-        
-        html += `
-          <div style="padding: 6px 8px; background: ${bgColor}; border-left: 3px solid ${borderColor}; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <span style="font-weight: bold; color: ${idx === 0 ? '#2ecc71' : idx === 1 ? '#f1c40f' : idx === 2 ? '#e67e22' : '#bbb'};">
-                ${idx + 1}. ${move.san}
-              </span>
-              ${isPlayerMove ? '<span style="margin-left: 6px; color: #3498db; font-weight: bold;">← Your Move</span>' : ''}
-            </div>
-            <div style="font-size: 0.75rem; color: #aaa;">
-              ${totalGames.toLocaleString()} games • ${winRate}% wins
-            </div>
-          </div>
-        `;
-      });
-      
-      html += '</div>';
-      
-      // Add verdict
-      if (playerMoveIndex === 0) {
-        html += '<div style="margin-top: 8px; padding: 8px; background: rgba(46, 204, 113, 0.2); border-left: 3px solid #2ecc71; border-radius: 4px; font-weight: bold;">✅ Excellent! Top move played.</div>';
-      } else if (playerMoveIndex === 1 || playerMoveIndex === 2) {
-        html += '<div style="margin-top: 8px; padding: 8px; background: rgba(241, 196, 15, 0.2); border-left: 3px solid #f1c40f; border-radius: 4px;">⚠️ Good move, but not the most popular.</div>';
-      } else if (playerMoveIndex === 3 || playerMoveIndex === 4) {
-        html += '<div style="margin-top: 8px; padding: 8px; background: rgba(230, 126, 34, 0.2); border-left: 3px solid #e67e22; border-radius: 4px;">⚡ Playable, but less common.</div>';
-      } else {
-        html += '<div style="margin-top: 8px; padding: 8px; background: rgba(231, 76, 60, 0.2); border-left: 3px solid #e74c3c; border-radius: 4px;">❌ Rare or weak move.</div>';
-      }
-      
-      contentEl.innerHTML = html;
-      infoEl.style.display = 'block';
-      
     } catch (error) {
       console.error('Error updating move comparison:', error);
-      infoEl.style.display = 'none';
     }
   }
 
