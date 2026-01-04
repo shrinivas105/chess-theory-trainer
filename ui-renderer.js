@@ -83,6 +83,22 @@ class UIRenderer {
         
         ${authSection}
         
+        <div class="game-description">
+          <p>
+            Enter the battlefield where chess mastery meets Roman military glory. Every move you make is judged against 
+            the greatest games in history. Will you rise through the ranks from humble <strong>Recruit</strong> to legendary 
+            <strong>Legatus</strong>?
+          </p>
+          <p>
+            Each battle tests your knowledge of opening theory. Play moves that match the masters, maintain strong positions, 
+            and prove your tactical prowess. Earn merit through discipline and excellence, but beware—poor performance leads 
+            to demotion and disgrace.
+          </p>
+          <p>
+            Choose your campaign and step onto the field of glory. <em>Veni, vidi, vici!</em>
+          </p>
+        </div>
+        
         <div class="menu-home">
           <!-- CAMPAIGNS SECTION -->
           <div class="menu-campaigns">

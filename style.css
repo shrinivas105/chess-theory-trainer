@@ -26,8 +26,8 @@
 
 body {
   font-family: 'Cinzel', Georgia, serif;
-  background: #b4c29e;  
-  background-attachment: fixed;
+background: url('roman.png') center/cover no-repeat fixed;
+  position: relative;
   color: var(--parchment);
   min-height: 100vh;
   display: flex;
@@ -36,6 +36,22 @@ body {
   padding: 20px 12px;
 }
 
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 0;
+  pointer-events: none;
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}
 /* ========================================
    HOME BUTTON - GLOBAL
    ======================================== */
@@ -148,15 +164,11 @@ body {
   height: 85%;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.85));
   pointer-events: none;
-  transition: transform 0.15s ease, filter 0.15s ease;
   position: relative;
   z-index: 5;
-  will-change: transform;
-  transform: translateZ(0);
 }
 
 .square:hover:not(.disabled) .piece {
-  transform: scale(1.08) translateY(-3px) translateZ(0);
   filter: 
     drop-shadow(0 8px 16px rgba(0,0,0,0.9))
     drop-shadow(0 3px 6px rgba(212,175,55,0.3))
@@ -164,20 +176,18 @@ body {
 }
 
 .square.selected .piece {
-  transform: scale(1.05) translateY(-2px) translateZ(0);
   filter: 
     drop-shadow(0 8px 16px rgba(212,175,55,0.5))
     brightness(1.15);
 }
 
 .square.last-move .piece {
-  animation: pieceLanded 0.3s ease-out;
+  animation: none;
 }
 
 @keyframes pieceLanded {
-  0% { transform: scale(1.15) translateY(-6px) translateZ(0); }
-  60% { transform: scale(0.97) translateY(1px) translateZ(0); }
-  100% { transform: scale(1) translateY(0) translateZ(0); }
+  0% { opacity: 0.8; }
+  100% { opacity: 1; }
 }
 
 /* ========================================
@@ -341,9 +351,14 @@ body {
 }
 
 /* Auth Section */
+/* Auth Section */
 .auth-section {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  padding: 12px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 8px;
+  border: 1px solid rgba(212,175,55,0.3);
 }
 
 .auth-btn {
@@ -362,6 +377,43 @@ body {
 .auth-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Game Description Section */
+.game-description {
+  background: rgba(20,10,5,0.9);
+  border: 2px solid rgba(212,175,55,0.5);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 25px;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--parchment);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.game-description p {
+  margin: 0 0 12px 0;
+  text-align: justify;
+}
+
+.game-description p:last-child {
+  margin-bottom: 0;
+  text-align: center;
+  font-style: italic;
+  color: var(--roman-gold);
+  font-size: 0.9rem;
+  margin-top: 15px;
+}
+
+.game-description strong {
+  color: var(--roman-gold);
+  font-weight: 700;
+}
+
+.game-description em {
+  color: #fff;
+  font-style: italic;
 }
 
 /* Legion Cards */
