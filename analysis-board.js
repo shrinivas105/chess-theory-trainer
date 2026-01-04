@@ -51,16 +51,13 @@ class AnalysisBoard {
 
     const html = `
       <div class="game-container analysis-mode">
-        <h2 style="text-align: center; color: var(--roman-gold); margin-bottom: 16px;">
+        <h2 style="text-align: center; color: var(--roman-gold); margin-bottom: 8px; font-size: 1.3rem;">
           ⚔️ Battle Analysis ⚔️
         </h2>
         
-        <div class="info-line" style="margin-bottom: 12px;">
-          <span id="analysisPosition">Starting Position</span>
-        </div>
-
-        <div class="info-line" style="margin-bottom: 12px;">
-          <span id="analysisEval">Evaluation: 0.0</span>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem;">
+          <span id="analysisPosition" style="color: #fff;">Starting Position</span>
+          <span id="analysisEval" style="color: #f1c40f;">Eval: 0.0</span>
         </div>
 
         <div style="position: relative;">
@@ -68,51 +65,51 @@ class AnalysisBoard {
           <svg id="arrowLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></svg>
         </div>
 
-        <div class="analysis-controls" style="margin-top: 16px;">
-          <div class="action-buttons" style="justify-content: center; gap: 8px;">
-            <button class="btn" id="firstMoveBtn" onclick="window.analysisBoard.goToMove(0)">
+        <div class="analysis-controls" style="margin-top: 10px;">
+          <div class="action-buttons" style="justify-content: center; gap: 6px; flex-wrap: wrap;">
+            <button class="btn" id="firstMoveBtn" onclick="window.analysisBoard.goToMove(0)" style="padding: 8px 12px; font-size: 0.85rem;">
               ⮐ First
             </button>
-            <button class="btn" id="prevMoveBtn" onclick="window.analysisBoard.previousMove()">
+            <button class="btn" id="prevMoveBtn" onclick="window.analysisBoard.previousMove()" style="padding: 8px 12px; font-size: 0.85rem;">
               ◀️ Prev
             </button>
-            <button class="btn" id="nextMoveBtn" onclick="window.analysisBoard.nextMove()">
+            <button class="btn" id="nextMoveBtn" onclick="window.analysisBoard.nextMove()" style="padding: 8px 12px; font-size: 0.85rem;">
               Next ▶️
             </button>
-            <button class="btn" id="lastMoveBtn" onclick="window.analysisBoard.goToMove(${this.moveHistory.length})">
+            <button class="btn" id="lastMoveBtn" onclick="window.analysisBoard.goToMove(${this.moveHistory.length})" style="padding: 8px 12px; font-size: 0.85rem;">
               Last ⭢
             </button>
           </div>
         </div>
 
-        <div style="margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.8rem;">
-          <div style="font-weight: bold; color: var(--roman-gold); margin-bottom: 6px;">🎨 Arrow Legend:</div>
-          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 4px;">
-              <div style="width: 30px; height: 3px; background: #3498db;"></div>
-              <span>Your Move</span>
+        <div style="margin-top: 10px; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 6px; font-size: 0.75rem;">
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center;">
+            <span style="font-weight: bold; color: var(--roman-gold);">Arrows:</span>
+            <div style="display: flex; align-items: center; gap: 3px;">
+              <div style="width: 20px; height: 2px; background: #3498db;"></div>
+              <span>You</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 4px;">
-              <div style="width: 30px; height: 3px; background: #2ecc71;"></div>
-              <span>Top Move</span>
+            <div style="display: flex; align-items: center; gap: 3px;">
+              <div style="width: 20px; height: 2px; background: #2ecc71;"></div>
+              <span>Top</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 4px;">
-              <div style="width: 30px; height: 3px; background: #f1c40f;"></div>
-              <span>2nd Best</span>
+            <div style="display: flex; align-items: center; gap: 3px;">
+              <div style="width: 20px; height: 2px; background: #f1c40f;"></div>
+              <span>2nd</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 4px;">
-              <div style="width: 30px; height: 3px; background: #e67e22;"></div>
-              <span>3rd Best</span>
+            <div style="display: flex; align-items: center; gap: 3px;">
+              <div style="width: 20px; height: 2px; background: #e67e22;"></div>
+              <span>3rd</span>
             </div>
           </div>
         </div>
 
-        <div class="action-buttons" style="margin-top: 16px;">
-          <button class="btn" onclick="window.analysisBoard.exitAnalysis()">
-            ⬅️ Exit Analysis
+        <div class="action-buttons" style="margin-top: 10px; gap: 6px;">
+          <button class="btn" onclick="window.analysisBoard.exitAnalysis()" style="padding: 8px 14px; font-size: 0.85rem;">
+            ⬅️ Exit
           </button>
-          <button class="btn" onclick="app.downloadPGN()">
-            📥 Download PGN
+          <button class="btn" onclick="app.downloadPGN()" style="padding: 8px 14px; font-size: 0.85rem;">
+            📥 PGN
           </button>
         </div>
       </div>
@@ -300,7 +297,7 @@ class AnalysisBoard {
         posInfo.textContent = 'Starting Position';
       } else {
         const moveNum = Math.floor(this.currentMoveIndex / 2) + 1;
-        const side = this.currentMoveIndex % 2 === 0 ? 'White' : 'Black';
+        const side = this.currentMoveIndex % 2 === 0 ? 'W' : 'B';
         const move = this.moveHistory[this.currentMoveIndex];
         posInfo.textContent = `Move ${moveNum} (${side}): ${move.san}`;
       }
@@ -319,16 +316,16 @@ class AnalysisBoard {
     
     try {
       const fen = this.analysisGame.fen();
-      evalEl.textContent = 'Evaluation: Calculating...';
+      evalEl.textContent = 'Eval: ...';
       
       const rawEval = await ChessAPI.getEvaluation(fen, this.app.evalCache);
       const displayEval = rawEval > 0 ? '+' + rawEval.toFixed(1) : rawEval.toFixed(1);
       
-      evalEl.textContent = `Evaluation: ${displayEval}`;
+      evalEl.textContent = `Eval: ${displayEval}`;
       evalEl.style.color = rawEval > 1 ? '#2ecc71' : rawEval < -1 ? '#e74c3c' : '#f1c40f';
     } catch (error) {
       console.error('Error updating evaluation:', error);
-      evalEl.textContent = 'Evaluation: N/A';
+      evalEl.textContent = 'Eval: N/A';
     }
   }
 
