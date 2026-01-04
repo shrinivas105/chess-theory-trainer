@@ -50,7 +50,9 @@ class AnalysisBoard {
     }
 
     const html = `
-      <div class="game-container analysis-mode">
+  <button class="home-button" onclick="app.goHome()">🏠 Home</button>
+  
+  <div class="game-container analysis-mode">
         <h2 style="text-align: center; color: var(--roman-gold); margin-bottom: 4px; font-size: 1rem;">
           ⚔️ Battle Analysis ⚔️
         </h2>
@@ -67,17 +69,17 @@ class AnalysisBoard {
         <div class="analysis-controls" style="margin-top: 6px;">
           <div class="action-buttons" style="justify-content: center; gap: 5px; flex-wrap: wrap;">
             <button class="btn" id="firstMoveBtn" onclick="window.analysisBoard.goToMove(0)" style="padding: 5px 9px; font-size: 0.75rem;">
-              ⏮ First
-            </button>
-            <button class="btn" id="prevMoveBtn" onclick="window.analysisBoard.previousMove()" style="padding: 5px 9px; font-size: 0.75rem;">
-              ◀️ Prev
-            </button>
-            <button class="btn" id="nextMoveBtn" onclick="window.analysisBoard.nextMove()" style="padding: 5px 9px; font-size: 0.75rem;">
-              Next ▶️
-            </button>
-            <button class="btn" id="lastMoveBtn" onclick="window.analysisBoard.goToMove(${this.moveHistory.length})" style="padding: 5px 9px; font-size: 0.75rem;">
-              Last ⏭
-            </button>
+  ⮜ First
+</button>
+<button class="btn" id="prevMoveBtn" onclick="window.analysisBoard.previousMove()" style="padding: 5px 9px; font-size: 0.75rem;">
+  ◀️ Prev
+</button>
+<button class="btn" id="nextMoveBtn" onclick="window.analysisBoard.nextMove()" style="padding: 5px 9px; font-size: 0.75rem;">
+  Next ▶️
+</button>
+<button class="btn" id="lastMoveBtn" onclick="window.analysisBoard.goToMove(${this.moveHistory.length})" style="padding: 5px 9px; font-size: 0.75rem;">
+  Last ⮞
+</button>
           </div>
         </div>
 
@@ -121,14 +123,14 @@ class AnalysisBoard {
           </div>
         </div>
 
-        <div class="action-buttons" style="margin-top: 6px; gap: 5px;">
-          <button class="btn" onclick="window.analysisBoard.exitAnalysis()" style="padding: 5px 10px; font-size: 0.75rem;">
-            ⬅️ Exit
-          </button>
-          <button class="btn" onclick="app.downloadPGN()" style="padding: 5px 10px; font-size: 0.75rem;">
-            📥 PGN
-          </button>
-        </div>
+       <div class="action-buttons" style="margin-top: 6px; gap: 5px;">
+  <button class="btn" onclick="window.analysisBoard.exitAnalysis()" style="padding: 5px 10px; font-size: 0.75rem;">
+    ⬅️ Exit
+  </button>
+  <button class="btn" onclick="app.downloadPGN()" style="padding: 5px 10px; font-size: 0.75rem;">
+    📥 PGN
+  </button>
+</div>
       </div>
     `;
 

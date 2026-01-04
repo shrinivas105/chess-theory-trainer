@@ -11,243 +11,9 @@
   font-size: 0.75rem;
 }
 
-.battle-laws-brief {
-  margin-top: 16px;
-  padding: 12px;
-  background: rgba(0,0,0,0.5);
-  border: 1px solid #333;
-  border-radius: 4px;
-  text-align: left;
-}
-
-.battle-laws-brief h3 {
-  color: var(--roman-gold);
-  font-family: 'Cinzel', serif;
-  font-size: 1rem;
-  margin-bottom: 8px;
-  border-bottom: 1px solid #444;
-}
-
-.battle-laws-brief p {
-  font-size: 0.75rem;
-  line-height: 1.4;
-  color: #bbb;
-  margin: 0;
-}
-
-.battle-laws-brief h4 {
-  margin-top: 8px;
-  color: var(--roman-gold);
-  font-size: 0.75rem;
-}
-
-.battle-laws-brief ul {
-  font-size: 0.7rem;
-  color: #bbb;
-  padding-left: 16px;
-}
-
-.battle-laws-brief table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.68rem;
-  background: rgba(0,0,0,0.35);
-  border: 1px solid #333;
-}
-
-.battle-laws-brief th,
-.battle-laws-brief td {
-  padding: 6px;
-  border: 1px solid #333;
-}
-
-.battle-laws-brief th {
-  color: var(--roman-gold);
-  text-align: left;
-  background: rgba(0,0,0,0.55);
-}
-
-#board {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-}
-
-.square {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.piece {
-  width: 90%;
-  height: 90%;
-  object-fit: contain;
-}
-
-/* ========================================
-   ANIMATIONS
-   ======================================== */
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideInFromLeft {
-  from { opacity: 0; transform: translateX(-50px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slideInFromRight {
-  from { opacity: 0; transform: translateX(50px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes victoryShine {
-  0% { opacity: 0; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.1); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-@keyframes marchIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes goldShimmer {
-  0%, 100% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 4px 8px rgba(0,0,0,0.5); }
-  50% { text-shadow: 0 0 40px rgba(255, 215, 0, 0.9), 0 6px 12px rgba(0,0,0,0.7); }
-}
-
-@keyframes shineSweep {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
-
-@keyframes silverPulse {
-  0% { text-shadow: 0 0 10px rgba(255,255,255,0.3); opacity: 0.9; }
-  100% { text-shadow: 0 0 25px rgba(255,255,255,0.6); opacity: 1; }
-}
-
-/* ========================================
-   RESPONSIVE STYLES
-   ======================================== */
-
-/* Mobile - Bigger board, compact everything else */
-@media (max-width: 768px) {
-  body {
-    padding: 10px 8px;
-  }
-
-  .game-container {
-    max-width: 98vw;
-    padding: 6px;
-  }
-  
-  .board-wrapper {
-    border-width: 4px;
-  }
-  
-  .menu {
-    padding: 16px 14px;
-  }
-  
-  .menu-title {
-    font-size: 1.5rem;
-    letter-spacing: 2px;
-  }
-
-  .menu-subtitle {
-    font-size: 0.5rem;
-  }
-
-  .menu-bwsection {
-    font-size: 0.9rem;
-  }
-
-  .legion-card {
-    padding: 10px 12px;
-  }
-
-  .legion-header {
-    font-size: 0.85rem;
-  }
-
-  .btn {
-    font-size: 0.75rem;
-    padding: 7px 12px;
-  }
-
-  .stats-grid {
-    gap: 6px;
-    font-size: 0.75rem;
-  }
-
-  .stats-grid div strong {
-    font-size: 1rem;
-  }
-
-  .end-summary h3 {
-    font-size: 1rem;
-  }
-
-  .battle-badge {
-    font-size: 0.65rem;
-    padding: 2px 5px;
-  }
-
-  .rank-step {
-    font-size: 0.65rem;
-    padding: 3px 6px;
-  }
-}
-
-/* Tablet - Larger board */
-@media (min-width: 769px) and (max-width: 1023px) {
-  .game-container {
-    max-width: 750px;
-    padding: 10px;
-  }
-
-  .menu {
-    padding: 18px 16px;
-  }
-}
-
-/* Desktop - Maximum board size */
-@media (min-width: 1024px) {
-  .game-container {
-    max-width: 850px;
-    padding: 10px;
-  }
-
-  .menu {
-    max-width: 800px;
-  }
-}
-
-/* Large Desktop - Even bigger if you have the space */
-@media (min-width: 1400px) {
-  .game-container {
-    max-width: 950px;
-  }
-
-  .menu {
-    max-width: 900px;
-  }
-}
-
-/* ========================================
-   ANALYSIS MODE SPECIFICS
-   ======================================== */
-
+/* Analysis mode specific */
 .game-container.analysis-mode {
-  max-width: 95vw;
+  max-width: 600px;
 }
 
 .game-container.analysis-mode .board-wrapper {
@@ -285,6 +51,28 @@
   background: var(--roman-gold);
   color: #000;
   font-weight: bold;
+}
+
+#board {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}
+
+.square {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.piece {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
 }
 
 /* ========================================
@@ -372,33 +160,113 @@
 }
 
 /* ========================================
-   AUTH SECTION
+   RESPONSIVE STYLES
    ======================================== */
 
-.auth-section {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 0.7rem;
-  color: #888;
+/* Mobile - Bigger board, compact everything else */
+@media (max-width: 768px) {
+  body {
+    padding: 10px 8px;
+  }
+
+  .game-container {
+    max-width: 98vw;
+    padding: 6px;
+  }
+  
+  .board-wrapper {
+    border-width: 4px;
+    max-width: 95vw;
+  }
+  
+  .menu {
+    padding: 16px 14px;
+  }
+  
+  .menu-title {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+  }
+
+  .menu-subtitle {
+    font-size: 0.5rem;
+  }
+
+  .legion-card {
+    padding: 10px 12px;
+  }
+
+  .legion-header {
+    font-size: 0.85rem;
+  }
+
+  .btn {
+    font-size: 0.75rem;
+    padding: 7px 12px;
+  }
+
+  .stats-grid {
+    gap: 6px;
+    font-size: 0.75rem;
+  }
+
+  .stats-grid div strong {
+    font-size: 1rem;
+  }
+
+  .end-summary h3 {
+    font-size: 1rem;
+  }
+
+  .battle-badge {
+    font-size: 0.65rem;
+    padding: 2px 5px;
+  }
+
+  .rank-step {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+  
+  .home-button {
+    font-size: 0.7rem;
+    padding: 6px 10px;
+  }
 }
 
-.auth-section button {
-  margin-left: 6px;
-  padding: 4px 8px;
-  font-size: 0.65rem;
-  background: transparent;
-  border: 1px solid #555;
-  color: #888;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+/* Tablet - Larger board */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .game-container {
+    max-width: 600px;
+    padding: 10px;
+  }
+
+  .menu {
+    padding: 18px 16px;
+  }
 }
 
-.auth-section button:hover {
-  background: rgba(212,175,55,0.2);
-  border-color: var(--roman-gold);
-  color: var(--roman-gold);
+/* Desktop - Maximum board size */
+@media (min-width: 1024px) {
+  .game-container {
+    max-width: 600px;
+    padding: 10px;
+  }
+
+  .menu {
+    max-width: 900px;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1400px) {
+  .game-container {
+    max-width: 650px;
+  }
+
+  .menu {
+    max-width: 950px;
+  }
 }
 
 /* ========================================
@@ -456,7 +324,8 @@ label {
   }
 
   .btn,
-  button {
+  button,
+  .home-button {
     display: none;
   }
 

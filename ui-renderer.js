@@ -1,5 +1,5 @@
 // ui-renderer.js - Handles all UI rendering logic
-// UPDATED: New merit thresholds, demotion warning system, and safety net display
+// UPDATED: Simplified home page, rules section, white/maroon board, home button
 
 class UIRenderer {
   constructor(app) {
@@ -26,13 +26,10 @@ class UIRenderer {
         <div class="battle-history-title">
           Last ${recentRanks.length} Battle${recentRanks.length > 1 ? 's' : ''}
         </div>
-
-        <!-- ROW wrapper -->
         <div class="battle-history-row">
           <div class="battle-badges">
             ${battleBadges}
           </div>
-
           <div class="tooltip-container">
             <div class="tooltip-icon">?</div>
             <div class="tooltip-content">
@@ -60,7 +57,6 @@ class UIRenderer {
             </div>
           </div>
         </div>
-
         ${warning ? `<div class="warning-message">${warning}</div>` : ''}
       </div>
     `;
@@ -75,7 +71,6 @@ class UIRenderer {
     const clubBattleHistory = this.renderBattleHistory('lichess');
     const authSection = this.app.auth.renderAuthSection();
     
-    // Calculate safety net thresholds
     const masterSafetyNet = Scoring.getSafetyNetThreshold(masterLegion.title);
     const clubSafetyNet = Scoring.getSafetyNetThreshold(clubLegion.title);
     
@@ -83,261 +78,212 @@ class UIRenderer {
       <div class="menu">
         <h1 class="menu-title">LINES OF THE LEGION</h1>
         <p class="menu-subtitle">
-         Survive within recorded battle, and rise through the ranks of the Roman army.
+         Master opening theory through Roman military ranks
         </p>
+        
         ${authSection}
-        <div style="font-size:.9rem;line-height:1.5;">
+        
+        <div class="menu-home">
+          <!-- CAMPAIGNS SECTION -->
+          <div class="menu-campaigns">
+            <h3 style="color: var(--roman-gold); font-size: 0.9rem; margin-bottom: 10px; text-align: center;">Choose Your Campaign</h3>
+            
+            <button id="masterBtn" class="menu-btn" style="background: linear-gradient(135deg, var(--roman-gold) 0%, #b8941f 100%); box-shadow: 0 6px 0 #8b6f1a, 0 8px 15px rgba(212,175,55,0.4); border-color: rgba(212,175,55,0.3);">
+              🏆 Master Campaign
+            </button>
+            
+            <button id="lichessBtn" class="menu-btn" style="background: linear-gradient(135deg, var(--roman-silver) 0%, #a0a0a0 100%); box-shadow: 0 6px 0 #808080, 0 8px 15px rgba(192,192,192,0.4); border-color: rgba(192,192,192,0.3); color: #000; font-weight: 800;">
+              ♟️ Club Campaign
+            </button>
+            
+            <button id="resetBtn" class="menu-btn" style="background: transparent; border: 2px dashed #555; color: #888; box-shadow: none; font-size: 0.75rem; padding: 8px;">
+              ↺ Reset Progress
+            </button>
+          </div>
+          
+          <!-- RULES SECTION -->
+          <div class="menu-rules">
+            <button class="rules-toggle" id="rulesToggle">
+              <span>📜 GAME RULES</span>
+              <span id="rulesArrow">▼</span>
+            </button>
+            
+            <div id="rulesContent" style="display: none;" class="rules-content">
+              <p style="margin-bottom: 10px;">
+                Your ultimate aim is to earn 1,750 Merit and ascend to <strong style="color:var(--gold);">Legatus</strong> — the highest rank of the Roman army.
+              </p>
+              
+              <h4>1. THE BATTLE</h4>
+              <ul>
+                <li><strong>Masters Mode:</strong> Elite games. The battle ends if the resulting position has fewer than 5 games in history.</li>
+                <li><strong>Club Mode:</strong> Club games. The battle ends if the resulting position has fewer than 20 games in history.</li>
+                <li>One hint per battle (Top 5 moves)</li>
+              </ul>
 
-    <!-- CLUB LEGION FIRST -->
-    <div class="legion-card club">
-      <div class="legion-header">♟️ Club Legion</div>
-      <div class="legion-status">
-        ${clubLegion.title} (${clubMerit} merit) ${clubLegion.icon}
-      </div>
-      ${clubLegion.nextRank
-        ? `<div class="legion-next">${clubLegion.title} → ${clubLegion.nextRank}: ${clubLegion.pointsNeeded} more</div>`
-        : `<div class="legion-next">Highest rank achieved</div>`}
-      ${clubSafetyNet ? `<div class="safety-net-display">🛡️ Demotion Safety Net: ${clubSafetyNet} merit</div>` : ''}
-      <div class="rank-progress">
-        ${clubLegion.rankOrder.map(r =>
-          `<div class="rank-step ${r === clubLegion.title ? 'active' : ''}">${r}</div>`
-        ).join('')}
-      </div>
-      ${clubBattleHistory}
-      <div style="font-size:0.8rem;color:#aaa;margin-top:4px;">
-        Club Battles: ${this.app.gamesPlayedLichess}
-      </div>
-    </div>
+              <h4>2. MERIT SCORING</h4>
+              <ul>
+                <li>Number of moves played while staying within theory</li>
+                <li>Quality of moves compared to top historical choices</li>
+                <li>Final position evaluation when the battle ends</li>
+              </ul>
 
-    <!-- MASTERS LEGION SECOND -->
-    <div class="legion-card masters">
-      <div class="legion-header">🏆 Masters Legion</div>
-      <div class="legion-status">
-        ${masterLegion.title} (${masterMerit} merit) ${masterLegion.icon}
-      </div>
-      ${masterLegion.nextRank
-        ? `<div class="legion-next">${masterLegion.title} → ${masterLegion.nextRank}: ${masterLegion.pointsNeeded} more</div>`
-        : `<div class="legion-next">Highest rank achieved</div>`}
-      ${masterSafetyNet ? `<div class="safety-net-display">🛡️ Demotion Safety Net: ${masterSafetyNet} merit</div>` : ''}
-      <div class="rank-progress">
-        ${masterLegion.rankOrder.map(r =>
-          `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`
-        ).join('')}
-      </div>
-      ${masterBattleHistory}
-      <div style="font-size:0.8rem;color:#aaa;margin-top:4px;">
-        Master Battles: ${this.app.gamesPlayedMaster}
-      </div>
-    </div>
+              <h4>3. BATTLE RANKS</h4>
+              <p>
+                🪖 Levy (0–39) · 🛡️ Hastatus (40–54) · ⚔️ Principes (55–69)<br>
+                🦅 Triarius (70–84) · 👑 Imperator (85–100)
+              </p>
 
-  </div>
-        <p class="menu-cta">Choose your campaign:</p>
-        <div class="menu-actions">
-          <button id="masterBtn" class="menu-btn primary">🥷 Master</button>
-          <button id="lichessBtn" class="menu-btn primary">🤺 Club</button>
+              <h4>4. LEGION RANKS</h4>
+              <p>
+                🌱 Recruit (0) → 🛡️ Legionary (200) → ⚔️ Optio (500)<br>
+                🦅 Centurion (900) → 🏅 Tribunus (1300) → 🏆 Legatus (1750)
+              </p>
+
+              <h4>5. DEMOTION & DISCIPLINE</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Current Rank</th>
+                    <th>Poor Performance<br>(Last 5 Battles)</th>
+                    <th>Demoted To</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Recruit</td>
+                    <td style="color:#777;">N/A</td>
+                    <td style="color:#777;">N/A</td>
+                  </tr>
+                  <tr>
+                    <td>Legionary</td>
+                    <td>2 Levy battles</td>
+                    <td>Recruit (or reset to 200 if 350+ merit)</td>
+                  </tr>
+                  <tr>
+                    <td>Optio</td>
+                    <td>2 Levy OR<br>2 Hastatus OR<br>1 Levy + 1 Hastatus</td>
+                    <td>Legionary (or reset to 500 if 700+ merit)</td>
+                  </tr>
+                  <tr>
+                    <td>Centurion</td>
+                    <td>ANY Levy/Hastatus OR<br>No Triarius/Imperator in 5 battles</td>
+                    <td>Optio (or reset to 900 if 1100+ merit)</td>
+                  </tr>
+                  <tr>
+                    <td>Tribunus</td>
+                    <td>ANY Levy/Hastatus OR<br>Less than 3 Triarius/Imperator</td>
+                    <td>Centurion (or reset to 1300 if 1525+ merit)</td>
+                  </tr>
+                  <tr>
+                    <td>Legatus</td>
+                    <td style="color:#777;">N/A</td>
+                    <td style="color:#777;">N/A</td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              <h4>6. PROMOTION REQUIREMENTS</h4>
+              <ul>
+                <li><strong>Recruit → Legionary:</strong> 200 merit (no other requirements)</li>
+                <li><strong>Legionary → Optio:</strong> 500 merit (avoid 2 Levy)</li>
+                <li><strong>Optio → Centurion:</strong> 900 merit (avoid demotion triggers)</li>
+                <li><strong>Centurion → Tribunus:</strong> 1300 merit + at least 1 Triarius/Imperator</li>
+                <li><strong>Tribunus → Legatus:</strong> 1750 merit + at least 3 Triarius/Imperator</li>
+              </ul>
+              
+              <h4>7. SAFETY NET (50% RULE)</h4>
+              <p>
+                If you reach 50% progress toward your next rank, demotion resets you to the start of your current rank instead of dropping you to the previous rank.<br>
+                <strong>Safety Thresholds:</strong> Legionary (350), Optio (700), Centurion (1100), Tribunus (1525)
+              </p>
+            </div>
+          </div>
         </div>
-        <button id="resetBtn" class="menu-btn reset">↺ Reset Progress</button>
       </div>
     `;
+    
     document.getElementById('masterBtn').onclick = () => this.app.selectSource('master');
     document.getElementById('lichessBtn').onclick = () => this.app.selectSource('lichess');
     document.getElementById('resetBtn').onclick = () => this.app.resetStats();
+    
+    const rulesToggle = document.getElementById('rulesToggle');
+    const rulesContent = document.getElementById('rulesContent');
+    const rulesArrow = document.getElementById('rulesArrow');
+    
+    rulesToggle.onclick = () => {
+      const isOpen = rulesContent.style.display === 'block';
+      rulesContent.style.display = isOpen ? 'none' : 'block';
+      rulesArrow.textContent = isOpen ? '▼' : '▲';
+    };
   }
 
   renderColorChoice() {
+    const masterMerit = this.app.legionMerits.master_merit || 0;
+    const clubMerit = this.app.legionMerits.lichess_merit || 0;
+    const masterLegion = Scoring.getLegionRank(masterMerit);
+    const clubLegion = Scoring.getLegionRank(clubMerit);
+    const masterBattleHistory = this.renderBattleHistory('master');
+    const clubBattleHistory = this.renderBattleHistory('lichess');
+    const masterSafetyNet = Scoring.getSafetyNetThreshold(masterLegion.title);
+    const clubSafetyNet = Scoring.getSafetyNetThreshold(clubLegion.title);
+    
+    const isMaster = this.app.aiSource === 'master';
+    const currentMerit = isMaster ? masterMerit : clubMerit;
+    const currentLegion = isMaster ? masterLegion : clubLegion;
+    const currentBattleHistory = isMaster ? masterBattleHistory : clubBattleHistory;
+    const currentSafetyNet = isMaster ? masterSafetyNet : clubSafetyNet;
+    const gamesPlayed = isMaster ? this.app.gamesPlayedMaster : this.app.gamesPlayedLichess;
+    
     document.getElementById('app').innerHTML = `
+      <button class="home-button" onclick="app.goHome()">🏠 Home</button>
+      
       <div class="menu">
-        <p class="menu-bwsection">Select your position in the line of battle.</p>
+        <h1 class="menu-title">LINES OF THE LEGION</h1>
+        <p class="menu-subtitle">
+          ${isMaster ? '🏆 Master Campaign' : '♟️ Club Campaign'}
+        </p>
 
-        <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
-          <button id="whiteBtn" class="menu-btn primary">Command White</button>
-          <button id="blackBtn" class="menu-btn primary">Command Black</button>
+        <!-- Current Legion Status -->
+        <div class="legion-card ${isMaster ? 'masters' : 'club'}">
+          <div class="legion-header">${isMaster ? '🏆 Masters Legion' : '♟️ Club Legion'}</div>
+          <div class="legion-status">
+            ${currentLegion.title} (${currentMerit} merit) ${currentLegion.icon}
+          </div>
+          ${currentLegion.nextRank
+            ? `<div class="legion-next">${currentLegion.title} → ${currentLegion.nextRank}: ${currentLegion.pointsNeeded} more</div>`
+            : `<div class="legion-next">Highest rank achieved</div>`}
+          ${currentSafetyNet ? `<div class="safety-net-display">🛡️ Demotion Safety Net: ${currentSafetyNet} merit</div>` : ''}
+          <div class="rank-progress">
+            ${currentLegion.rankOrder.map(r =>
+              `<div class="rank-step ${r === currentLegion.title ? 'active' : ''}">${r}</div>`
+            ).join('')}
+          </div>
+          ${currentBattleHistory}
+          <div style="font-size:0.75rem;color:#aaa;margin-top:4px;text-align:center;">
+            Battles Fought: ${gamesPlayed}
+          </div>
         </div>
 
-        <div class="battle-laws-brief"
-          style="margin-top:16px; padding:12px; background:rgba(0,0,0,0.5);
-                 border:1px solid #333; border-radius:4px; text-align:left;">
+        <p style="text-align:center;margin:15px 0;color:var(--parchment);font-size:0.85rem;">
+          Select your position in the line of battle
+        </p>
 
-          <h3 style="color:var(--gold); font-family:'Cinzel', serif;
-                     font-size:1.1rem; margin-bottom:8px;
-                     border-bottom:1px solid #444;">
-            📜 GAME RULES
-          </h3>
-
-   <p style="font-size:0.8rem; line-height:1.4; color:#bbb;">
-    Your ultimate aim is to earn 1,750 Merit and ascend to <strong style="color:var(--gold);">Legatus</strong> — the highest rank of the Roman army.
-  </p>
-          <p style="font-size:0.8rem; line-height:1.4; color:#bbb; margin:0;">
-            <strong style="color:var(--gold);">Stay within opening theory to earn honor.</strong>
-            Leave the book early, and the battle ends — judgment is final at that moment.
-            Merit is decided by how long you hold the line, the accuracy of your moves,
-            and the strength of the resulting position.
-            Based on this, your battle rank is assigned from these battle ranks:
-            <strong>Levy, Hastatus, Principes, Triarius, or Imperator</strong>,
-            where <em>Levy</em> reflects the weakest performance and
-            <em>Imperator</em> the topmost.
-            Merits earned in the battle are added to your total to move up the rank
-            for promotion. In case of poor performance, your rank may be reduced.
-            For example, two <em>Levy</em> performances in the last five battles
-            will demote your rank from <strong>Legionary → Recruit</strong>
-            and reset your merit.
-            Consistent excellence earns promotion, but each new rank demands higher standards.
-            <strong style="color:var(--gold);">
-              Weak play, careless exits, and repeated failure bring demotion.
-            </strong>
-            However, if you've reached 50% progress in your rank, you'll only be reset to the start of your current rank instead of being demoted.
-            Flee too early, and history will remember you as one who ran from the battlefield.
-          </p>
-           <p style="font-size:0.75rem; color:var(--gold); text-align:center;">
-              All the best — reach the pinnacle of the Roman army.
-            </p>
-          <button id="toggleRules"
-            style="margin-top:10px; background:none; border:none;
-                   color:var(--gold); font-size:0.75rem; cursor:pointer;">
-            ▶ View Full Rules
-          </button>
-
-          <!-- FULL RULES -->
-          <div id="fullRules" style="display:none; margin-top:10px;
-               padding-top:10px; border-top:1px solid #444;
-               max-height:260px; overflow-y:auto;">
-
-            <h4 style="color:var(--gold); font-family:'Cinzel', serif;
-                       font-size:0.9rem; margin-bottom:6px;">
-              📘 DETAILED RULES 
-            </h4>
-            <h4 style="margin-top:10px; color:var(--gold); font-size:0.8rem;">
-              1. THE BATTLE
-            </h4>
-            <ul style="font-size:0.75rem; color:#bbb; padding-left:16px;">
-              <li><strong>Masters Mode:</strong> Elite games. The battle ends if the resulting position has fewer than 5 games in history.</li>
-              <li><strong>Club Mode:</strong> Club games. The battle ends if the resulting position has fewer than 20 games in history.</li>
-              <li>One hint per battle (Top 5 moves)</li>
-            </ul>
-
-            <h4 style="margin-top:8px; color:var(--gold); font-size:0.8rem;">
-              2. MERIT SCORING
-            </h4>
-            <ul style="font-size:0.75rem; color:#bbb; padding-left:16px;">
-            <li>Number of moves played while staying within theory</li>
-  <li>Quality of moves compared to top historical choices</li>
-  <li>Final position evaluation when the battle ends</li>
-
-            </ul>
-
-            <h4 style="margin-top:8px; color:var(--gold); font-size:0.8rem;">
-              3. BATTLE RANKS
-            </h4>
-            <p style="font-size:0.75rem; color:#bbb;">
-              🪖 Levy (0–39) · 🛡️ Hastatus (40–54) · ⚔️ Principes (55–69)<br>
-              🦅 Triarius (70–84) · 👑 Imperator (85–100)
-            </p>
-
-            <h4 style="margin-top:8px; color:var(--gold); font-size:0.8rem;">
-              4. LEGION RANKS
-            </h4>
-            <p style="font-size:0.75rem; color:#bbb;">
-              🌱 Recruit (0) → 🛡️ Legionary (200) → ⚔️ Optio (500)<br>
-              🦅 Centurion (900) → 🏅 Tribunus (1300) → 🏆 Legatus (1750)
-            </p>
-
-            <h4 style="margin-top:8px; color:var(--gold); font-size:0.8rem;">
-              5. DEMOTION & DISCIPLINE
-            </h4>
-            <table style="width:100%; border-collapse:collapse; font-size:0.72rem;
-                          background:rgba(0,0,0,0.35); border:1px solid #333;">
-              <thead>
-                <tr style="background:rgba(0,0,0,0.55);">
-                  <th style="padding:6px; border:1px solid #333; color:var(--gold); text-align:left;">
-                    Current Rank
-                  </th>
-                  <th style="padding:6px; border:1px solid #333; color:var(--gold); text-align:left;">
-                    Poor Performance<br>(Last 5 Battles)
-                  </th>
-                  <th style="padding:6px; border:1px solid #333; color:var(--gold); text-align:left;">
-                    Demoted To
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="padding:6px; border:1px solid #333;">Recruit</td>
-                  <td style="padding:6px; border:1px solid #333; color:#777;">N/A</td>
-                  <td style="padding:6px; border:1px solid #333; color:#777;">N/A</td>
-                </tr>
-                <tr>
-                  <td style="padding:6px; border:1px solid #333;">Legionary</td>
-                  <td style="padding:6px; border:1px solid #333;">2 Levy battles</td>
-                  <td style="padding:6px; border:1px solid #333;">Recruit (or reset to 200 if 350+ merit)</td>
-                </tr>
-                <tr>
-                  <td style="padding:6px; border:1px solid #333;">Optio</td>
-                  <td style="padding:6px; border:1px solid #333;">
-                    2 Levy OR<br>2 Hastatus OR<br>1 Levy + 1 Hastatus
-                  </td>
-                  <td style="padding:6px; border:1px solid #333;">Legionary (or reset to 500 if 700+ merit)</td>
-                </tr>
-                <tr>
-                  <td style="padding:6px; border:1px solid #333;">Centurion</td>
-                  <td style="padding:6px; border:1px solid #333;">
-                    ANY Levy/Hastatus OR<br>No Triarius/Imperator in 5 battles
-                  </td>
-                  <td style="padding:6px; border:1px solid #333;">Optio (or reset to 900 if 1100+ merit)</td>
-                </tr>
-                <tr>
-                  <td style="padding:6px; border:1px solid #333;">Tribunus</td>
-                  <td style="padding:6px; border:1px solid #333;">
-                    ANY Levy/Hastatus OR<br>Less than 3 Triarius/Imperator
-                  </td>
-                  <td style="padding:6px; border:1px solid #333;">Centurion (or reset to 1300 if 1525+ merit)</td>
-                </tr>
-                <tr>
-                  <td style="padding:6px; border:1px solid #333;">Legatus</td>
-                  <td style="padding:6px; border:1px solid #333; color:#777;">N/A</td>
-                  <td style="padding:6px; border:1px solid #333; color:#777;">N/A</td>
-                </tr>
-              </tbody>
-            </table>
-            
-            <h4 style="margin-top:8px; color:var(--gold); font-size:0.8rem;">
-              6. PROMOTION REQUIREMENTS
-            </h4>
-            <ul style="font-size:0.75rem; color:#bbb; padding-left:16px;">
-              <li><strong>Recruit → Legionary:</strong> 200 merit (no other requirements)</li>
-              <li><strong>Legionary → Optio:</strong> 500 merit (avoid 2 Levy)</li>
-              <li><strong>Optio → Centurion:</strong> 900 merit (avoid demotion triggers)</li>
-              <li><strong>Centurion → Tribunus:</strong> 1300 merit + at least 1 Triarius/Imperator</li>
-              <li><strong>Tribunus → Legatus:</strong> 1750 merit + at least 3 Triarius/Imperator</li>
-            </ul>
-            
-            <h4 style="margin-top:8px; color:var(--gold); font-size:0.8rem;">
-              7. SAFETY NET (50% RULE)
-            </h4>
-            <p style="font-size:0.75rem; color:#bbb;">
-              If you reach 50% progress toward your next rank, demotion resets you to the start of your current rank instead of dropping you to the previous rank.<br>
-              <strong>Safety Thresholds:</strong> Legionary (350), Optio (700), Centurion (1100), Tribunus (1525)
-            </p>
-          </div>
+        <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
+          <button id="whiteBtn" class="menu-btn" style="width: auto; padding: 12px 24px;">Command White</button>
+          <button id="blackBtn" class="menu-btn" style="width: auto; padding: 12px 24px;">Command Black</button>
         </div>
       </div>
     `;
 
     document.getElementById('whiteBtn').onclick = () => this.app.selectColor('w');
     document.getElementById('blackBtn').onclick = () => this.app.selectColor('b');
-
-    const toggle = document.getElementById('toggleRules');
-    const full = document.getElementById('fullRules');
-
-    toggle.onclick = () => {
-      const open = full.style.display === 'block';
-      full.style.display = open ? 'none' : 'block';
-      toggle.textContent = open ? '▶ View Full Rules' : '▼ Hide Full Rules';
-    };
   }
 
   renderGameContainer() {
     if (document.querySelector('.game-container')) return;
     document.getElementById('app').innerHTML = `
+      <button class="home-button" onclick="app.goHome()">🏠 Home</button>
+      
       <div class="game-container">
         <div class="board-wrapper" id="board"></div>
         <div class="info-line" id="gameCount">Loading position data...</div>
@@ -413,10 +359,6 @@ class UIRenderer {
       : '';
     this.app.rankChangeMessage = null;
 
-    // Don't show penalty message separately - it's already in battleRank.msg
-    let penaltyMsg = '';
-
-    // Get rank-specific color based on Roman customs
     const rankColors = {
       'Levy': '#2ecc71',
       'Hastatus': '#ecf0f1',
@@ -425,7 +367,6 @@ class UIRenderer {
       'Imperator': '#9b59b6'
     };
     const rankColor = rankColors[battleRank.title] || '#d4af37';
-    const textColor = battleRank.title === 'Hastatus' ? '#000' : '#fff';
 
     summaryEl.innerHTML = `
       ${rankChangeHtml}
@@ -444,51 +385,36 @@ class UIRenderer {
           return `<div class="rank-step ${isActive ? 'active' : ''}" style="${isActive ? `background: linear-gradient(135deg, ${color}, ${color}); color: ${r === 'Hastatus' ? '#000' : '#fff'}; border-color: ${color};` : ''}">${r}</div>`;
         }).join('')}
       </div>
-      ${penaltyMsg}
       
-      <!-- Action Buttons -->
       <div style="margin-top:16px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-        <button id="showAnalysisBtn" class="btn" style="background:#9b59b6; padding:8px 16px; font-size:0.9rem;">
+        <button id="showAnalysisBtn" class="btn">
           📊 Analyze
         </button>
-        <button id="downloadPGNBtn" class="btn" style="background:#2ecc71; padding:8px 16px; font-size:0.9rem;">
+        <button id="downloadPGNBtn" class="btn">
           📥 PGN
         </button>
-        <button id="copyPGNBtn" class="btn" style="background:#3498db; padding:8px 16px; font-size:0.9rem;">
+        <button id="copyPGNBtn" class="btn">
           📋 Copy
         </button>
       </div>
     `;
     summaryEl.style.display = 'block';
 
-    // Attach event listeners with delay and error handling
     setTimeout(() => {
       const analysisBtn = document.getElementById('showAnalysisBtn');
       const downloadBtn = document.getElementById('downloadPGNBtn');
       const copyBtn = document.getElementById('copyPGNBtn');
       
       if (analysisBtn) {
-        console.log('✅ Analysis button found, attaching click handler');
-        analysisBtn.onclick = () => {
-          console.log('🔍 Analysis button clicked!');
-          this.app.showAnalysis();
-        };
-      } else {
-        console.error('❌ Analysis button not found!');
+        analysisBtn.onclick = () => this.app.showAnalysis();
       }
       
       if (downloadBtn) {
-        downloadBtn.onclick = () => {
-          console.log('📥 Download PGN clicked');
-          this.app.downloadPGN();
-        };
+        downloadBtn.onclick = () => this.app.downloadPGN();
       }
       
       if (copyBtn) {
-        copyBtn.onclick = () => {
-          console.log('📋 Copy PGN clicked');
-          this.app.copyPGN();
-        };
+        copyBtn.onclick = () => this.app.copyPGN();
       }
     }, 100);
 
@@ -514,7 +440,5 @@ class UIRenderer {
     }
     msgEl.innerHTML = html;
     msgEl.style.display = 'block';
-    
-    console.log('✅ End game summary rendered successfully');
   }
 }

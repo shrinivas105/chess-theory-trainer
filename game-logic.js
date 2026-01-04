@@ -42,6 +42,14 @@ class ChessTheoryApp {
     this.render();
   }
 
+// Add this method to your existing ChessTheoryApp class
+goHome() {
+  this.playerColor = null;
+  this.aiSource = null;
+  this.resetGameState();
+  this.render();
+}
+
   // Storage methods
   saveToLocalStorage() {
     localStorage.setItem('chessTheoryLegionMerits', JSON.stringify(this.legionMerits));
