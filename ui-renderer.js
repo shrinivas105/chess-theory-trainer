@@ -1,5 +1,5 @@
 // ui-renderer.js - Handles all UI rendering logic
-// UPDATED: New merit thresholds and demotion warning system
+// UPDATED: New merit thresholds, demotion warning system, and safety net display
 
 class UIRenderer {
   constructor(app) {
@@ -11,7 +11,7 @@ class UIRenderer {
     const currentMerit = this.app.legionMerits[meritKey] || 0;
     const legionInfo = Scoring.getLegionRank(currentMerit);
     const recentRanks = this.app.getRecentBattleRanks(source);
-    const warning = Scoring.getDemotionWarning(legionInfo.title, recentRanks);
+    const warning = Scoring.getDemotionWarning(legionInfo.title, recentRanks, currentMerit);
 
     if (recentRanks.length === 0) return '';
 
@@ -47,13 +47,16 @@ class UIRenderer {
                 </thead>
                 <tbody>
                   <tr><td>Recruit</td><td>N/A</td><td>N/A</td></tr>
-                  <tr><td>Legionary</td><td>2 Levy battles</td><td>Recruit</td></tr>
-                  <tr><td>Optio</td><td>2 Levy or 2 Hastatus or (1 Levy + 1 Hastatus)</td><td>Legionary</td></tr>
-                  <tr><td>Centurion</td><td>ANY Levy or Hastatus OR no Triarius/Imperator in 5 battles</td><td>Optio</td></tr>
-                  <tr><td>Tribunus</td><td>ANY Levy or Hastatus OR less than 3 Triarius/Imperator</td><td>Centurion</td></tr>
+                  <tr><td>Legionary</td><td>2 Levy battles</td><td>Recruit (or reset to 200)</td></tr>
+                  <tr><td>Optio</td><td>2 Levy or 2 Hastatus or (1 Levy + 1 Hastatus)</td><td>Legionary (or reset to 500)</td></tr>
+                  <tr><td>Centurion</td><td>ANY Levy or Hastatus OR no Triarius/Imperator in 5 battles</td><td>Optio (or reset to 900)</td></tr>
+                  <tr><td>Tribunus</td><td>ANY Levy or Hastatus OR less than 3 Triarius/Imperator</td><td>Centurion (or reset to 1300)</td></tr>
                   <tr><td>Legatus</td><td>N/A</td><td>N/A</td></tr>
                 </tbody>
               </table>
+              <div style="margin-top:8px; padding:6px; background:rgba(212,175,55,0.15); border:1px solid rgba(212,175,55,0.3); border-radius:4px; font-size:0.65rem; color:#f1c40f;">
+                <strong>Safety Net:</strong> If you reach 50% progress in your rank, demotion resets you to the start of your current rank instead of dropping you to the previous rank.
+              </div>
             </div>
           </div>
         </div>
@@ -71,6 +74,11 @@ class UIRenderer {
     const masterBattleHistory = this.renderBattleHistory('master');
     const clubBattleHistory = this.renderBattleHistory('lichess');
     const authSection = this.app.auth.renderAuthSection();
+    
+    // Calculate safety net thresholds
+    const masterSafetyNet = Scoring.getSafetyNetThreshold(masterLegion.title);
+    const clubSafetyNet = Scoring.getSafetyNetThreshold(clubLegion.title);
+    
     document.getElementById('app').innerHTML = `
       <div class="menu">
         <h1 class="menu-title">LINES OF THE LEGION</h1>
@@ -89,6 +97,7 @@ class UIRenderer {
       ${clubLegion.nextRank
         ? `<div class="legion-next">${clubLegion.title} → ${clubLegion.nextRank}: ${clubLegion.pointsNeeded} more</div>`
         : `<div class="legion-next">Highest rank achieved</div>`}
+      ${clubSafetyNet ? `<div class="safety-net-display">🛡️ Demotion Safety Net: ${clubSafetyNet} merit</div>` : ''}
       <div class="rank-progress">
         ${clubLegion.rankOrder.map(r =>
           `<div class="rank-step ${r === clubLegion.title ? 'active' : ''}">${r}</div>`
@@ -109,6 +118,7 @@ class UIRenderer {
       ${masterLegion.nextRank
         ? `<div class="legion-next">${masterLegion.title} → ${masterLegion.nextRank}: ${masterLegion.pointsNeeded} more</div>`
         : `<div class="legion-next">Highest rank achieved</div>`}
+      ${masterSafetyNet ? `<div class="safety-net-display">🛡️ Demotion Safety Net: ${masterSafetyNet} merit</div>` : ''}
       <div class="rank-progress">
         ${masterLegion.rankOrder.map(r =>
           `<div class="rank-step ${r === masterLegion.title ? 'active' : ''}">${r}</div>`
@@ -175,6 +185,7 @@ class UIRenderer {
             <strong style="color:var(--gold);">
               Weak play, careless exits, and repeated failure bring demotion.
             </strong>
+            However, if you've reached 50% progress in your rank, you'll only be reset to the start of your current rank instead of being demoted.
             Flee too early, and history will remember you as one who ran from the battlefield.
           </p>
            <p style="font-size:0.75rem; color:var(--gold); text-align:center;">
@@ -257,28 +268,28 @@ class UIRenderer {
                 <tr>
                   <td style="padding:6px; border:1px solid #333;">Legionary</td>
                   <td style="padding:6px; border:1px solid #333;">2 Levy battles</td>
-                  <td style="padding:6px; border:1px solid #333;">Recruit</td>
+                  <td style="padding:6px; border:1px solid #333;">Recruit (or reset to 200 if 350+ merit)</td>
                 </tr>
                 <tr>
                   <td style="padding:6px; border:1px solid #333;">Optio</td>
                   <td style="padding:6px; border:1px solid #333;">
                     2 Levy OR<br>2 Hastatus OR<br>1 Levy + 1 Hastatus
                   </td>
-                  <td style="padding:6px; border:1px solid #333;">Legionary</td>
+                  <td style="padding:6px; border:1px solid #333;">Legionary (or reset to 500 if 700+ merit)</td>
                 </tr>
                 <tr>
                   <td style="padding:6px; border:1px solid #333;">Centurion</td>
                   <td style="padding:6px; border:1px solid #333;">
                     ANY Levy/Hastatus OR<br>No Triarius/Imperator in 5 battles
                   </td>
-                  <td style="padding:6px; border:1px solid #333;">Optio</td>
+                  <td style="padding:6px; border:1px solid #333;">Optio (or reset to 900 if 1100+ merit)</td>
                 </tr>
                 <tr>
                   <td style="padding:6px; border:1px solid #333;">Tribunus</td>
                   <td style="padding:6px; border:1px solid #333;">
                     ANY Levy/Hastatus OR<br>Less than 3 Triarius/Imperator
                   </td>
-                  <td style="padding:6px; border:1px solid #333;">Centurion</td>
+                  <td style="padding:6px; border:1px solid #333;">Centurion (or reset to 1300 if 1525+ merit)</td>
                 </tr>
                 <tr>
                   <td style="padding:6px; border:1px solid #333;">Legatus</td>
@@ -298,6 +309,14 @@ class UIRenderer {
               <li><strong>Centurion → Tribunus:</strong> 1300 merit + at least 1 Triarius/Imperator</li>
               <li><strong>Tribunus → Legatus:</strong> 1750 merit + at least 3 Triarius/Imperator</li>
             </ul>
+            
+            <h4 style="margin-top:8px; color:var(--gold); font-size:0.8rem;">
+              7. SAFETY NET (50% RULE)
+            </h4>
+            <p style="font-size:0.75rem; color:#bbb;">
+              If you reach 50% progress toward your next rank, demotion resets you to the start of your current rank instead of dropping you to the previous rank.<br>
+              <strong>Safety Thresholds:</strong> Legionary (350), Optio (700), Centurion (1100), Tribunus (1525)
+            </p>
           </div>
         </div>
       </div>

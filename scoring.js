@@ -48,7 +48,18 @@ class Scoring {
     return { title, icon: iconMap[title], merit: m, nextRank, pointsNeeded, rankOrder, thresholds, level };
   }
   
-  static getDemotionWarning(rankTitle, recentRanks) {
+  // Get safety net threshold for a rank (50% of range)
+  static getSafetyNetThreshold(rankTitle) {
+    const safetyNets = {
+      'Legionary': 350,   // 200 + (500-200)*0.5 = 350
+      'Optio': 700,       // 500 + (900-500)*0.5 = 700
+      'Centurion': 1100,  // 900 + (1300-900)*0.5 = 1100
+      'Tribunus': 1525    // 1300 + (1750-1300)*0.5 = 1525
+    };
+    return safetyNets[rankTitle] || null;
+  }
+  
+  static getDemotionWarning(rankTitle, recentRanks, currentMerit = 0) {
     if (rankTitle === 'Recruit' || recentRanks.length === 0) return null;
     
     const levy = recentRanks.filter(r => r === 'Levy').length;
@@ -59,20 +70,30 @@ class Scoring {
     const battlesPlayed = recentRanks.length;
     const battlesLeft = 5 - battlesPlayed;
     
+    // Check if player is in safety net zone
+    const safetyThreshold = this.getSafetyNetThreshold(rankTitle);
+    const inSafetyNet = safetyThreshold && currentMerit >= safetyThreshold;
+    
     // Legionary: Warning after 1 Levy
     if (rankTitle === 'Legionary' && levy === 1) {
-      return '⚔️ Commander: Legionary, one Levy failure stains your record. One more = <span style="color:#e74c3c">stripped to Recruit!</span>';
+      return inSafetyNet 
+        ? '⚔️ Commander: Legionary, one Levy failure stains your record. One more = <span style="color:#e74c3c">lose all your gained Legionary merits!</span>'
+        : '⚔️ Commander: Legionary, one Levy failure stains your record. One more = <span style="color:#e74c3c">stripped to Recruit!</span>';
     }
     
     // Optio: Warning after 1 Levy OR 1 Hastatus
     if (rankTitle === 'Optio' && (levy === 1 || hastatus === 1)) {
-      return '⚔️ Commander: Optio, one weak battle marks your failure. One more Levy or Hastatus = <span style="color:#e74c3c">broken to Legionary!</span>';
+      return inSafetyNet
+        ? '⚔️ Commander: Optio, one weak battle marks your failure. One more Levy or Hastatus = <span style="color:#e74c3c">lose all your gained Optio merits!</span>'
+        : '⚔️ Commander: Optio, one weak battle marks your failure. One more Levy or Hastatus = <span style="color:#e74c3c">broken to Legionary!</span>';
     }
     
     // Centurion: Need at least 1 Triarius/Imperator in last 5
     if (rankTitle === 'Centurion') {
       if (battlesPlayed >= 4 && eliteCount === 0) {
-        return '⚔️ Commander: Centurion, you have shown no excellence! Score Triarius or Imperator in the last battle or be <span style="color:#e74c3c">demoted to Optio!</span>';
+        return inSafetyNet
+          ? '⚔️ Commander: Centurion, you have shown no excellence! Score Triarius or Imperator in the last battle or <span style="color:#e74c3c">lose all your gained Centurion merits!</span>'
+          : '⚔️ Commander: Centurion, you have shown no excellence! Score Triarius or Imperator in the last battle or be <span style="color:#e74c3c">demoted to Optio!</span>';
       }
     }
     
@@ -84,37 +105,43 @@ class Scoring {
       if (neededElite > 0) {
         // After 1 battle with no elite
         if (battlesPlayed === 1 && eliteCount === 0) {
-          return '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 4 battles to maintain rank!';
+          return inSafetyNet
+            ? '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 4 battles or lose all your gained Tribunus merits!'
+            : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 4 battles or be demoted to Centurion!';
         }
         
         // After 2 battles with <1 elite
         if (battlesPlayed === 2 && eliteCount < 1) {
-          return '⚔️ Commander: Tribunus, you MUST score <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 3 battles or face demotion to Centurion!';
+          return inSafetyNet
+            ? '⚔️ Commander: Tribunus, you MUST score <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 3 battles or lose all your gained Tribunus merits!'
+            : '⚔️ Commander: Tribunus, you MUST score <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 3 battles or face demotion to Centurion!';
         }
         
-        // After 3 battles - show warning based on what's needed
+        // After 3 battles - only show warning if still achievable
         if (battlesPlayed === 3) {
-          if (neededElite === 3) {
-            // 0 elite so far - mathematically impossible, will be demoted
-            return '⚔️ Commander: Tribunus, <span style="color:#e74c3c">IMPOSSIBLE</span> to score 3 elite in 2 battles! Demotion imminent!';
-          } else if (neededElite === 2) {
+          // Don't show warning for 0 elite (impossible - immediate demotion)
+          if (neededElite === 2) {
             // 1 elite so far - need 2 more in 2 battles
-            return '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">2 more Triarius/Imperator</span> in your last 2 battles or be demoted to Centurion!';
+            return inSafetyNet
+              ? '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">2 more Triarius/Imperator</span> in your last 2 battles or lose all your gained Tribunus merits!'
+              : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">2 more Triarius/Imperator</span> in your last 2 battles or be demoted to Centurion!';
           } else if (neededElite === 1) {
             // 2 elite so far - need 1 more
-            return '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">1 more Triarius/Imperator</span> in your last 2 battles to maintain rank!';
+            return inSafetyNet
+              ? '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">1 more Triarius/Imperator</span> in your last 2 battles or lose all your gained Tribunus merits!'
+              : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">1 more Triarius/Imperator</span> in your last 2 battles or be demoted to Centurion!';
           }
         }
         
-        // After 4 battles - final warning
+        // After 4 battles - final warning (only if still achievable)
         if (battlesPlayed === 4) {
-          if (neededElite >= 2) {
-            // Need 2+ in 1 battle - impossible
-            return '⚔️ Commander: Tribunus, <span style="color:#e74c3c">IMPOSSIBLE</span> to secure required elite battles! Demotion imminent!';
-          } else if (neededElite === 1) {
-            // Need exactly 1 more
-            return '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">Triarius or Imperator</span> in the last battle to maintain your rank or face demotion to Centurion!';
+          if (neededElite === 1) {
+            // Need exactly 1 more (still possible)
+            return inSafetyNet
+              ? '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">Triarius or Imperator</span> in the last battle or lose all your gained Tribunus merits!'
+              : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">Triarius or Imperator</span> in the last battle or face demotion to Centurion!';
           }
+          // Don't show warning for neededElite >= 2 (impossible - immediate demotion)
         }
       }
     }
@@ -122,8 +149,8 @@ class Scoring {
     return null;
   }
   
-  // New method to check if demotion should occur
-  static checkDemotion(rankTitle, recentRanks, newBattleRank) {
+  // Check if demotion should occur (with safety net)
+  static checkDemotion(rankTitle, recentRanks, newBattleRank, currentMerit = 0) {
     if (rankTitle === 'Recruit') return null;
     
     const levy = recentRanks.filter(r => r === 'Levy').length;
@@ -132,54 +159,103 @@ class Scoring {
     const imperator = recentRanks.filter(r => r === 'Imperator').length;
     const eliteCount = triarius + imperator;
     
-    // Legionary: 2 Levy → Recruit
+    // Check if player is in safety net zone
+    const safetyThreshold = this.getSafetyNetThreshold(rankTitle);
+    const inSafetyNet = safetyThreshold && currentMerit >= safetyThreshold;
+    
+    // Legionary: 2 Levy → Recruit or reset
     if (rankTitle === 'Legionary' && levy >= 2) {
-      return {
-        demote: true,
-        newRank: 'Recruit',
-        newMerit: 0,
-        message: '⚔️ Commander: Two Levy failures! You are stripped to Recruit! Prove your worth again!'
-      };
+      if (inSafetyNet) {
+        return {
+          demote: true,
+          newRank: 'Legionary',
+          newMerit: 200,
+          message: '⚔️ Commander: Two Levy failures! Your merit has been reset to 200! Prove yourself again!'
+        };
+      } else {
+        return {
+          demote: true,
+          newRank: 'Recruit',
+          newMerit: 0,
+          message: '⚔️ Commander: Two Levy failures! You are stripped to Recruit! Prove your worth again!'
+        };
+      }
     }
     
-    // Optio: 2 Levy OR 2 Hastatus OR (1 Levy + 1 Hastatus) → Legionary
+    // Optio: 2 Levy OR 2 Hastatus OR (1 Levy + 1 Hastatus) → Legionary or reset
     if (rankTitle === 'Optio' && (levy >= 2 || hastatus >= 2 || (levy >= 1 && hastatus >= 1))) {
-      return {
-        demote: true,
-        newRank: 'Legionary',
-        newMerit: 200,
-        message: '⚔️ Commander: Repeated weak battles! You are broken to Legionary! Rise or perish!'
-      };
+      if (inSafetyNet) {
+        return {
+          demote: true,
+          newRank: 'Optio',
+          newMerit: 500,
+          message: '⚔️ Commander: Repeated weak battles! Your merit has been reset to 500! Rise or perish!'
+        };
+      } else {
+        return {
+          demote: true,
+          newRank: 'Legionary',
+          newMerit: 200,
+          message: '⚔️ Commander: Repeated weak battles! You are broken to Legionary! Rise or perish!'
+        };
+      }
     }
     
-    // Centurion: ANY Levy or Hastatus → immediate demotion
+    // Centurion: ANY Levy or Hastatus → immediate demotion or reset
     if (rankTitle === 'Centurion' && (newBattleRank === 'Levy' || newBattleRank === 'Hastatus')) {
-      return {
-        demote: true,
-        newRank: 'Optio',
-        newMerit: 500,
-        message: '⚔️ Commander: A Centurion showing such weakness! You are demoted to Optio! Disgraceful!'
-      };
+      if (inSafetyNet) {
+        return {
+          demote: true,
+          newRank: 'Centurion',
+          newMerit: 900,
+          message: '⚔️ Commander: A Centurion showing such weakness! Your merit has been reset to 900! Disgraceful!'
+        };
+      } else {
+        return {
+          demote: true,
+          newRank: 'Optio',
+          newMerit: 500,
+          message: '⚔️ Commander: A Centurion showing such weakness! You are demoted to Optio! Disgraceful!'
+        };
+      }
     }
     
-    // Centurion: No Triarius/Imperator after 5 battles → demotion
+    // Centurion: No Triarius/Imperator after 5 battles → demotion or reset
     if (rankTitle === 'Centurion' && recentRanks.length >= 5 && eliteCount === 0) {
-      return {
-        demote: true,
-        newRank: 'Optio',
-        newMerit: 500,
-        message: '⚔️ Commander: Five battles without excellence! You are demoted to Optio! Unacceptable!'
-      };
+      if (inSafetyNet) {
+        return {
+          demote: true,
+          newRank: 'Centurion',
+          newMerit: 900,
+          message: '⚔️ Commander: Five battles without excellence! Your merit has been reset to 900! Unacceptable!'
+        };
+      } else {
+        return {
+          demote: true,
+          newRank: 'Optio',
+          newMerit: 500,
+          message: '⚔️ Commander: Five battles without excellence! You are demoted to Optio! Unacceptable!'
+        };
+      }
     }
     
-    // Tribunus: ANY Levy or Hastatus → immediate demotion
+    // Tribunus: ANY Levy or Hastatus → immediate demotion or reset
     if (rankTitle === 'Tribunus' && (newBattleRank === 'Levy' || newBattleRank === 'Hastatus')) {
-      return {
-        demote: true,
-        newRank: 'Centurion',
-        newMerit: 900,
-        message: '⚔️ Commander: A Tribunus falling to such depths! You are stripped to Centurion! Shameful!'
-      };
+      if (inSafetyNet) {
+        return {
+          demote: true,
+          newRank: 'Tribunus',
+          newMerit: 1300,
+          message: '⚔️ Commander: A Tribunus falling to such depths! Your merit has been reset to 1300! Shameful!'
+        };
+      } else {
+        return {
+          demote: true,
+          newRank: 'Centurion',
+          newMerit: 900,
+          message: '⚔️ Commander: A Tribunus falling to such depths! You are stripped to Centurion! Shameful!'
+        };
+      }
     }
     
     // Tribunus: Mathematical impossibility - can't get 3 elite in remaining battles
@@ -188,19 +264,28 @@ class Scoring {
       const neededElite = 3 - eliteCount;
       
       if (neededElite > battlesLeft) {
-        return {
-          demote: true,
-          newRank: 'Centurion',
-          newMerit: 900,
-          message: '⚔️ Commander: You cannot achieve the required excellence! You are demoted to Centurion!'
-        };
+        if (inSafetyNet) {
+          return {
+            demote: true,
+            newRank: 'Tribunus',
+            newMerit: 1300,
+            message: '⚔️ Commander: You cannot achieve the required excellence! Your merit has been reset to 1300!'
+          };
+        } else {
+          return {
+            demote: true,
+            newRank: 'Centurion',
+            newMerit: 900,
+            message: '⚔️ Commander: You cannot achieve the required excellence! You are demoted to Centurion!'
+          };
+        }
       }
     }
     
     return null;
   }
   
-  // New method to check if promotion requirements are met
+  // Check if promotion requirements are met
   static canPromote(currentRank, merit, recentRanks) {
     const thresholds = [0, 200, 500, 900, 1300, 1750];
     const rankOrder = ['Recruit', 'Legionary', 'Optio', 'Centurion', 'Tribunus', 'Legatus'];

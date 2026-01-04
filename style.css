@@ -852,3 +852,17 @@ body {
   color: var(--parchment);
   font-size: 1rem;
 }
+
+
+.safety-net-display {
+  font-size: 0.75rem;
+  color: #f1c40f;
+  text-align: center;
+  margin: 8px 0;
+  padding: 6px 10px;
+  background: rgba(241, 196, 15, 0.1);
+  border: 1px solid rgba(241, 196, 15, 0.3);
+  border-radius: 6px;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(241, 196, 15, 0.3);
+}

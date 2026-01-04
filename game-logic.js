@@ -1,5 +1,5 @@
 // game-logic.js - Core chess game logic and state management
-// UPDATED: New merit thresholds and promotion/demotion system
+// UPDATED: New merit thresholds, promotion/demotion system with safety net
 
 class ChessTheoryApp {
   constructor() {
@@ -342,15 +342,15 @@ class ChessTheoryApp {
     // Get recent battle ranks for demotion check
     const recentRanks = this.getRecentBattleRanks(this.aiSource);
 
-    // Check for demotion FIRST
-    const demotionCheck = Scoring.checkDemotion(oldLegion.title, recentRanks, battleRankTitle);
+    // Check for demotion FIRST (pass oldMerit to check safety net)
+    const demotionCheck = Scoring.checkDemotion(oldLegion.title, recentRanks, battleRankTitle, oldMerit);
     
     if (demotionCheck && demotionCheck.demote) {
-      // Apply demotion
+      // Apply demotion (or safety net reset)
       newMerit = demotionCheck.newMerit;
       this.rankChangeMessage = demotionCheck.message;
       rankChanged = true;
-      // Clear battle history on demotion
+      // Clear battle history on demotion/reset
       this.setRecentBattleRanks(this.aiSource, []);
     } else {
       // Check if player can be promoted (merit + requirements met)
