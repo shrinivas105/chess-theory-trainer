@@ -64,6 +64,13 @@ class AnalysisBoard {
           <span id="winPercentageText"></span>
         </div>
 
+        <div id="moveComparisonTable" style="margin-bottom: 8px; display: none;">
+          <div style="font-size: 0.75rem; font-weight: bold; color: var(--roman-gold); margin-bottom: 4px; text-align: center;">
+            Move Comparison
+          </div>
+          <div id="comparisonTableContent"></div>
+        </div>
+
         <div style="position: relative;">
           <div class="board-wrapper" id="analysisBoard"></div>
           <svg id="arrowLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></svg>
@@ -72,7 +79,7 @@ class AnalysisBoard {
         <div class="analysis-controls" style="margin-top: 10px;">
           <div class="action-buttons" style="justify-content: center; gap: 6px; flex-wrap: wrap;">
             <button class="btn" id="firstMoveBtn" onclick="window.analysisBoard.goToMove(0)" style="padding: 8px 12px; font-size: 0.85rem;">
-              ⮐ First
+              ⏮ First
             </button>
             <button class="btn" id="prevMoveBtn" onclick="window.analysisBoard.previousMove()" style="padding: 8px 12px; font-size: 0.85rem;">
               ◀️ Prev
@@ -81,7 +88,7 @@ class AnalysisBoard {
               Next ▶️
             </button>
             <button class="btn" id="lastMoveBtn" onclick="window.analysisBoard.goToMove(${this.moveHistory.length})" style="padding: 8px 12px; font-size: 0.85rem;">
-              Last ⭢
+              Last ⏭
             </button>
           </div>
         </div>
@@ -358,14 +365,17 @@ class AnalysisBoard {
     const arrowLayer = document.getElementById('arrowLayer');
     const winPercentageEl = document.getElementById('winPercentage');
     const winPercentageText = document.getElementById('winPercentageText');
+    const comparisonTable = document.getElementById('moveComparisonTable');
+    const comparisonTableContent = document.getElementById('comparisonTableContent');
     
     if (!arrowLayer) return;
     
     // Clear arrows
     arrowLayer.innerHTML = '';
     
-    // Hide win percentage by default
+    // Hide win percentage and comparison table by default
     if (winPercentageEl) winPercentageEl.style.display = 'none';
+    if (comparisonTable) comparisonTable.style.display = 'none';
     
     // Only show comparison if we're looking at a PLAYER move (not starting position or AI move)
     if (this.currentMoveIndex < 0) {
@@ -414,7 +424,98 @@ class AnalysisBoard {
       const playerMoveUci = playerMove.from + playerMove.to + (playerMove.promotion || '');
       const playerMoveIndex = topMoves.findIndex(m => m.uci === playerMoveUci);
       
-      // Show win percentage for player's move
+      // Build comparison table data
+      const tableData = [];
+      const colors = ['#2ecc71', '#f1c40f', '#e67e22'];
+      const labels = ['Top', '2nd', '3rd'];
+      
+      // Add top 3 moves
+      topMoves.slice(0, 3).forEach((move, idx) => {
+        const totalGames = move.white + move.draws + move.black;
+        const whiteWin = totalGames > 0 ? ((move.white / totalGames) * 100).toFixed(1) : 0;
+        const draws = totalGames > 0 ? ((move.draws / totalGames) * 100).toFixed(1) : 0;
+        const blackWin = totalGames > 0 ? ((move.black / totalGames) * 100).toFixed(1) : 0;
+        
+        const isPlayerMove = move.uci === playerMoveUci;
+        
+        tableData.push({
+          move: move.san,
+          color: colors[idx],
+          label: labels[idx],
+          whiteWin,
+          draws,
+          blackWin,
+          totalGames,
+          isPlayerMove
+        });
+      });
+      
+      // If player move is not in top 3, add it separately
+      if (playerMoveIndex === -1 || playerMoveIndex > 2) {
+        const playerMoveData = topMoves.find(m => m.uci === playerMoveUci);
+        if (playerMoveData) {
+          const totalGames = playerMoveData.white + playerMoveData.draws + playerMoveData.black;
+          const whiteWin = totalGames > 0 ? ((playerMoveData.white / totalGames) * 100).toFixed(1) : 0;
+          const draws = totalGames > 0 ? ((playerMoveData.draws / totalGames) * 100).toFixed(1) : 0;
+          const blackWin = totalGames > 0 ? ((playerMoveData.black / totalGames) * 100).toFixed(1) : 0;
+          
+          tableData.push({
+            move: playerMove.san,
+            color: '#3498db',
+            label: 'Your',
+            whiteWin,
+            draws,
+            blackWin,
+            totalGames,
+            isPlayerMove: true
+          });
+        }
+      }
+      
+      // Render comparison table
+      if (comparisonTable && comparisonTableContent && tableData.length > 0) {
+        let tableHTML = `
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.7rem; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden;">
+            <thead>
+              <tr style="background: rgba(0,0,0,0.4);">
+                <th style="padding: 4px 6px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">Move</th>
+                <th style="padding: 4px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚪ Win</th>
+                <th style="padding: 4px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">🤝 Draw</th>
+                <th style="padding: 4px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚫ Win</th>
+                <th style="padding: 4px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">Games</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        tableData.forEach(row => {
+          const rowStyle = row.isPlayerMove 
+            ? `background: linear-gradient(90deg, ${row.color}20, ${row.color}10); border-left: 3px solid ${row.color}; font-weight: bold;`
+            : `border-left: 3px solid ${row.color};`;
+          
+          tableHTML += `
+            <tr style="${rowStyle}">
+              <td style="padding: 4px 6px;">
+                <span style="color: ${row.color}; font-weight: bold;">${row.label}:</span> ${row.move}${row.isPlayerMove ? ' ✓' : ''}
+              </td>
+              <td style="padding: 4px 6px; text-align: center; color: #fff;">${row.whiteWin}%</td>
+              <td style="padding: 4px 6px; text-align: center; color: #f1c40f;">${row.draws}%</td>
+              <td style="padding: 4px 6px; text-align: center; color: #bbb;">${row.blackWin}%</td>
+              <td style="padding: 4px 6px; text-align: center; color: #888; font-size: 0.65rem;">${row.totalGames.toLocaleString()}</td>
+            </tr>
+          `;
+        });
+        
+        tableHTML += `
+            </tbody>
+          </table>
+        `;
+        
+        comparisonTableContent.innerHTML = tableHTML;
+        comparisonTable.style.display = 'block';
+      }
+      
+      // Show win percentage for player's move (keeping original functionality)
       if (playerMoveIndex !== -1) {
         const moveData = topMoves[playerMoveIndex];
         const totalGames = moveData.white + moveData.draws + moveData.black;
