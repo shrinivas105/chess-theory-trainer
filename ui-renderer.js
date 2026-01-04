@@ -413,9 +413,8 @@ class UIRenderer {
       : '';
     this.app.rankChangeMessage = null;
 
-    let penaltyMsg = battleRank.penaltyReason
-      ? `<div style="color:#e74c3c;font-size:.85rem;margin-top:6px;">Penalty: ${battleRank.penaltyReason}</div>`
-      : '';
+    // Don't show penalty message separately - it's already in battleRank.msg
+    let penaltyMsg = '';
 
     // Get rank-specific color based on Roman customs
     const rankColors = {
