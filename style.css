@@ -1,25 +1,5 @@
-/* Reset Button - Keep subtle */
-#resetBtn,
-.menu-btn.reset {
-  background: transparent;
-  border: 2px dashed #555;
-  color: #888;
-  box-shadow: none;
-  font-size: 0.85rem;
-  padding: 10px 16px;
-  margin: 8px auto;
-  width: auto;
-}
-
-#resetBtn:hover,
-.menu-btn.reset:hover {
-  color: #c41e3a;
-  border-color: #c41e3a;
-  background: rgba(196,30,58,0.1);
-  transform: none;
-  box-shadow: 0 0 15px rgba(196,30,58,0.3);
-}/* ========================================
-   ROMAN BATTLE CHESS - OPTIMIZED THEME
+/* ========================================
+   ROMAN BATTLE CHESS - COMPACT OPTIMIZED
    Masters: Maroon + Gold | Club: Maroon + Silver
    Board: Dusty Earth Battlefield
    ======================================== */
@@ -32,6 +12,28 @@
   --sparse-grass: #9b8b5f;
   --parchment: #f4e8d0;
   --blood-red: #c41e3a;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Cinzel', Georgia, serif;
+  background: #b4c29e;  
+  background-attachment: fixed;
+  color: var(--parchment);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 12px;
 }
 
 /* ========================================
@@ -161,150 +163,43 @@
 }
 
 /* ========================================
-   LEGION CARDS - MASTERS (GOLD) & CLUB (SILVER)
+   MENU CONTAINER - COMPACT
    ======================================== */
 
-.legion-card {
-  margin: 20px auto;
-  padding: 24px;
-  border-radius: 12px;
-  background: rgba(15,10,5,0.9);
-  border: 3px solid var(--stone-gray);
-  width: 100%;
-  max-width: 680px;
-  position: relative;
-  transition: all 0.3s ease;
-  animation: slideInFromLeft 0.6s ease-out;
-}
-
-/* Masters Legion - Maroon Costume + Gold Armor */
-.legion-card.masters {
-  border: 3px solid var(--roman-gold);
-  background: 
-    linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(128,0,3,0.15) 100%),
-    rgba(20,15,10,0.95);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-
-.legion-card.masters:hover {
-  box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-}
-
-.legion-card.masters .legion-header {
-  color: var(--roman-gold);
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-}
-
-/* Club Legion - Maroon Costume + Silver Armor */
-.legion-card.club {
-  border: 3px solid var(--roman-silver);
-  background: 
-    linear-gradient(135deg, rgba(192,192,192,0.12) 0%, rgba(128,0,3,0.15) 100%),
-    rgba(15,20,15,0.95);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-
-.legion-card.club:hover {
-  box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-}
-
-.legion-card.club .legion-header {
-  color: var(--roman-silver);
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-}
-
-.legion-header {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-/* ========================================
-   ANIMATIONS
-   ======================================== */
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideInFromLeft {
-  from { opacity: 0; transform: translateX(-50px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slideInFromRight {
-  from { opacity: 0; transform: translateX(50px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes victoryShine {
-  0% { opacity: 0; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.1); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-/* ========================================
-   BASE STYLES
-   ======================================== */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Cinzel', Georgia, serif;
-  background: #b4c29e;  
-  background-attachment: fixed;
-  color: var(--parchment);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 12px;
-}
-
-/* Menu Container */
 .menu {
   max-width: 760px;
   margin: auto;
-  padding: 32px 28px;
+  padding: 20px 18px;
   background: 
     linear-gradient(180deg, rgba(20,10,5,0.95) 0%, rgba(10,5,2,0.98) 100%),
     repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(212,175,55,0.03) 2px, rgba(212,175,55,0.03) 4px);
-  border: 3px solid var(--roman-gold);
-  border-radius: 16px;
+  border: 2px solid var(--roman-gold);
+  border-radius: 12px;
   box-shadow: 
-    0 30px 60px rgba(0,0,0,0.8),
+    0 20px 50px rgba(0,0,0,0.8),
     inset 0 1px 0 rgba(212,175,55,0.3),
-    0 0 40px rgba(212,175,55,0.2);
+    0 0 30px rgba(212,175,55,0.2);
   position: relative;
   animation: fadeInUp 0.8s ease-out;
   z-index: 1;
 }
+
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Eagle+Lake&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cinzel&display=swap');
 
 .menu-title {
   font-family: 'Cinzel', serif;
-  font-size: 2.4rem;
+  font-size: 1.8rem;
   text-align: center;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
   background: linear-gradient(to bottom, #f6e27a 0%, #ffd700 30%, #cb9b51 60%, #b8860b 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 4px 8px rgba(0,0,0,0.5);
-    animation: none !important;  /* disable shimmer */
+  animation: none !important;
   position: relative;
 }
 
@@ -314,15 +209,16 @@ body {
   top: 0; left: -100%;
   width: 50%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    animation: none !important;  /* disable shimmer */
+  animation: none !important;
 }
 
 .menu-subtitle {
   font-style: italic;
-  font-size: 0.6rem;
-    font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  font-family: 'Cinzel', serif;
   color: #ffffff;
-    text-align: center;
+  text-align: center;
+  margin-bottom: 10px;
   background: linear-gradient(to right, #a0a0a0 0%, #ffffff 30%, #e8e8e8 50%, #ffffff 70%, #a0a0a0 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -332,58 +228,44 @@ body {
 }
 
 .menu-bwsection {
-  font-size: 1.2rem;
- font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-family: 'Cinzel', serif;
   color: #ffffff;
-    text-align: center;
+  text-align: center;
+  margin: 10px 0 6px 0;
   background: linear-gradient(to right, #a0a0a0 0%, #ffffff 30%, #e8e8e8 50%, #ffffff 70%, #a0a0a0 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 15px rgba(255,255,255,0.4);
-    animation: none !important; 
-}
-
-@keyframes goldShimmer {
-  0%, 100% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 4px 8px rgba(0,0,0,0.5); }
-  50% { text-shadow: 0 0 40px rgba(255, 215, 0, 0.9), 0 6px 12px rgba(0,0,0,0.7); }
-}
-
-@keyframes shineSweep {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
-
-@keyframes silverPulse {
-  0% { text-shadow: 0 0 10px rgba(255,255,255,0.3); opacity: 0.9; }
-  100% { text-shadow: 0 0 25px rgba(255,255,255,0.6); opacity: 1; }
+  animation: none !important; 
 }
 
 .menu-btn {
   width: 100%;
-  padding: 16px;
-  margin: 8px 0;
+  padding: 10px 12px;
+  margin: 5px 0;
   background: linear-gradient(135deg, var(--maroon-costume) 0%, #600002 100%);
   color: #fff;
   border: 2px solid rgba(255,255,255,0.2);
-  border-radius: 12px;
-  font-size: 1.05rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
   font-weight: 700;
   font-family: 'Cinzel', serif;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 6px 0 #4a0001, 0 8px 15px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 0 #4a0001, 0 6px 12px rgba(0,0,0,0.4);
 }
 
 .menu-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 0 #4a0001, 0 12px 25px rgba(0,0,0,0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #4a0001, 0 10px 20px rgba(0,0,0,0.5);
 }
 
 .menu-btn.primary {
-  width: 140px;
-  padding: 12px 0;
+  width: 130px;
+  padding: 10px 0;
 }
 
 /* Master Button - Gold */
@@ -416,19 +298,147 @@ body {
   border-color: rgba(192,192,192,0.5);
 }
 
+/* Reset Button - Keep subtle */
+#resetBtn,
+.menu-btn.reset {
+  background: transparent;
+  border: 2px dashed #555;
+  color: #888;
+  box-shadow: none;
+  font-size: 0.85rem;
+  padding: 10px 16px;
+  margin: 8px auto;
+  width: auto;
+}
+
+#resetBtn:hover,
+.menu-btn.reset:hover {
+  color: #c41e3a;
+  border-color: #c41e3a;
+  background: rgba(196,30,58,0.1);
+  transform: none;
+  box-shadow: 0 0 15px rgba(196,30,58,0.3);
+}
+
+.menu-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px 0 8px 0;
+}
+
+.menu-cta {
+  text-align: center;
+  margin: 12px 0 6px 0;
+  color: var(--parchment);
+  font-size: 0.9rem;
+}
+
+/* ========================================
+   LEGION CARDS - COMPACT
+   ======================================== */
+
+.legion-card {
+  margin: 10px auto;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: rgba(15,10,5,0.9);
+  border: 2px solid var(--stone-gray);
+  width: 100%;
+  max-width: 680px;
+  position: relative;
+  transition: all 0.3s ease;
+  animation: slideInFromLeft 0.6s ease-out;
+}
+
+/* Masters Legion - Maroon Costume + Gold Armor - COMPACT */
+.legion-card.masters {
+  border: 2px solid var(--roman-gold);
+  background: 
+    linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(128,0,3,0.15) 100%),
+    rgba(20,15,10,0.95);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+}
+
+.legion-card.masters:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.legion-card.masters .legion-header {
+  color: var(--roman-gold);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+/* Club Legion - Maroon Costume + Silver Armor - COMPACT */
+.legion-card.club {
+  border: 2px solid var(--roman-silver);
+  background: 
+    linear-gradient(135deg, rgba(192,192,192,0.12) 0%, rgba(128,0,3,0.15) 100%),
+    rgba(15,20,15,0.95);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+}
+
+.legion-card.club:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.legion-card.club .legion-header {
+  color: var(--roman-silver);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.legion-header {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.legion-status {
+  font-size: 0.85rem;
+  margin: 4px 0;
+}
+
+.legion-next {
+  font-size: 0.75rem;
+  margin: 4px 0;
+  color: #aaa;
+}
+
+.safety-net-display {
+  font-size: 0.68rem;
+  color: #bbb;
+  text-align: center;
+  margin: 4px 0 6px 0;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 5px;
+  font-weight: normal;
+}
+
+/* ========================================
+   RANK PROGRESS - COMPACT
+   ======================================== */
+
 .rank-progress {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
   justify-content: center;
-  margin: 12px 0;
+  margin: 8px 0 6px 0;
 }
 
 .rank-step {
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
   background: rgba(30,30,30,0.7);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   border: 1px solid #333;
   transition: all 0.3s ease;
 }
@@ -438,22 +448,31 @@ body {
   color: #fff;
   font-weight: bold;
   border-color: var(--maroon-costume);
-  box-shadow: 0 0 20px rgba(128,0,3,0.6);
-  transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(128,0,3,0.6);
+  transform: scale(1.1);
 }
 
+/* ========================================
+   BATTLE HISTORY - COMPACT
+   ======================================== */
+
 .battle-history {
-  padding: 10px 12px;
+  padding: 8px 10px;
   background: rgba(20,10,5,0.8);
-  border-radius: 8px;
-  font-size: 0.8rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
   border: 2px solid rgba(255,255,255,0.3);
-  margin-top: 12px;
+  margin-top: 8px;
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
   position: relative;
   overflow: visible;
+}
+
+.battle-history-title {
+  font-size: 0.7rem;
+  margin-bottom: 4px;
 }
 
 .battle-history-row {
@@ -463,9 +482,6 @@ body {
   justify-content: center;
 }
 
-/* =========================
-   Tooltip (RIGHT SIDE)
-   ========================= */
 .tooltip-container {
   position: relative;
   display: inline-flex;
@@ -523,7 +539,6 @@ body {
   transform: translateY(-50%) translateX(4px);
 }
 
-/* Desktop arrow - points LEFT to icon */
 .tooltip-content::after {
   content: '';
   position: absolute;
@@ -534,7 +549,6 @@ body {
   border-right-color: var(--roman-gold);
 }
 
-/* Mobile: Show tooltip ABOVE icon instead of to the right */
 @media (max-width: 768px) {
   .tooltip-content {
     left: 50%;
@@ -549,7 +563,6 @@ body {
     transform: translateX(-50%) translateY(-4px);
   }
   
-  /* Mobile arrow - points DOWN to icon */
   .tooltip-content::after {
     top: auto;
     bottom: -8px;
@@ -569,7 +582,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-/* IMPORTANT: prevent clipping */
+
 .battle-history,
 .club-legion,
 .club-legion-card {
@@ -607,25 +620,24 @@ body {
 
 .battle-badges {
   display: flex;
-  gap: 4px;
+  gap: 3px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .battle-badge {
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 3px 6px;
+  border-radius: 5px;
   font-weight: bold;
-  font-size: 0.75rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+  font-size: 0.68rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
   transition: transform 0.2s;
 }
 
 .battle-badge:hover {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
-/* Battle badges - Roman custom colors */
 .battle-badge.levy { 
   background: linear-gradient(135deg, #2ecc71, #27ae60);
   color: #fff; 
@@ -649,42 +661,55 @@ body {
   font-weight: 900;
 }
 
-/* Game Container - Minimal padding for maximum board space */
+.warning-message {
+  font-size: 0.68rem;
+  color: #e74c3c;
+  margin-top: 6px;
+  padding: 6px;
+  background: rgba(231,76,60,0.15);
+  border-radius: 4px;
+  border: 1px solid rgba(231,76,60,0.3);
+}
+
+/* ========================================
+   GAME CONTAINER - COMPACT
+   ======================================== */
+
 .game-container {
   max-width: 95vw;
   width: 100%;
   background: rgba(15,10,5,0.95);
   border: 2px solid var(--roman-gold);
-  border-radius: 16px;
-  padding: 12px;
-  margin: 15px auto;
+  border-radius: 12px;
+  padding: 8px;
+  margin: 10px auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   box-shadow: 
-    0 30px 60px rgba(0,0,0,0.8),
-    0 0 40px rgba(212,175,55,0.2);
+    0 20px 50px rgba(0,0,0,0.8),
+    0 0 30px rgba(212,175,55,0.2);
   animation: marchIn 0.8s ease-out;
 }
 
 .btn {
-  padding: 12px 20px;
+  padding: 8px 14px;
   background: linear-gradient(135deg, var(--maroon-costume), #600002);
   color: #fff;
   border: 2px solid rgba(255,255,255,0.2);
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-family: 'Cinzel', serif;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
   text-transform: uppercase;
 }
 
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.5);
   background: linear-gradient(135deg, #a00004, #800003);
 }
 
@@ -695,27 +720,34 @@ body {
 }
 
 .info-line {
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   color: #ffffff;
   text-align: center;
-  margin: 6px 0;
+  margin: 4px 0;
   font-weight: 600;
   text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
 
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .end-summary {
   background: rgba(20,10,5,0.98);
-  padding: 16px 18px;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  line-height: 1.5;
   border: 2px solid rgba(255,255,255,0.4);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.6);
 }
 
 .end-summary h3 {
-  font-size: 1.3rem;
-  margin-bottom: 12px;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
   color: var(--maroon-costume);
   text-align: center;
   text-transform: uppercase;
@@ -727,38 +759,39 @@ body {
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
+  gap: 8px;
   text-align: center;
-  margin: 14px 0;
-  font-size: 0.95rem;
+  margin: 10px 0;
+  font-size: 0.8rem;
 }
 
 .stats-grid div {
-  padding: 10px;
+  padding: 8px;
   background: rgba(0,0,0,0.4);
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid rgba(255,255,255,0.3);
 }
 
 .stats-grid div strong {
   display: block;
   color: var(--maroon-costume);
-  font-size: 1.3rem;
-  margin-top: 4px;
+  font-size: 1.1rem;
+  margin-top: 3px;
   font-weight: bold;
   text-shadow: 0 0 8px rgba(128,0,3,0.4);
 }
 
 .promotion-message {
   background: linear-gradient(135deg, rgba(39,174,96,0.9), rgba(27,143,78,0.9));
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
   font-weight: bold;
   text-align: center;
   border: 2px solid #27ae60;
   color: #fff;
-  box-shadow: 0 8px 20px rgba(39,174,96,0.5);
+  font-size: 0.85rem;
+  box-shadow: 0 6px 16px rgba(39,174,96,0.5);
   max-width: 100%;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -767,101 +800,26 @@ body {
 
 .demotion-message {
   background: linear-gradient(135deg, rgba(231,76,60,0.9), rgba(192,57,43,0.9));
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
   font-weight: bold;
   text-align: center;
   border: 2px solid var(--blood-red);
   color: #fff;
-  box-shadow: 0 8px 20px rgba(231,76,60,0.5);
+  font-size: 0.85rem;
+  box-shadow: 0 6px 16px rgba(231,76,60,0.5);
   max-width: 100%;
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
 }
 
-/* Mobile - Bigger board */
-@media (max-width: 768px) {
-  .game-container {
-    max-width: 98vw;  /* Increased from 95vw for fuller screen use */
-    padding: 8px;     /* Slightly less padding to maximize board */
-  }
-  
-  .board-wrapper {
-    border-width: 4px;
-  }
-  
-  .menu {
-    padding: 24px 20px;
-  }
-  
-  .menu-title {
-    font-size: 1.8rem;
-  }
-}
-
-/* Tablet - Larger board */
-@media (min-width: 769px) and (max-width: 1023px) {
-  .game-container {
-    max-width: 750px;  /* Increased from 650px */
-    padding: 10px;
-  }
-}
-
-/* Desktop - Maximum board size */
-@media (min-width: 1024px) {
-  .game-container {
-    max-width: 850px;  /* Increased from 750px – adjust higher if your screen is 4K+ */
-    padding: 10px;
-  }
-}
-
-#board {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-}
-
-.square {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.piece {
-  width: 90%;   /* Increased from 80% for better fill on larger board */
-  height: 90%;  /* Keeps pieces proportional without clipping */
-  object-fit: contain;
-}
-
-.menu-actions {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin: 16px 0;
-}
-
-.menu-cta {
-  text-align: center;
-  margin: 16px 0 8px 0;
-  color: var(--parchment);
-  font-size: 1rem;
-}
-
-
-.safety-net-display {
-  font-size: 0.75rem;
-  color: #bbb;  /* Normal text color, same as other info */
-  text-align: center;
-  margin: 6px 0 8px 0;
-  padding: 6px 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 6px;
-  font-weight: normal;
+.theory-message {
+  background: rgba(20,10,5,0.95);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  border: 2px solid rgba(212,175,55,0.4);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }

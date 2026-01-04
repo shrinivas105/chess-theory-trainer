@@ -1,0 +1,466 @@
+/* ========================================
+   PART 2: ANIMATIONS & RESPONSIVE STYLES
+   ======================================== */
+
+.game-list-item {
+  padding: 6px 8px;
+  margin: 6px 0;
+  background: rgba(0,0,0,0.3);
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.2);
+  font-size: 0.75rem;
+}
+
+.battle-laws-brief {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid #333;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.battle-laws-brief h3 {
+  color: var(--roman-gold);
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #444;
+}
+
+.battle-laws-brief p {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #bbb;
+  margin: 0;
+}
+
+.battle-laws-brief h4 {
+  margin-top: 8px;
+  color: var(--roman-gold);
+  font-size: 0.75rem;
+}
+
+.battle-laws-brief ul {
+  font-size: 0.7rem;
+  color: #bbb;
+  padding-left: 16px;
+}
+
+.battle-laws-brief table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.68rem;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid #333;
+}
+
+.battle-laws-brief th,
+.battle-laws-brief td {
+  padding: 6px;
+  border: 1px solid #333;
+}
+
+.battle-laws-brief th {
+  color: var(--roman-gold);
+  text-align: left;
+  background: rgba(0,0,0,0.55);
+}
+
+#board {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}
+
+.square {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.piece {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInFromLeft {
+  from { opacity: 0; transform: translateX(-50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInFromRight {
+  from { opacity: 0; transform: translateX(50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes victoryShine {
+  0% { opacity: 0; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes marchIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes goldShimmer {
+  0%, 100% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 4px 8px rgba(0,0,0,0.5); }
+  50% { text-shadow: 0 0 40px rgba(255, 215, 0, 0.9), 0 6px 12px rgba(0,0,0,0.7); }
+}
+
+@keyframes shineSweep {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+@keyframes silverPulse {
+  0% { text-shadow: 0 0 10px rgba(255,255,255,0.3); opacity: 0.9; }
+  100% { text-shadow: 0 0 25px rgba(255,255,255,0.6); opacity: 1; }
+}
+
+/* ========================================
+   RESPONSIVE STYLES
+   ======================================== */
+
+/* Mobile - Bigger board, compact everything else */
+@media (max-width: 768px) {
+  body {
+    padding: 10px 8px;
+  }
+
+  .game-container {
+    max-width: 98vw;
+    padding: 6px;
+  }
+  
+  .board-wrapper {
+    border-width: 4px;
+  }
+  
+  .menu {
+    padding: 16px 14px;
+  }
+  
+  .menu-title {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+  }
+
+  .menu-subtitle {
+    font-size: 0.5rem;
+  }
+
+  .menu-bwsection {
+    font-size: 0.9rem;
+  }
+
+  .legion-card {
+    padding: 10px 12px;
+  }
+
+  .legion-header {
+    font-size: 0.85rem;
+  }
+
+  .btn {
+    font-size: 0.75rem;
+    padding: 7px 12px;
+  }
+
+  .stats-grid {
+    gap: 6px;
+    font-size: 0.75rem;
+  }
+
+  .stats-grid div strong {
+    font-size: 1rem;
+  }
+
+  .end-summary h3 {
+    font-size: 1rem;
+  }
+
+  .battle-badge {
+    font-size: 0.65rem;
+    padding: 2px 5px;
+  }
+
+  .rank-step {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+}
+
+/* Tablet - Larger board */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .game-container {
+    max-width: 750px;
+    padding: 10px;
+  }
+
+  .menu {
+    padding: 18px 16px;
+  }
+}
+
+/* Desktop - Maximum board size */
+@media (min-width: 1024px) {
+  .game-container {
+    max-width: 850px;
+    padding: 10px;
+  }
+
+  .menu {
+    max-width: 800px;
+  }
+}
+
+/* Large Desktop - Even bigger if you have the space */
+@media (min-width: 1400px) {
+  .game-container {
+    max-width: 950px;
+  }
+
+  .menu {
+    max-width: 900px;
+  }
+}
+
+/* ========================================
+   ANALYSIS MODE SPECIFICS
+   ======================================== */
+
+.game-container.analysis-mode {
+  max-width: 95vw;
+}
+
+.game-container.analysis-mode .board-wrapper {
+  border-width: 4px;
+}
+
+.analysis-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.move-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 8px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.move-item {
+  padding: 4px 6px;
+  margin: 2px 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.move-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.move-item.active {
+  background: var(--roman-gold);
+  color: #000;
+  font-weight: bold;
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: 4px; }
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+
+.p-1 { padding: 4px; }
+.p-2 { padding: 8px; }
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+
+.hidden {
+  display: none !important;
+}
+
+.visible {
+  display: block !important;
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--roman-gold);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ffd700;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--roman-gold) rgba(0,0,0,0.3);
+}
+
+/* ========================================
+   LOADING & ERROR STATES
+   ======================================== */
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-size: 0.9rem;
+  color: var(--roman-gold);
+}
+
+.error {
+  padding: 12px;
+  background: rgba(231,76,60,0.2);
+  border: 2px solid #e74c3c;
+  border-radius: 8px;
+  color: #e74c3c;
+  font-size: 0.8rem;
+  text-align: center;
+  margin: 10px 0;
+}
+
+/* ========================================
+   AUTH SECTION
+   ======================================== */
+
+.auth-section {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 0.7rem;
+  color: #888;
+}
+
+.auth-section button {
+  margin-left: 6px;
+  padding: 4px 8px;
+  font-size: 0.65rem;
+  background: transparent;
+  border: 1px solid #555;
+  color: #888;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-section button:hover {
+  background: rgba(212,175,55,0.2);
+  border-color: var(--roman-gold);
+  color: var(--roman-gold);
+}
+
+/* ========================================
+   ADDITIONAL COMPACT TWEAKS
+   ======================================== */
+
+/* Tighter line heights for better vertical space usage */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+}
+
+p {
+  line-height: 1.4;
+  margin: 4px 0;
+}
+
+/* Compact list styling */
+ul, ol {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+
+li {
+  margin: 2px 0;
+}
+
+/* Compact form elements if any */
+input, select, textarea {
+  font-size: 0.8rem;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+/* Compact labels */
+label {
+  font-size: 0.75rem;
+  margin-bottom: 2px;
+  display: block;
+}
+
+/* ========================================
+   PRINT STYLES (OPTIONAL)
+   ======================================== */
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .menu,
+  .game-container {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .btn,
+  button {
+    display: none;
+  }
+
+  .board-wrapper {
+    border: 2px solid #000;
+  }
+}
