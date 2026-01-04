@@ -101,6 +101,10 @@ class AnalysisBoard {
               <div style="width: 20px; height: 2px; background: #e67e22;"></div>
               <span>3rd</span>
             </div>
+            <div style="display: flex; align-items: center; gap: 3px;">
+              <div style="width: 20px; height: 6px; background: linear-gradient(to bottom, #3498db 0%, #3498db 40%, #2ecc71 60%, #2ecc71 100%); border-radius: 1px;"></div>
+              <span>You = Top!</span>
+            </div>
           </div>
         </div>
 
@@ -129,11 +133,18 @@ class AnalysisBoard {
     
     boardEl.innerHTML = '';
     
+    // Check if board should be flipped (player is black)
+    const isFlipped = this.app.playerColor === 'b';
+    
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
-        const piece = board[row][col];
+        // Flip coordinates if player is black
+        const displayRow = isFlipped ? 7 - row : row;
+        const displayCol = isFlipped ? 7 - col : col;
+        
+        const piece = board[displayRow][displayCol];
         const isLight = (row + col) % 2 === 0;
-        const square = 'abcdefgh'[col] + (8 - row);
+        const square = 'abcdefgh'[displayCol] + (8 - displayRow);
         
         const div = document.createElement('div');
         div.className = `square ${isLight ? 'light' : 'dark'}`;
@@ -399,43 +410,59 @@ class AnalysisBoard {
     
     const boardRect = boardEl.getBoundingClientRect();
     const squareSize = boardRect.width / 8;
+    const isFlipped = this.app.playerColor === 'b';
     
     // Helper to convert square to coordinates
     const squareToCoords = (square) => {
       const file = square.charCodeAt(0) - 97; // a=0, b=1, etc.
       const rank = 8 - parseInt(square[1]); // 8=0, 7=1, etc.
+      
+      // Flip coordinates if board is flipped
+      const displayFile = isFlipped ? 7 - file : file;
+      const displayRank = isFlipped ? 7 - rank : rank;
+      
       return {
-        x: (file + 0.5) * squareSize,
-        y: (rank + 0.5) * squareSize
+        x: (displayFile + 0.5) * squareSize,
+        y: (displayRank + 0.5) * squareSize
       };
     };
     
     // Set SVG viewBox
     arrowLayer.setAttribute('viewBox', `0 0 ${boardRect.width} ${boardRect.height}`);
     
-    // Draw player move (blue)
-    const playerFrom = squareToCoords(playerMove.from);
-    const playerTo = squareToCoords(playerMove.to);
-    this.drawArrow(arrowLayer, playerFrom, playerTo, '#3498db', 8);
+    // Check if player move is the top move
+    const playerMoveUci = playerMove.from + playerMove.to + (playerMove.promotion || '');
+    const isTopMove = topMoves.length > 0 && topMoves[0].uci === playerMoveUci;
     
-    // Draw top 3 moves from database
-    const colors = ['#2ecc71', '#f1c40f', '#e67e22']; // Green, Yellow, Orange
-    topMoves.forEach((move, idx) => {
-      // Don't draw arrow if it's the same as player move
-      const moveUci = move.uci;
-      const playerUci = playerMove.from + playerMove.to + (playerMove.promotion || '');
-      if (moveUci === playerUci) return;
+    if (isTopMove) {
+      // If player move is top move, draw a special dual-color arrow (green with blue border)
+      const playerFrom = squareToCoords(playerMove.from);
+      const playerTo = squareToCoords(playerMove.to);
+      this.drawArrow(arrowLayer, playerFrom, playerTo, '#3498db', 12, '#2ecc71'); // Blue border, green fill
+    } else {
+      // Draw player move (blue) - draw this first so top moves appear on top
+      const playerFrom = squareToCoords(playerMove.from);
+      const playerTo = squareToCoords(playerMove.to);
+      this.drawArrow(arrowLayer, playerFrom, playerTo, '#3498db', 8);
       
-      const from = moveUci.substring(0, 2);
-      const to = moveUci.substring(2, 4);
-      const fromCoords = squareToCoords(from);
-      const toCoords = squareToCoords(to);
-      
-      this.drawArrow(arrowLayer, fromCoords, toCoords, colors[idx], 6);
-    });
+      // Draw top 3 moves from database
+      const colors = ['#2ecc71', '#f1c40f', '#e67e22']; // Green, Yellow, Orange
+      topMoves.forEach((move, idx) => {
+        // Don't draw arrow if it's the same as player move
+        const moveUci = move.uci;
+        if (moveUci === playerMoveUci) return;
+        
+        const from = moveUci.substring(0, 2);
+        const to = moveUci.substring(2, 4);
+        const fromCoords = squareToCoords(from);
+        const toCoords = squareToCoords(to);
+        
+        this.drawArrow(arrowLayer, fromCoords, toCoords, colors[idx], 6);
+      });
+    }
   }
 
-  drawArrow(svg, from, to, color, width) {
+  drawArrow(svg, from, to, color, width, outlineColor = null) {
     const dx = to.x - from.x;
     const dy = to.y - from.y;
     const angle = Math.atan2(dy, dx);
@@ -458,6 +485,31 @@ class AnalysisBoard {
     const head2X = endX - headLength * Math.cos(angle + headAngle);
     const head2Y = endY - headLength * Math.sin(angle + headAngle);
     
+    // If outline color provided, draw outline first (for dual-color effect)
+    if (outlineColor) {
+      const outlineWidth = width + 4;
+      
+      const outlineLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      outlineLine.setAttribute('x1', startX);
+      outlineLine.setAttribute('y1', startY);
+      outlineLine.setAttribute('x2', endX);
+      outlineLine.setAttribute('y2', endY);
+      outlineLine.setAttribute('stroke', color);
+      outlineLine.setAttribute('stroke-width', outlineWidth);
+      outlineLine.setAttribute('stroke-linecap', 'round');
+      outlineLine.setAttribute('opacity', '0.8');
+      svg.appendChild(outlineLine);
+      
+      const outlineHead = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      outlineHead.setAttribute('points', `${endX},${endY} ${head1X},${head1Y} ${head2X},${head2Y}`);
+      outlineHead.setAttribute('fill', color);
+      outlineHead.setAttribute('opacity', '0.8');
+      svg.appendChild(outlineHead);
+      
+      // Now use outline color as main color for the inner arrow
+      color = outlineColor;
+    }
+    
     // Draw line
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', startX);
@@ -467,14 +519,14 @@ class AnalysisBoard {
     line.setAttribute('stroke', color);
     line.setAttribute('stroke-width', width);
     line.setAttribute('stroke-linecap', 'round');
-    line.setAttribute('opacity', '0.8');
+    line.setAttribute('opacity', '0.9');
     svg.appendChild(line);
     
     // Draw arrow head
     const head = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     head.setAttribute('points', `${endX},${endY} ${head1X},${head1Y} ${head2X},${head2Y}`);
     head.setAttribute('fill', color);
-    head.setAttribute('opacity', '0.8');
+    head.setAttribute('opacity', '0.9');
     svg.appendChild(head);
   }
 
