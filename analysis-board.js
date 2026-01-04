@@ -51,89 +51,81 @@ class AnalysisBoard {
 
     const html = `
       <div class="game-container analysis-mode">
-        <h2 style="text-align: center; color: var(--roman-gold); margin-bottom: 8px; font-size: 1.3rem;">
+        <h2 style="text-align: center; color: var(--roman-gold); margin-bottom: 4px; font-size: 1rem;">
           ⚔️ Battle Analysis ⚔️
         </h2>
-        
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem;">
-          <span id="analysisPosition" style="color: #fff;">Starting Position</span>
-          <span id="analysisEval" style="color: #f1c40f;">Eval: 0.0</span>
-        </div>
-
-        <div id="winPercentage" style="text-align: center; margin-bottom: 8px; font-size: 0.8rem; color: #bbb; display: none;">
-          <span id="winPercentageText"></span>
-        </div>
-
-        <div id="moveComparisonTable" style="margin-bottom: 8px; display: none;">
-          <div style="font-size: 0.75rem; font-weight: bold; color: var(--roman-gold); margin-bottom: 4px; text-align: center;">
-            Move Comparison
-          </div>
-          <div id="comparisonTableContent"></div>
-        </div>
 
         <div style="position: relative;">
           <div class="board-wrapper" id="analysisBoard"></div>
           <svg id="arrowLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></svg>
         </div>
 
-        <div class="analysis-controls" style="margin-top: 10px;">
-          <div class="action-buttons" style="justify-content: center; gap: 6px; flex-wrap: wrap;">
-            <button class="btn" id="firstMoveBtn" onclick="window.analysisBoard.goToMove(0)" style="padding: 8px 12px; font-size: 0.85rem;">
+        <div id="moveComparisonTable" style="margin-top: 6px; min-height: 110px; display: flex; flex-direction: column; justify-content: center;">
+          <div id="comparisonTableContent"></div>
+        </div>
+
+        <div class="analysis-controls" style="margin-top: 6px;">
+          <div class="action-buttons" style="justify-content: center; gap: 5px; flex-wrap: wrap;">
+            <button class="btn" id="firstMoveBtn" onclick="window.analysisBoard.goToMove(0)" style="padding: 5px 9px; font-size: 0.75rem;">
               ⏮ First
             </button>
-            <button class="btn" id="prevMoveBtn" onclick="window.analysisBoard.previousMove()" style="padding: 8px 12px; font-size: 0.85rem;">
+            <button class="btn" id="prevMoveBtn" onclick="window.analysisBoard.previousMove()" style="padding: 5px 9px; font-size: 0.75rem;">
               ◀️ Prev
             </button>
-            <button class="btn" id="nextMoveBtn" onclick="window.analysisBoard.nextMove()" style="padding: 8px 12px; font-size: 0.85rem;">
+            <button class="btn" id="nextMoveBtn" onclick="window.analysisBoard.nextMove()" style="padding: 5px 9px; font-size: 0.75rem;">
               Next ▶️
             </button>
-            <button class="btn" id="lastMoveBtn" onclick="window.analysisBoard.goToMove(${this.moveHistory.length})" style="padding: 8px 12px; font-size: 0.85rem;">
+            <button class="btn" id="lastMoveBtn" onclick="window.analysisBoard.goToMove(${this.moveHistory.length})" style="padding: 5px 9px; font-size: 0.75rem;">
               Last ⏭
             </button>
           </div>
         </div>
 
-        <div style="margin-top: 10px; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 6px; font-size: 0.75rem;">
-          <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center;">
-            <span style="font-weight: bold; color: var(--roman-gold);">Arrows:</span>
-            <div style="display: flex; align-items: center; gap: 3px;">
-              <div style="width: 20px; height: 2px; background: #3498db;"></div>
-              <span>You (not top 3)</span>
+        <div style="margin-top: 6px; padding: 5px; background: rgba(0,0,0,0.3); border-radius: 4px; font-size: 0.65rem;">
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center;">
+            <span style="font-weight: bold; color: var(--roman-gold); font-size: 0.6rem;">Arrows:</span>
+            <div style="display: flex; align-items: center; gap: 2px;">
+              <div style="width: 14px; height: 2px; background: #3498db;"></div>
+              <span style="font-size: 0.6rem;">You (not top 3)</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 3px;">
-              <div style="width: 20px; height: 2px; background: #2ecc71;"></div>
-              <span>Top</span>
+            <div style="display: flex; align-items: center; gap: 2px;">
+              <div style="width: 14px; height: 2px; background: #3498db; opacity: 0.6;"></div>
+              <span style="font-size: 0.6rem;">AI (not top 3)</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 3px;">
-              <div style="width: 20px; height: 2px; background: #f1c40f;"></div>
-              <span>2nd</span>
+            <div style="display: flex; align-items: center; gap: 2px;">
+              <div style="width: 14px; height: 2px; background: #2ecc71;"></div>
+              <span style="font-size: 0.6rem;">Top</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 3px;">
-              <div style="width: 20px; height: 2px; background: #e67e22;"></div>
-              <span>3rd</span>
+            <div style="display: flex; align-items: center; gap: 2px;">
+              <div style="width: 14px; height: 2px; background: #f1c40f;"></div>
+              <span style="font-size: 0.6rem;">2nd</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 2px;">
+              <div style="width: 14px; height: 2px; background: #e67e22;"></div>
+              <span style="font-size: 0.6rem;">3rd</span>
             </div>
           </div>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; margin-top: 6px;">
-            <div style="display: flex; align-items: center; gap: 3px;">
-              <div style="width: 20px; height: 6px; background: linear-gradient(to bottom, #3498db 0%, #3498db 40%, #2ecc71 60%, #2ecc71 100%); border-radius: 1px;"></div>
-              <span>You = Top!</span>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; margin-top: 3px;">
+            <div style="display: flex; align-items: center; gap: 2px;">
+              <div style="width: 14px; height: 4px; background: linear-gradient(to bottom, #3498db 0%, #3498db 40%, #2ecc71 60%, #2ecc71 100%); border-radius: 1px;"></div>
+              <span style="font-size: 0.6rem;">You = Top!</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 3px;">
-              <div style="width: 20px; height: 6px; background: linear-gradient(to bottom, #3498db 0%, #3498db 40%, #f1c40f 60%, #f1c40f 100%); border-radius: 1px;"></div>
-              <span>You = 2nd</span>
+            <div style="display: flex; align-items: center; gap: 2px;">
+              <div style="width: 14px; height: 4px; background: linear-gradient(to bottom, #3498db 0%, #3498db 40%, #f1c40f 60%, #f1c40f 100%); border-radius: 1px;"></div>
+              <span style="font-size: 0.6rem;">You = 2nd</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 3px;">
-              <div style="width: 20px; height: 6px; background: linear-gradient(to bottom, #3498db 0%, #3498db 40%, #e67e22 60%, #e67e22 100%); border-radius: 1px;"></div>
-              <span>You = 3rd</span>
+            <div style="display: flex; align-items: center; gap: 2px;">
+              <div style="width: 14px; height: 4px; background: linear-gradient(to bottom, #3498db 0%, #3498db 40%, #e67e22 60%, #e67e22 100%); border-radius: 1px;"></div>
+              <span style="font-size: 0.6rem;">You = 3rd</span>
             </div>
           </div>
         </div>
 
-        <div class="action-buttons" style="margin-top: 10px; gap: 6px;">
-          <button class="btn" onclick="window.analysisBoard.exitAnalysis()" style="padding: 8px 14px; font-size: 0.85rem;">
+        <div class="action-buttons" style="margin-top: 6px; gap: 5px;">
+          <button class="btn" onclick="window.analysisBoard.exitAnalysis()" style="padding: 5px 10px; font-size: 0.75rem;">
             ⬅️ Exit
           </button>
-          <button class="btn" onclick="app.downloadPGN()" style="padding: 8px 14px; font-size: 0.85rem;">
+          <button class="btn" onclick="app.downloadPGN()" style="padding: 5px 10px; font-size: 0.75rem;">
             📥 PGN
           </button>
         </div>
@@ -323,17 +315,8 @@ class AnalysisBoard {
   }
 
   async updatePositionInfo() {
-    const posInfo = document.getElementById('analysisPosition');
-    if (posInfo) {
-      if (this.currentMoveIndex < 0) {
-        posInfo.textContent = 'Starting Position';
-      } else {
-        const moveNum = Math.floor(this.currentMoveIndex / 2) + 1;
-        const side = this.currentMoveIndex % 2 === 0 ? 'W' : 'B';
-        const move = this.moveHistory[this.currentMoveIndex];
-        posInfo.textContent = `Move ${moveNum} (${side}): ${move.san}`;
-      }
-    }
+    // Position info is now displayed in the table header, but we still need to update it
+    // for the table rendering to pick it up
     
     // Update evaluation
     await this.updateEvaluation();
@@ -343,28 +326,28 @@ class AnalysisBoard {
   }
 
   async updateEvaluation() {
-    const evalEl = document.getElementById('analysisEval');
-    if (!evalEl) return;
-    
+    // Evaluation is now displayed in the table header
+    // Just compute it and let the table rendering pick it up
     try {
       const fen = this.analysisGame.fen();
-      evalEl.textContent = 'Eval: ...';
-      
       const rawEval = await ChessAPI.getEvaluation(fen, this.app.evalCache);
-      const displayEval = rawEval > 0 ? '+' + rawEval.toFixed(1) : rawEval.toFixed(1);
       
-      evalEl.textContent = `Eval: ${displayEval}`;
-      evalEl.style.color = rawEval > 1 ? '#2ecc71' : rawEval < -1 ? '#e74c3c' : '#f1c40f';
+      // Flip evaluation if player is Black (eval is from White's perspective by default)
+      const playerEval = this.app.playerColor === 'b' ? -rawEval : rawEval;
+      const displayEval = playerEval > 0 ? '+' + playerEval.toFixed(1) : playerEval.toFixed(1);
+      
+      // Store for table to use
+      this.currentEval = displayEval;
+      this.currentEvalColor = playerEval > 1 ? '#2ecc71' : playerEval < -1 ? '#e74c3c' : '#f1c40f';
     } catch (error) {
       console.error('Error updating evaluation:', error);
-      evalEl.textContent = 'Eval: N/A';
+      this.currentEval = 'N/A';
+      this.currentEvalColor = '#888';
     }
   }
 
   async updateMoveComparison() {
     const arrowLayer = document.getElementById('arrowLayer');
-    const winPercentageEl = document.getElementById('winPercentage');
-    const winPercentageText = document.getElementById('winPercentageText');
     const comparisonTable = document.getElementById('moveComparisonTable');
     const comparisonTableContent = document.getElementById('comparisonTableContent');
     
@@ -373,26 +356,24 @@ class AnalysisBoard {
     // Clear arrows
     arrowLayer.innerHTML = '';
     
-    // Hide win percentage and comparison table by default
-    if (winPercentageEl) winPercentageEl.style.display = 'none';
-    if (comparisonTable) comparisonTable.style.display = 'none';
-    
-    // Only show comparison if we're looking at a PLAYER move (not starting position or AI move)
+    // Show placeholder for starting position
     if (this.currentMoveIndex < 0) {
+      if (comparisonTableContent) {
+        comparisonTableContent.innerHTML = `
+          <div style="text-align: center; color: #888; font-size: 0.7rem; padding: 15px;">
+            Navigate to a position to see move analysis
+          </div>
+        `;
+      }
       return;
     }
     
-    // Check if current move is a player move
-    const playerMove = this.moveHistory[this.currentMoveIndex];
+    // Get current move info
+    const currentMove = this.moveHistory[this.currentMoveIndex];
     const moveNumber = this.currentMoveIndex;
     const isWhiteMove = moveNumber % 2 === 0;
     const isPlayerMove = (this.app.playerColor === 'w' && isWhiteMove) || 
                          (this.app.playerColor === 'b' && !isWhiteMove);
-    
-    // Skip if this is an AI move
-    if (!isPlayerMove) {
-      return;
-    }
     
     try {
       // Get the position BEFORE the current move
@@ -417,17 +398,25 @@ class AnalysisBoard {
       const topMoves = this.topMovesData[positionFen].slice(0, 5);
       
       if (topMoves.length === 0) {
+        if (comparisonTableContent) {
+          comparisonTableContent.innerHTML = `
+            <div style="text-align: center; color: #888; font-size: 0.7rem; padding: 15px;">
+              No database moves available for this position
+            </div>
+          `;
+        }
         return;
       }
       
-      // Find player move in top moves
-      const playerMoveUci = playerMove.from + playerMove.to + (playerMove.promotion || '');
-      const playerMoveIndex = topMoves.findIndex(m => m.uci === playerMoveUci);
+      // Find current move (player or AI) in top moves
+      const currentMoveUci = currentMove.from + currentMove.to + (currentMove.promotion || '');
+      const currentMoveIndex = topMoves.findIndex(m => m.uci === currentMoveUci);
       
       // Build comparison table data
       const tableData = [];
       const colors = ['#2ecc71', '#f1c40f', '#e67e22'];
       const labels = ['Top', '2nd', '3rd'];
+      const moveLabel = isPlayerMove ? 'Your' : 'AI';
       
       // Add top 3 moves
       topMoves.slice(0, 3).forEach((move, idx) => {
@@ -436,7 +425,7 @@ class AnalysisBoard {
         const draws = totalGames > 0 ? ((move.draws / totalGames) * 100).toFixed(1) : 0;
         const blackWin = totalGames > 0 ? ((move.black / totalGames) * 100).toFixed(1) : 0;
         
-        const isPlayerMove = move.uci === playerMoveUci;
+        const isCurrentMove = move.uci === currentMoveUci;
         
         tableData.push({
           move: move.san,
@@ -446,62 +435,86 @@ class AnalysisBoard {
           draws,
           blackWin,
           totalGames,
-          isPlayerMove
+          isCurrentMove,
+          moveType: isCurrentMove ? moveLabel : ''
         });
       });
       
-      // If player move is not in top 3, add it separately
-      if (playerMoveIndex === -1 || playerMoveIndex > 2) {
-        const playerMoveData = topMoves.find(m => m.uci === playerMoveUci);
-        if (playerMoveData) {
-          const totalGames = playerMoveData.white + playerMoveData.draws + playerMoveData.black;
-          const whiteWin = totalGames > 0 ? ((playerMoveData.white / totalGames) * 100).toFixed(1) : 0;
-          const draws = totalGames > 0 ? ((playerMoveData.draws / totalGames) * 100).toFixed(1) : 0;
-          const blackWin = totalGames > 0 ? ((playerMoveData.black / totalGames) * 100).toFixed(1) : 0;
+      // If current move is not in top 3, add it separately
+      if (currentMoveIndex === -1 || currentMoveIndex > 2) {
+        const currentMoveData = topMoves.find(m => m.uci === currentMoveUci);
+        if (currentMoveData) {
+          const totalGames = currentMoveData.white + currentMoveData.draws + currentMoveData.black;
+          const whiteWin = totalGames > 0 ? ((currentMoveData.white / totalGames) * 100).toFixed(1) : 0;
+          const draws = totalGames > 0 ? ((currentMoveData.draws / totalGames) * 100).toFixed(1) : 0;
+          const blackWin = totalGames > 0 ? ((currentMoveData.black / totalGames) * 100).toFixed(1) : 0;
           
           tableData.push({
-            move: playerMove.san,
+            move: currentMove.san,
             color: '#3498db',
-            label: 'Your',
+            label: moveLabel,
             whiteWin,
             draws,
             blackWin,
             totalGames,
-            isPlayerMove: true
+            isCurrentMove: true,
+            moveType: moveLabel
           });
         }
       }
       
       // Render comparison table
-      if (comparisonTable && comparisonTableContent && tableData.length > 0) {
+      if (comparisonTableContent && tableData.length > 0) {
+        // Get position info
+        let positionText = 'Starting Position';
+        
+        if (this.currentMoveIndex >= 0) {
+          const moveNum = Math.floor(this.currentMoveIndex / 2) + 1;
+          const side = this.currentMoveIndex % 2 === 0 ? 'W' : 'B';
+          const move = this.moveHistory[this.currentMoveIndex];
+          positionText = `Move ${moveNum} (${side}): ${move.san}`;
+        }
+        
+        const evalText = `Eval: ${this.currentEval || '0.0'}`;
+        const evalColor = this.currentEvalColor || '#f1c40f';
+        
         let tableHTML = `
-          <table style="width: 100%; border-collapse: collapse; font-size: 0.7rem; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; font-size: 0.68rem;">
+            <span style="font-weight: bold; color: var(--roman-gold);">Move Comparison</span>
+            <div style="display: flex; gap: 8px; font-size: 0.63rem;">
+              <span style="color: #fff;">${positionText}</span>
+              <span style="color: ${evalColor};">${evalText}</span>
+            </div>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.65rem; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden;">
             <thead>
               <tr style="background: rgba(0,0,0,0.4);">
-                <th style="padding: 4px 6px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">Move</th>
-                <th style="padding: 4px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚪ Win</th>
-                <th style="padding: 4px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">🤝 Draw</th>
-                <th style="padding: 4px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚫ Win</th>
-                <th style="padding: 4px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">Games</th>
+                <th style="padding: 3px 4px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">Move</th>
+                <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚪ Win</th>
+                <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">🤝 Draw</th>
+                <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚫ Win</th>
+                <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">Games</th>
               </tr>
             </thead>
             <tbody>
         `;
         
         tableData.forEach(row => {
-          const rowStyle = row.isPlayerMove 
+          const rowStyle = row.isCurrentMove 
             ? `background: linear-gradient(90deg, ${row.color}20, ${row.color}10); border-left: 3px solid ${row.color}; font-weight: bold;`
             : `border-left: 3px solid ${row.color};`;
           
+          const moveIcon = row.isCurrentMove ? (isPlayerMove ? ' ✓' : ' 🤖') : '';
+          
           tableHTML += `
             <tr style="${rowStyle}">
-              <td style="padding: 4px 6px;">
-                <span style="color: ${row.color}; font-weight: bold;">${row.label}:</span> ${row.move}${row.isPlayerMove ? ' ✓' : ''}
+              <td style="padding: 3px 4px;">
+                <span style="color: ${row.color}; font-weight: bold;">${row.label}:</span> ${row.move}${moveIcon}
               </td>
-              <td style="padding: 4px 6px; text-align: center; color: #fff;">${row.whiteWin}%</td>
-              <td style="padding: 4px 6px; text-align: center; color: #f1c40f;">${row.draws}%</td>
-              <td style="padding: 4px 6px; text-align: center; color: #bbb;">${row.blackWin}%</td>
-              <td style="padding: 4px 6px; text-align: center; color: #888; font-size: 0.65rem;">${row.totalGames.toLocaleString()}</td>
+              <td style="padding: 3px 4px; text-align: center; color: #fff;">${row.whiteWin}%</td>
+              <td style="padding: 3px 4px; text-align: center; color: #f1c40f;">${row.draws}%</td>
+              <td style="padding: 3px 4px; text-align: center; color: #bbb;">${row.blackWin}%</td>
+              <td style="padding: 3px 4px; text-align: center; color: #888; font-size: 0.58rem;">${row.totalGames.toLocaleString()}</td>
             </tr>
           `;
         });
@@ -512,37 +525,17 @@ class AnalysisBoard {
         `;
         
         comparisonTableContent.innerHTML = tableHTML;
-        comparisonTable.style.display = 'block';
-      }
-      
-      // Show win percentage for player's move (keeping original functionality)
-      if (playerMoveIndex !== -1) {
-        const moveData = topMoves[playerMoveIndex];
-        const totalGames = moveData.white + moveData.draws + moveData.black;
-        const whiteWin = totalGames > 0 ? ((moveData.white / totalGames) * 100).toFixed(1) : 0;
-        const draws = totalGames > 0 ? ((moveData.draws / totalGames) * 100).toFixed(1) : 0;
-        const blackWin = totalGames > 0 ? ((moveData.black / totalGames) * 100).toFixed(1) : 0;
-        
-        if (winPercentageEl && winPercentageText) {
-          winPercentageText.innerHTML = `
-            <span style="color: #fff;">⚪ ${whiteWin}%</span> • 
-            <span style="color: #f1c40f;">🤝 ${draws}%</span> • 
-            <span style="color: #bbb;">⚫ ${blackWin}%</span>
-            <span style="margin-left: 6px; color: #888;">(${totalGames.toLocaleString()} games)</span>
-          `;
-          winPercentageEl.style.display = 'block';
-        }
       }
       
       // Draw arrows
-      this.drawMoveArrows(playerMove, topMoves.slice(0, 3), playerMoveIndex);
+      this.drawMoveArrows(currentMove, topMoves.slice(0, 3), currentMoveIndex, isPlayerMove);
       
     } catch (error) {
       console.error('Error updating move comparison:', error);
     }
   }
 
-  drawMoveArrows(playerMove, topMoves, playerMoveIndex) {
+  drawMoveArrows(currentMove, topMoves, currentMoveIndex, isPlayerMove) {
     const arrowLayer = document.getElementById('arrowLayer');
     const boardEl = document.getElementById('analysisBoard');
     if (!arrowLayer || !boardEl) return;
@@ -569,33 +562,38 @@ class AnalysisBoard {
     // Set SVG viewBox
     arrowLayer.setAttribute('viewBox', `0 0 ${boardRect.width} ${boardRect.height}`);
     
-    // Check if player move is in top 3
-    const playerMoveUci = playerMove.from + playerMove.to + (playerMove.promotion || '');
-    const isTop3Move = playerMoveIndex >= 0 && playerMoveIndex <= 2;
+    // Check if current move is in top 3
+    const currentMoveUci = currentMove.from + currentMove.to + (currentMove.promotion || '');
+    const isTop3Move = currentMoveIndex >= 0 && currentMoveIndex <= 2;
     
     if (isTop3Move) {
-      // Player move is one of the top 3 - draw dual-color arrow
-      const playerFrom = squareToCoords(playerMove.from);
-      const playerTo = squareToCoords(playerMove.to);
+      // Current move is one of the top 3 - draw dual-color arrow
+      const moveFrom = squareToCoords(currentMove.from);
+      const moveTo = squareToCoords(currentMove.to);
       
       // Determine the color based on ranking
       let innerColor;
-      if (playerMoveIndex === 0) {
+      if (currentMoveIndex === 0) {
         innerColor = '#2ecc71'; // Green for top move
-      } else if (playerMoveIndex === 1) {
+      } else if (currentMoveIndex === 1) {
         innerColor = '#f1c40f'; // Yellow for 2nd
       } else {
         innerColor = '#e67e22'; // Orange for 3rd
       }
       
-      // Draw dual-color arrow: blue border with colored center
-      this.drawArrow(arrowLayer, playerFrom, playerTo, '#3498db', 12, innerColor);
+      // Draw dual-color arrow: blue border with colored center for player, or just colored for AI
+      if (isPlayerMove) {
+        this.drawArrow(arrowLayer, moveFrom, moveTo, '#3498db', 12, innerColor);
+      } else {
+        // For AI moves in top 3, use dashed style with the ranking color
+        this.drawArrow(arrowLayer, moveFrom, moveTo, innerColor, 10, null, true);
+      }
       
-      // Draw remaining top moves (skip player's move)
+      // Draw remaining top moves (skip current move)
       const colors = ['#2ecc71', '#f1c40f', '#e67e22'];
       topMoves.forEach((move, idx) => {
         const moveUci = move.uci;
-        if (moveUci === playerMoveUci) return; // Skip player move
+        if (moveUci === currentMoveUci) return; // Skip current move
         
         const from = moveUci.substring(0, 2);
         const to = moveUci.substring(2, 4);
@@ -605,16 +603,22 @@ class AnalysisBoard {
         this.drawArrow(arrowLayer, fromCoords, toCoords, colors[idx], 6);
       });
     } else {
-      // Player move is NOT in top 3 - draw separately
-      const playerFrom = squareToCoords(playerMove.from);
-      const playerTo = squareToCoords(playerMove.to);
-      this.drawArrow(arrowLayer, playerFrom, playerTo, '#3498db', 8);
+      // Current move is NOT in top 3 - draw separately
+      const moveFrom = squareToCoords(currentMove.from);
+      const moveTo = squareToCoords(currentMove.to);
+      
+      if (isPlayerMove) {
+        this.drawArrow(arrowLayer, moveFrom, moveTo, '#3498db', 8);
+      } else {
+        // AI move outside top 3 - use dashed blue
+        this.drawArrow(arrowLayer, moveFrom, moveTo, '#3498db', 8, null, true);
+      }
       
       // Draw top 3 moves from database
       const colors = ['#2ecc71', '#f1c40f', '#e67e22'];
       topMoves.forEach((move, idx) => {
         const moveUci = move.uci;
-        if (moveUci === playerMoveUci) return; // Should not happen but safety check
+        if (moveUci === currentMoveUci) return; // Should not happen but safety check
         
         const from = moveUci.substring(0, 2);
         const to = moveUci.substring(2, 4);
@@ -626,7 +630,7 @@ class AnalysisBoard {
     }
   }
 
-  drawArrow(svg, from, to, color, width, outlineColor = null) {
+  drawArrow(svg, from, to, color, width, outlineColor = null, dashed = false) {
     const dx = to.x - from.x;
     const dy = to.y - from.y;
     const angle = Math.atan2(dy, dx);
@@ -684,6 +688,9 @@ class AnalysisBoard {
     line.setAttribute('stroke-width', width);
     line.setAttribute('stroke-linecap', 'round');
     line.setAttribute('opacity', '0.9');
+    if (dashed) {
+      line.setAttribute('stroke-dasharray', '8,4');
+    }
     svg.appendChild(line);
     
     // Draw arrow head
