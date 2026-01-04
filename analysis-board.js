@@ -60,6 +60,10 @@ class AnalysisBoard {
           <span id="analysisEval" style="color: #f1c40f;">Eval: 0.0</span>
         </div>
 
+        <div id="winPercentage" style="text-align: center; margin-bottom: 8px; font-size: 0.8rem; color: #bbb; display: none;">
+          <span id="winPercentageText"></span>
+        </div>
+
         <div style="position: relative;">
           <div class="board-wrapper" id="analysisBoard"></div>
           <svg id="arrowLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></svg>
@@ -87,7 +91,7 @@ class AnalysisBoard {
             <span style="font-weight: bold; color: var(--roman-gold);">Arrows:</span>
             <div style="display: flex; align-items: center; gap: 3px;">
               <div style="width: 20px; height: 2px; background: #3498db;"></div>
-              <span>You</span>
+              <span>You (not top 3)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 3px;">
               <div style="width: 20px; height: 2px; background: #2ecc71;"></div>
@@ -101,9 +105,19 @@ class AnalysisBoard {
               <div style="width: 20px; height: 2px; background: #e67e22;"></div>
               <span>3rd</span>
             </div>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; margin-top: 6px;">
             <div style="display: flex; align-items: center; gap: 3px;">
               <div style="width: 20px; height: 6px; background: linear-gradient(to bottom, #3498db 0%, #3498db 40%, #2ecc71 60%, #2ecc71 100%); border-radius: 1px;"></div>
               <span>You = Top!</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 3px;">
+              <div style="width: 20px; height: 6px; background: linear-gradient(to bottom, #3498db 0%, #3498db 40%, #f1c40f 60%, #f1c40f 100%); border-radius: 1px;"></div>
+              <span>You = 2nd</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 3px;">
+              <div style="width: 20px; height: 6px; background: linear-gradient(to bottom, #3498db 0%, #3498db 40%, #e67e22 60%, #e67e22 100%); border-radius: 1px;"></div>
+              <span>You = 3rd</span>
             </div>
           </div>
         </div>
@@ -342,11 +356,16 @@ class AnalysisBoard {
 
   async updateMoveComparison() {
     const arrowLayer = document.getElementById('arrowLayer');
+    const winPercentageEl = document.getElementById('winPercentage');
+    const winPercentageText = document.getElementById('winPercentageText');
     
     if (!arrowLayer) return;
     
     // Clear arrows
     arrowLayer.innerHTML = '';
+    
+    // Hide win percentage by default
+    if (winPercentageEl) winPercentageEl.style.display = 'none';
     
     // Only show comparison if we're looking at a PLAYER move (not starting position or AI move)
     if (this.currentMoveIndex < 0) {
@@ -395,6 +414,25 @@ class AnalysisBoard {
       const playerMoveUci = playerMove.from + playerMove.to + (playerMove.promotion || '');
       const playerMoveIndex = topMoves.findIndex(m => m.uci === playerMoveUci);
       
+      // Show win percentage for player's move
+      if (playerMoveIndex !== -1) {
+        const moveData = topMoves[playerMoveIndex];
+        const totalGames = moveData.white + moveData.draws + moveData.black;
+        const whiteWin = totalGames > 0 ? ((moveData.white / totalGames) * 100).toFixed(1) : 0;
+        const draws = totalGames > 0 ? ((moveData.draws / totalGames) * 100).toFixed(1) : 0;
+        const blackWin = totalGames > 0 ? ((moveData.black / totalGames) * 100).toFixed(1) : 0;
+        
+        if (winPercentageEl && winPercentageText) {
+          winPercentageText.innerHTML = `
+            <span style="color: #fff;">⚪ ${whiteWin}%</span> • 
+            <span style="color: #f1c40f;">🤝 ${draws}%</span> • 
+            <span style="color: #bbb;">⚫ ${blackWin}%</span>
+            <span style="margin-left: 6px; color: #888;">(${totalGames.toLocaleString()} games)</span>
+          `;
+          winPercentageEl.style.display = 'block';
+        }
+      }
+      
       // Draw arrows
       this.drawMoveArrows(playerMove, topMoves.slice(0, 3), playerMoveIndex);
       
@@ -430,27 +468,52 @@ class AnalysisBoard {
     // Set SVG viewBox
     arrowLayer.setAttribute('viewBox', `0 0 ${boardRect.width} ${boardRect.height}`);
     
-    // Check if player move is the top move
+    // Check if player move is in top 3
     const playerMoveUci = playerMove.from + playerMove.to + (playerMove.promotion || '');
-    const isTopMove = topMoves.length > 0 && topMoves[0].uci === playerMoveUci;
+    const isTop3Move = playerMoveIndex >= 0 && playerMoveIndex <= 2;
     
-    if (isTopMove) {
-      // If player move is top move, draw a special dual-color arrow (green with blue border)
+    if (isTop3Move) {
+      // Player move is one of the top 3 - draw dual-color arrow
       const playerFrom = squareToCoords(playerMove.from);
       const playerTo = squareToCoords(playerMove.to);
-      this.drawArrow(arrowLayer, playerFrom, playerTo, '#3498db', 12, '#2ecc71'); // Blue border, green fill
+      
+      // Determine the color based on ranking
+      let innerColor;
+      if (playerMoveIndex === 0) {
+        innerColor = '#2ecc71'; // Green for top move
+      } else if (playerMoveIndex === 1) {
+        innerColor = '#f1c40f'; // Yellow for 2nd
+      } else {
+        innerColor = '#e67e22'; // Orange for 3rd
+      }
+      
+      // Draw dual-color arrow: blue border with colored center
+      this.drawArrow(arrowLayer, playerFrom, playerTo, '#3498db', 12, innerColor);
+      
+      // Draw remaining top moves (skip player's move)
+      const colors = ['#2ecc71', '#f1c40f', '#e67e22'];
+      topMoves.forEach((move, idx) => {
+        const moveUci = move.uci;
+        if (moveUci === playerMoveUci) return; // Skip player move
+        
+        const from = moveUci.substring(0, 2);
+        const to = moveUci.substring(2, 4);
+        const fromCoords = squareToCoords(from);
+        const toCoords = squareToCoords(to);
+        
+        this.drawArrow(arrowLayer, fromCoords, toCoords, colors[idx], 6);
+      });
     } else {
-      // Draw player move (blue) - draw this first so top moves appear on top
+      // Player move is NOT in top 3 - draw separately
       const playerFrom = squareToCoords(playerMove.from);
       const playerTo = squareToCoords(playerMove.to);
       this.drawArrow(arrowLayer, playerFrom, playerTo, '#3498db', 8);
       
       // Draw top 3 moves from database
-      const colors = ['#2ecc71', '#f1c40f', '#e67e22']; // Green, Yellow, Orange
+      const colors = ['#2ecc71', '#f1c40f', '#e67e22'];
       topMoves.forEach((move, idx) => {
-        // Don't draw arrow if it's the same as player move
         const moveUci = move.uci;
-        if (moveUci === playerMoveUci) return;
+        if (moveUci === playerMoveUci) return; // Should not happen but safety check
         
         const from = moveUci.substring(0, 2);
         const to = moveUci.substring(2, 4);
