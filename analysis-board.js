@@ -1,5 +1,5 @@
 // analysis-board.js - Post-game analysis with move navigation
-// Fixed version with proper initialization and debugging
+// FIXED: Proper piece rendering and error handling
 
 class AnalysisBoard {
   constructor(app) {
@@ -25,6 +25,8 @@ class AnalysisBoard {
       
       // Get move history from the current game
       const history = this.app.game.history({ verbose: true });
+      console.log('📜 Move history:', history);
+      
       this.moveHistory = history;
       this.currentMoveIndex = -1;
       this.isAnalyzing = true;
@@ -56,9 +58,7 @@ class AnalysisBoard {
           <span id="analysisPosition">Starting Position</span>
         </div>
 
-        <div class="board-wrapper" id="analysisBoard" style="display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);">
-          ${this.renderBoard()}
-        </div>
+        <div class="board-wrapper" id="analysisBoard"></div>
 
         <div class="analysis-controls" style="margin-top: 16px;">
           <div class="action-buttons" style="justify-content: center; gap: 8px;">
@@ -94,13 +94,17 @@ class AnalysisBoard {
     `;
 
     app.innerHTML = html;
+    this.updateBoard();
     this.updateNavigationButtons();
     console.log('✅ Analysis board rendered');
   }
 
   renderBoard() {
     const board = this.analysisGame.board();
-    let html = '';
+    const boardEl = document.getElementById('analysisBoard');
+    if (!boardEl) return;
+    
+    boardEl.innerHTML = '';
     
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
@@ -108,16 +112,23 @@ class AnalysisBoard {
         const isLight = (row + col) % 2 === 0;
         const square = 'abcdefgh'[col] + (8 - row);
         
-        html += `
-          <div class="square ${isLight ? 'light' : 'dark'}" 
-               data-square="${square}">
-            ${piece ? `<img src="${this.app.pieceImages[piece.color][piece.type]}" class="piece" alt="${piece.type}">` : ''}
-          </div>
-        `;
+        const div = document.createElement('div');
+        div.className = `square ${isLight ? 'light' : 'dark'}`;
+        div.setAttribute('data-square', square);
+        
+        if (piece) {
+          // FIXED: Correct way to access piece images
+          const pieceKey = piece.color + piece.type; // e.g., 'wp', 'bn'
+          const img = document.createElement('img');
+          img.src = this.app.pieceImages[pieceKey];
+          img.className = 'piece';
+          img.alt = piece.type;
+          div.appendChild(img);
+        }
+        
+        boardEl.appendChild(div);
       }
     }
-    
-    return html;
   }
 
   renderMoveList() {
@@ -170,11 +181,16 @@ class AnalysisBoard {
     // Replay moves up to the target index
     for (let i = 0; i < moveIndex && i < this.moveHistory.length; i++) {
       const move = this.moveHistory[i];
-      this.analysisGame.move({
-        from: move.from,
-        to: move.to,
-        promotion: move.promotion
-      });
+      try {
+        this.analysisGame.move({
+          from: move.from,
+          to: move.to,
+          promotion: move.promotion
+        });
+      } catch (error) {
+        console.error('Error replaying move:', error, move);
+        break;
+      }
     }
     
     this.currentMoveIndex = moveIndex - 1;
@@ -186,40 +202,51 @@ class AnalysisBoard {
   nextMove() {
     if (this.currentMoveIndex < this.moveHistory.length - 1) {
       const nextMove = this.moveHistory[this.currentMoveIndex + 1];
-      this.analysisGame.move({
-        from: nextMove.from,
-        to: nextMove.to,
-        promotion: nextMove.promotion
-      });
-      this.currentMoveIndex++;
-      this.updateBoard();
-      this.updateNavigationButtons();
-      this.updatePositionInfo();
+      try {
+        this.analysisGame.move({
+          from: nextMove.from,
+          to: nextMove.to,
+          promotion: nextMove.promotion
+        });
+        this.currentMoveIndex++;
+        this.updateBoard();
+        this.updateNavigationButtons();
+        this.updatePositionInfo();
+      } catch (error) {
+        console.error('Error making next move:', error, nextMove);
+      }
     }
   }
 
   previousMove() {
     if (this.currentMoveIndex >= 0) {
-      this.analysisGame.undo();
-      this.currentMoveIndex--;
-      this.updateBoard();
-      this.updateNavigationButtons();
-      this.updatePositionInfo();
+      try {
+        this.analysisGame.undo();
+        this.currentMoveIndex--;
+        this.updateBoard();
+        this.updateNavigationButtons();
+        this.updatePositionInfo();
+      } catch (error) {
+        console.error('Error undoing move:', error);
+      }
     }
   }
 
   updateBoard() {
-    const boardEl = document.getElementById('analysisBoard');
-    if (boardEl) {
-      boardEl.innerHTML = this.renderBoard();
-    }
+    this.renderBoard();
     
     // Update move list highlighting
-    const moveListEl = document.querySelector('.move-list');
-    if (moveListEl) {
-      const moveListContent = moveListEl.querySelector('div');
-      if (moveListContent) {
-        moveListContent.outerHTML = this.renderMoveList();
+    const moveListContainer = document.querySelector('.move-list');
+    if (moveListContainer) {
+      const h3 = moveListContainer.querySelector('h3');
+      const moveListHTML = this.renderMoveList();
+      moveListContainer.innerHTML = '';
+      if (h3) moveListContainer.appendChild(h3);
+      
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = moveListHTML;
+      while (tempDiv.firstChild) {
+        moveListContainer.appendChild(tempDiv.firstChild);
       }
     }
   }
