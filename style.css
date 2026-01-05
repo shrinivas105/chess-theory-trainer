@@ -354,10 +354,10 @@ body > * {
 /* Auth Section */
 .auth-section {
   text-align: center;
-  margin-bottom: 15px;
-  padding: 8px;
+  margin-bottom: 8px;
+  padding: 5px;
   background: rgba(0,0,0,0.4);
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid rgba(212,175,55,0.3);
 }
 
@@ -365,13 +365,14 @@ body > * {
   background: #fff;
   color: #333;
   border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 0.7rem;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.65rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .auth-btn:hover {
