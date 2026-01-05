@@ -44,13 +44,13 @@ class ChessTheoryApp {
     this.render();
   }
 
-// Add this method to your existing ChessTheoryApp class
-goHome() {
-  this.playerColor = null;
-  this.aiSource = null;
-  this.resetGameState();
-  this.render();
-}
+  // Add this method to your existing ChessTheoryApp class
+  goHome() {
+    this.playerColor = null;
+    this.aiSource = null;
+    this.resetGameState();
+    this.render();
+  }
 
   // Storage methods
   saveToLocalStorage() {
@@ -354,9 +354,10 @@ goHome() {
     const { score, penaltyReason } = Scoring.getTotalScore(
       this.playerMoves, 
       this.topMoveChoices, 
-      this.finalPlayerEval
+      this.finalPlayerEval,
+      this.aiSource  // Pass source for campaign-specific weights
     );
-    const battleRank = Scoring.getBattleRank(score, this.finalPlayerEval, penaltyReason);
+    const battleRank = Scoring.getBattleRank(score, this.finalPlayerEval, penaltyReason, this.aiSource);
 
     const recentRanks = this.getRecentBattleRanks(this.aiSource);
     recentRanks.push(battleRank.title);

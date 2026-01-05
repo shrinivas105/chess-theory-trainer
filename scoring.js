@@ -1,31 +1,72 @@
+// scoring.js - Battle and Legion Scoring System
+// Uses configuration from config.js
+
 class Scoring {
-  static getPlayerEval(e, c) { return c === 'b' ? -e : e; }
-  static getMoveQuality(t, p) { return p > 0 ? Math.round((t / p) * 100) : 0; }
+  static getPlayerEval(e, c) { 
+    return c === 'b' ? -e : e; 
+  }
   
-  static getTotalScore(m, t, e) {
-    const ms = m * 4 * 0.25;
-    const qs = this.getMoveQuality(t, m) * 0.40;
-    const es = e < -3 ? 0 : Math.max(0, (e + 3) * 12 * 0.35);
-    let b = ms + qs + es;
-    let mul = 1, r = '';
-    if (e < -3) { mul = 0.3; r = 'Total rout! The legions are shattered, banners fallen, the field lost in disgrace.'; }
-    else if (e >= -3 && e < -1.5) { mul = 0.8; r = 'Broken lines! The cohort reels under heavy assault, fighting on but losing ground.'; }
-    const s = Math.min(Math.round(b * mul), mul === 0.3 ? 30 : mul === 0.8 ? 60 : 100);
+  static getMoveQuality(t, p) { 
+    return p > 0 ? Math.round((t / p) * 100) : 0; 
+  }
+  
+  static getTotalScore(m, t, e, source = 'master') {
+    // Select weights based on campaign type
+    const weights = source === 'master' ? MASTER_WEIGHTS : CLUB_WEIGHTS;
+    const penaltyMultipliers = source === 'master' ? MASTER_PENALTY_MULTIPLIERS : CLUB_PENALTY_MULTIPLIERS;
+    const evalThresholds = source === 'master' ? MASTER_EVAL_THRESHOLDS : CLUB_EVAL_THRESHOLDS;
+    
+    // Calculate component scores
+    const ms = m * weights.movesMultiplier * weights.moves;
+    const qs = this.getMoveQuality(t, m) * weights.quality;
+    const es = e < evalThresholds.catastrophic 
+      ? 0 
+      : Math.max(0, (e + 3) * weights.evalMultiplier * weights.evaluation);
+    
+    let base = ms + qs + es;
+    
+    // Apply position-based penalty multiplier
+    let mul = penaltyMultipliers.acceptable;
+    let r = '';
+    
+    if (e <= evalThresholds.catastrophic) {
+      mul = penaltyMultipliers.catastrophic;
+      r = 'Total rout! The legions are shattered, banners fallen, the field lost in disgrace.';
+    } else if (e < evalThresholds.poor) {
+      mul = penaltyMultipliers.poor;
+      r = 'Broken lines! The cohort reels under heavy assault, fighting on but losing ground.';
+    }
+    
+    // Cap score based on penalty
+    const maxScore = mul === penaltyMultipliers.catastrophic ? 30 : 
+                     mul === penaltyMultipliers.poor ? 60 : 100;
+    const s = Math.min(Math.round(base * mul), maxScore);
+    
     return { score: s, penaltyReason: r };
   }
   
-  static getBattleRank(s, e, r) {
-    const t = [85, 70, 55, 40];
+  static getBattleRank(s, e, r, source = 'master') {
+    const t = BATTLE_RANK_THRESHOLDS;
+    const evalThresholds = source === 'master' ? MASTER_EVAL_THRESHOLDS : CLUB_EVAL_THRESHOLDS;
     let n;
-    if (e <= -3) n = 'Levy';
-    else if (e < -1.5) n = s >= t[3] ? 'Hastatus' : 'Levy';
-    else n = s >= t[0] ? 'Imperator' : s >= t[1] ? 'Triarius' : s >= t[2] ? 'Principes' : s >= t[3] ? 'Hastatus' : 'Levy';
+    
+    if (e <= evalThresholds.catastrophic) {
+      n = 'Levy';
+    } else if (e < evalThresholds.poor) {
+      n = s >= t.hastatus ? 'Hastatus' : 'Levy';
+    } else {
+      n = s >= t.imperator ? 'Imperator' : 
+          s >= t.triarius ? 'Triarius' : 
+          s >= t.principes ? 'Principes' : 
+          s >= t.hastatus ? 'Hastatus' : 'Levy';
+    }
+    
     const rks = {
-      Levy: { icon: "🪖", title: "Levy", msg: r || "Thrown onto the field unblooded — ranks break at first contact.", sub: "Fundamentals missing. Blunders erase all standing." },
-      Hastatus: { icon: "🛡️", title: "Hastatus", msg: r || "You held the front line, shield locked, testing the enemy.", sub: "A sound beginning — discipline and precision needed." },
+      Levy: { icon: "🪖", title: "Levy", msg: r || "Thrown onto the field unblooded – ranks break at first contact.", sub: "Fundamentals missing. Blunders erase all standing." },
+      Hastatus: { icon: "🛡️", title: "Hastatus", msg: r || "You held the front line, shield locked, testing the enemy.", sub: "A sound beginning – discipline and precision needed." },
       Principes: { icon: "⚔️", title: "Principes", msg: r || "You fought with order and purpose, pressing where it mattered.", sub: "Strong theory, reliable structure, few weaknesses." },
       Triarius: { icon: "🦅", title: "Triarius", msg: r || "When the battle wavered, you advanced and broke the stalemate.", sub: "Veteran-level command of position and timing." },
-      Imperator: { icon: "👑", title: "Imperator", msg: r || "Victory by design — the battlefield bent to your will.", sub: "Flawless theory, flawless execution." }
+      Imperator: { icon: "👑", title: "Imperator", msg: r || "Victory by design – the battlefield bent to your will.", sub: "Flawless theory, flawless execution." }
     };
     return { ...rks[n], score: s, penaltyReason: r };
   }
