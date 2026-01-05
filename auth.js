@@ -1,5 +1,6 @@
 // auth.js - Handles all authentication and progress sync logic
 // UPDATED: Compatible with new merit thresholds (0, 200, 500, 900, 1300, 1750)
+// FIXED: Removed inline positioning styles to work with fixed CSS positioning
 
 class AuthModule {
   constructor(app) {
@@ -208,23 +209,16 @@ class AuthModule {
   renderAuthSection() {
     if (this.isLoggedIn) {
       return `
-        <div style="position:absolute;top:12px;right:12px;font-size:0.75rem;color:#888;">
-          ✓ ${this.user.email.split('@')[0]}
-          <button style="margin-left:6px;padding:4px 8px;font-size:0.7rem;background:transparent;border:1px solid #555;color:#888;border-radius:4px;cursor:pointer;" onclick="app.auth.handleSignOut()">
-            Sign Out
-          </button>
+        <div class="user-info">
+          <span>✓ ${this.user.email.split('@')[0]}</span>
+          <button onclick="app.auth.handleSignOut()">Sign Out</button>
         </div>
       `;
     } else {
       return `
-        <div style="position:absolute;top:12px;right:12px;">
-          <button style="padding:6px 12px;font-size:0.75rem;background:rgba(212,175,55,0.2);border:1px solid var(--roman-gold);color:var(--roman-gold);border-radius:6px;cursor:pointer;transition:all 0.3s ease;" 
-                  onmouseover="this.style.background='rgba(212,175,55,0.3)'" 
-                  onmouseout="this.style.background='rgba(212,175,55,0.2)'"
-                  onclick="app.auth.handleSignIn()">
-            🔐 Sync
-          </button>
-        </div>
+        <button class="auth-btn" onclick="app.auth.handleSignIn()">
+          🔐 Sync
+        </button>
       `;
     }
   }
