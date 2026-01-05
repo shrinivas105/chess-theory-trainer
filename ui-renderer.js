@@ -1,5 +1,5 @@
 // ui-renderer.js - Handles all UI rendering logic
-// UPDATED: Simplified home page, rules section, white/maroon board, home button
+// UPDATED: Fixed auth section to be positioned fixed at top right
 
 class UIRenderer {
   constructor(app) {
@@ -69,7 +69,6 @@ class UIRenderer {
     const clubLegion = Scoring.getLegionRank(clubMerit);
     const masterBattleHistory = this.renderBattleHistory('master');
     const clubBattleHistory = this.renderBattleHistory('lichess');
-    const authSection = this.app.auth.renderAuthSection();
     
     const masterSafetyNet = Scoring.getSafetyNetThreshold(masterLegion.title);
     const clubSafetyNet = Scoring.getSafetyNetThreshold(clubLegion.title);
@@ -80,8 +79,6 @@ class UIRenderer {
         <p class="menu-subtitle">
          Master opening theory through Roman military ranks
         </p>
-        
-        ${authSection}
         
         <div class="game-description">
           <p>
@@ -126,7 +123,7 @@ class UIRenderer {
             
             <div id="rulesContent" style="display: none;" class="rules-content">
               <p style="margin-bottom: 10px;">
-                Your ultimate aim is to earn 1,750 Merit and ascend to <strong style="color:var(--gold);">Legatus</strong> — the highest rank of the Roman army.
+                Your ultimate aim is to earn 1,750 Merit and ascend to <strong style="color:var(--gold);">Legatus</strong> – the highest rank of the Roman army.
               </p>
               
               <h4>1. THE BATTLE</h4>
@@ -218,6 +215,9 @@ class UIRenderer {
       </div>
     `;
     
+    // Render auth section as fixed element
+    this.renderAuthSection();
+    
     document.getElementById('masterBtn').onclick = () => this.app.selectSource('master');
     document.getElementById('lichessBtn').onclick = () => this.app.selectSource('lichess');
     document.getElementById('resetBtn').onclick = () => this.app.resetStats();
@@ -291,6 +291,9 @@ class UIRenderer {
       </div>
     `;
 
+    // Render auth section as fixed element
+    this.renderAuthSection();
+
     document.getElementById('whiteBtn').onclick = () => this.app.selectColor('w');
     document.getElementById('blackBtn').onclick = () => this.app.selectColor('b');
   }
@@ -311,6 +314,24 @@ class UIRenderer {
         </div>
       </div>
     `;
+    
+    // Render auth section as fixed element
+    this.renderAuthSection();
+  }
+
+  renderAuthSection() {
+    // Remove any existing auth section
+    const existingAuth = document.querySelector('.auth-section-fixed');
+    if (existingAuth) {
+      existingAuth.remove();
+    }
+    
+    // Create new auth section
+    const authHtml = this.app.auth.renderAuthSection();
+    const authDiv = document.createElement('div');
+    authDiv.className = 'auth-section-fixed';
+    authDiv.innerHTML = authHtml;
+    document.body.appendChild(authDiv);
   }
 
   renderBoard() {
@@ -324,7 +345,7 @@ class UIRenderer {
     if (countEl) {
       countEl.textContent = this.app.gameCount > 0
         ? `Position reached ${this.app.gameCount.toLocaleString()} times`
-        : 'Position data unavailable — continuing...';
+        : 'Position data unavailable – continuing...';
     }
 
     const hintBtn = document.getElementById('hintBtn');
@@ -447,7 +468,7 @@ class UIRenderer {
         let resultText = game.winner === 'white' ? '1-0' : game.winner === 'black' ? '0-1' : '½-½';
         let resultColor = game.winner === 'white' ? '#fff' : game.winner === 'black' ? '#ccc' : '#f1c40f';
         html += `<div class="game-list-item">
-          <strong>${idx + 1}.</strong> ${whitePlayer} (${whiteRating}) — ${blackPlayer} (${blackRating})${year ? `, ${year}` : ''}<br>
+          <strong>${idx + 1}.</strong> ${whitePlayer} (${whiteRating}) – ${blackPlayer} (${blackRating})${year ? `, ${year}` : ''}<br>
           <span style="color:${resultColor};">${resultText}</span> • <a href="${gameUrl}" target="_blank">View ↗</a>
         </div>`;
       });

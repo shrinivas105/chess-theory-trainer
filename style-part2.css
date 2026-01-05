@@ -166,7 +166,7 @@
 /* Mobile - Bigger board, compact everything else */
 @media (max-width: 768px) {
   body {
-    padding: 90px 8px 10px 8px;  
+    padding: 60px 8px 10px 8px;  
   }
 
   .game-container {
@@ -231,6 +231,25 @@
   .home-button {
     font-size: 0.7rem;
     padding: 6px 10px;
+  }
+  
+  .auth-section-fixed {
+    font-size: 0.65rem;
+    padding: 6px 10px;
+  }
+  
+  .auth-btn {
+    font-size: 0.65rem;
+    padding: 5px 10px;
+  }
+  
+  .user-info {
+    font-size: 0.65rem;
+  }
+  
+  .user-info button {
+    font-size: 0.6rem;
+    padding: 3px 6px;
   }
 }
 
