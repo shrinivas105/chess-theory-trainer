@@ -285,8 +285,8 @@ class UIRenderer {
         </p>
 
         <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
-          <button id="whiteBtn" class="menu-btn" style="width: auto; padding: 12px 24px;">Command White</button>
-          <button id="blackBtn" class="menu-btn" style="width: auto; padding: 12px 24px;">Command Black</button>
+          <button id="whiteBtn" class="menu-btn" style="width: auto; padding: 10px 18px; font-size: 0.8rem;">Command White</button>
+          <button id="blackBtn" class="menu-btn" style="width: auto; padding: 10px 18px; font-size: 0.8rem;">Command Black</button>
         </div>
       </div>
     `;
@@ -386,33 +386,33 @@ class UIRenderer {
 
     summaryEl.innerHTML = `
       ${rankChangeHtml}
-      <h3 style="color: ${rankColor}; text-shadow: 0 0 20px ${rankColor};">${battleRank.icon} ${battleRank.title} • Score: ${battleRank.score}/100</h3>
-      <div class="stats-grid">
-        <div>Moves<br><strong>${this.app.playerMoves}</strong></div>
-        <div>Quality<br><strong>${moveQuality}%</strong></div>
-        <div>Eval<br><strong>${displayEval}</strong></div>
-      </div>
-      <div style="font-style:italic;color:#bbb;margin:8px 0;">"${battleRank.msg}"</div>
-      <div style="font-size:.85rem;color:#aaa;"><em>${battleRank.sub}</em></div>
-      <div class="rank-progress">
-        ${['Levy', 'Hastatus', 'Principes', 'Triarius', 'Imperator'].map(r => {
-          const color = rankColors[r];
-          const isActive = r === battleRank.title;
-          return `<div class="rank-step ${isActive ? 'active' : ''}" style="${isActive ? `background: linear-gradient(135deg, ${color}, ${color}); color: ${r === 'Hastatus' ? '#000' : '#fff'}; border-color: ${color};` : ''}">${r}</div>`;
-        }).join('')}
-      </div>
+	  <h3 style="color: ${rankColor}; text-shadow: 0 0 20px ${rankColor}; font-size: 0.85rem; margin-bottom: 6px;">${battleRank.icon} ${battleRank.title} • Score: ${battleRank.score}/100</h3>
+<div class="stats-grid" style="gap: 5px; font-size: 0.68rem; margin: 6px 0;">
+  <div style="padding: 5px;">Moves<br><strong style="font-size: 0.9rem;">${this.app.playerMoves}</strong></div>
+  <div style="padding: 5px;">Quality<br><strong style="font-size: 0.9rem;">${moveQuality}%</strong></div>
+  <div style="padding: 5px;">Eval<br><strong style="font-size: 0.9rem;">${displayEval}</strong></div>
+</div>
+      <div style="font-style:italic;color:#bbb;margin:5px 0;font-size:0.7rem;">"${battleRank.msg}"</div>
+<div style="font-size:0.68rem;color:#aaa;margin:4px 0;"><em>${battleRank.sub}</em></div>
+     <div class="rank-progress" style="gap: 3px; margin: 6px 0;">
+  ${['Levy', 'Hastatus', 'Principes', 'Triarius', 'Imperator'].map(r => {
+    const color = rankColors[r];
+    const isActive = r === battleRank.title;
+    return `<div class="rank-step ${isActive ? 'active' : ''}" style="padding: 3px 6px; font-size: 0.65rem; ${isActive ? `background: linear-gradient(135deg, ${color}, ${color}); color: ${r === 'Hastatus' ? '#000' : '#fff'}; border-color: ${color};` : ''}">${r}</div>`;
+  }).join('')}
+</div>
       
-      <div style="margin-top:16px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-        <button id="showAnalysisBtn" class="btn">
-          📊 Analyze
-        </button>
-        <button id="downloadPGNBtn" class="btn">
-          📥 PGN
-        </button>
-        <button id="copyPGNBtn" class="btn">
-          📋 Copy
-        </button>
-      </div>
+    <div style="margin-top:10px; display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+  <button id="showAnalysisBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+    📊 Analyze
+  </button>
+  <button id="downloadPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+    📥 PGN
+  </button>
+  <button id="copyPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+    📋 Copy
+  </button>
+</div>
     `;
     summaryEl.style.display = 'block';
 

@@ -8,7 +8,7 @@
   --roman-gold: #d4af37;
   --roman-silver: #c0c0c0;
   --maroon-costume: #800003;
-  --board-white: #f0e6d2;
+  --board-white: #B7ADA8;
   --board-maroon: #8b6f47;
   --parchment: #f4e8d0;
   --blood-red: #c41e3a;
@@ -33,7 +33,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 12px;
+  padding: 70px 12px 20px 12px;
 }
 
 body::before {
@@ -94,7 +94,7 @@ body > * {
   aspect-ratio: 1;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  border: 6px solid #ffffff;
+border: 6px solid var(--maroon-costume);
   border-radius: 4px;
   align-self: center;
   box-shadow: 0 15px 40px rgba(0,0,0,0.8);
@@ -447,7 +447,7 @@ body > * {
 }
 
 .legion-header {
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 700;
   margin-bottom: 6px;
   display: flex;
@@ -469,12 +469,12 @@ body > * {
 }
 
 .legion-status {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   margin: 4px 0;
 }
 
 .legion-next {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   margin: 4px 0;
   color: #aaa;
 }
