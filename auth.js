@@ -127,7 +127,7 @@ class AuthModule {
       ]);
       
       if (progress) {
-        console.log('✓ Cloud progress loaded:', progress);
+        console.log('✅ Cloud progress loaded:', progress);
         
         // Merits - Load directly
         this.app.legionMerits = {
@@ -150,6 +150,10 @@ class AuthModule {
         // Recent ranks - Load directly
         this.app.recentBattleRanksMaster = progress.recent_battle_ranks_master || [];
         this.app.recentBattleRanksLichess = progress.recent_battle_ranks_lichess || [];
+
+        // Load last colors (new)
+        this.app.lastColorMaster = progress.last_color_master || null;
+        this.app.lastColorLichess = progress.last_color_lichess || null;
 
         // Backup to localStorage
         this.app.saveToLocalStorage();
@@ -178,14 +182,16 @@ class AuthModule {
         games_played_master: this.app.gamesPlayedMaster || 0,
         games_played_lichess: this.app.gamesPlayedLichess || 0,
         recent_battle_ranks_master: this.app.recentBattleRanksMaster || [],
-        recent_battle_ranks_lichess: this.app.recentBattleRanksLichess || []
+        recent_battle_ranks_lichess: this.app.recentBattleRanksLichess || [],
+        last_color_master: this.app.lastColorMaster || null,
+        last_color_lichess: this.app.lastColorLichess || null
         // Old 'games_played' is no longer saved
       };
 
       const result = await saveProgress(progress);
       
       if (result && result.success) {
-        console.log('✓ Cloud save successful (new merit system)');
+        console.log('✅ Cloud save successful (new merit system)');
       } else {
         console.warn('⚠️ Cloud save issue:', result);
       }

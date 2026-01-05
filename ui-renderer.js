@@ -280,13 +280,8 @@ class UIRenderer {
           </div>
         </div>
 
-        <p style="text-align:center;margin:15px 0;color:var(--parchment);font-size:0.85rem;">
-          Select your position in the line of battle
-        </p>
-
         <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
-          <button id="whiteBtn" class="menu-btn" style="width: auto; padding: 10px 18px; font-size: 0.8rem;">Command White</button>
-          <button id="blackBtn" class="menu-btn" style="width: auto; padding: 10px 18px; font-size: 0.8rem;">Command Black</button>
+          <button id="startBattleBtn" class="menu-btn" style="width: auto; padding: 12px 24px; font-size: 0.9rem;">⚔️ Start Battle</button>
         </div>
       </div>
     `;
@@ -294,8 +289,7 @@ class UIRenderer {
     // Render auth section as fixed element
     this.renderAuthSection();
 
-    document.getElementById('whiteBtn').onclick = () => this.app.selectColor('w');
-    document.getElementById('blackBtn').onclick = () => this.app.selectColor('b');
+    document.getElementById('startBattleBtn').onclick = () => this.app.startBattle();
   }
 
   renderGameContainer() {

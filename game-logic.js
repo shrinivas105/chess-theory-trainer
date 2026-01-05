@@ -27,6 +27,8 @@ class ChessTheoryApp {
     this.gamesPlayedLichess = parseInt(localStorage.getItem('chessTheoryGamesPlayedLichess') || '0');
     this.recentBattleRanksMaster = JSON.parse(localStorage.getItem('chessTheoryRecentBattleRanksMaster') || '[]');
     this.recentBattleRanksLichess = JSON.parse(localStorage.getItem('chessTheoryRecentBattleRanksLichess') || '[]');
+    this.lastColorMaster = localStorage.getItem('chessTheoryLastColorMaster') || null;
+    this.lastColorLichess = localStorage.getItem('chessTheoryLastColorLichess') || null;
 
     // Initialize modules
     this.auth = new AuthModule(this);
@@ -57,6 +59,8 @@ goHome() {
     localStorage.setItem('chessTheoryGamesPlayedLichess', this.gamesPlayedLichess.toString());
     localStorage.setItem('chessTheoryRecentBattleRanksMaster', JSON.stringify(this.recentBattleRanksMaster));
     localStorage.setItem('chessTheoryRecentBattleRanksLichess', JSON.stringify(this.recentBattleRanksLichess));
+    localStorage.setItem('chessTheoryLastColorMaster', this.lastColorMaster || '');
+    localStorage.setItem('chessTheoryLastColorLichess', this.lastColorLichess || '');
   }
 
   async saveAllProgress() {
@@ -79,6 +83,20 @@ goHome() {
   // Game flow methods
   selectSource(source) {
     this.aiSource = source;
+    this.render();
+  }
+
+  startBattle() {
+    // Determine next color based on last played color
+    const lastColor = this.aiSource === 'master' ? this.lastColorMaster : this.lastColorLichess;
+    const nextColor = !lastColor ? 'w' : (lastColor === 'w' ? 'b' : 'w');
+    
+    console.log(`🎯 Starting battle - Last color: ${lastColor || 'none'}, Next color: ${nextColor}`);
+    
+    // Set player color and start game
+    this.playerColor = nextColor;
+    this.hintUsed = false;
+    this.resetGameState();
     this.render();
   }
 
@@ -111,12 +129,16 @@ goHome() {
     this.gamesPlayedLichess = 0;
     this.recentBattleRanksMaster = [];
     this.recentBattleRanksLichess = [];
+    this.lastColorMaster = null;
+    this.lastColorLichess = null;
 
     localStorage.removeItem('chessTheoryLegionMerits');
     localStorage.removeItem('chessTheoryGamesPlayedMaster');
     localStorage.removeItem('chessTheoryGamesPlayedLichess');
     localStorage.removeItem('chessTheoryRecentBattleRanksMaster');
     localStorage.removeItem('chessTheoryRecentBattleRanksLichess');
+    localStorage.removeItem('chessTheoryLastColorMaster');
+    localStorage.removeItem('chessTheoryLastColorLichess');
 
     if (this.auth.isLoggedIn) {
       await this.auth.saveCloudProgress();
@@ -135,7 +157,7 @@ goHome() {
       const countEl = document.getElementById('gameCount');
       if (countEl) {
         countEl.textContent = totalGames === 0 
-          ? 'Position data unavailable — continuing...' 
+          ? 'Position data unavailable – continuing...' 
           : `Position reached ${totalGames.toLocaleString()} times`;
       }
     } catch (e) {
@@ -213,7 +235,7 @@ goHome() {
         const others = moveNames.slice(2);
         commanderText = `🎖️ <strong>Commander speaks:</strong><br><br>
         "Soldier, I have seen this position many times.`;
-        commanderText += ` March with <strong>${first}</strong> — the most proven line.`;
+        commanderText += ` March with <strong>${first}</strong> – the most proven line.`;
         if (second) commanderText += ` Or <strong>${second}</strong>, trusted by many.`;
         if (others.length > 0) {
           const othersList = others.join(', ');
@@ -403,6 +425,13 @@ goHome() {
       this.gamesPlayedMaster++;
     } else {
       this.gamesPlayedLichess++;
+    }
+
+    // Save last played color for alternation
+    if (this.aiSource === 'master') {
+      this.lastColorMaster = this.playerColor;
+    } else {
+      this.lastColorLichess = this.playerColor;
     }
 
     await this.saveAllProgress();
