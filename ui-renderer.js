@@ -112,9 +112,9 @@ class UIRenderer {
               ♟️ Club Campaign
             </button>
             
-            <button id="resetBtn" class="menu-btn" style="background: transparent; border: 2px dashed #555; color: #888; box-shadow: none; font-size: 0.75rem; padding: 8px;">
-              ↺ Reset Progress
-            </button>
+           <button id="resetBtn" class="menu-btn" style="background: transparent; border: 2px dashed #555; color: #888; box-shadow: none; font-size: 0.65rem; padding: 6px;">
+  ↺ Reset Progress
+</button>
           </div>
           
           <!-- RULES SECTION -->
