@@ -166,7 +166,7 @@
 /* Mobile - Bigger board, compact everything else */
 @media (max-width: 768px) {
   body {
-  padding: 110px 8px 10px 8px;
+    padding: 90px 8px 10px 8px;  
   }
 
   .game-container {
