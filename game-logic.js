@@ -1,5 +1,5 @@
 // game-logic.js - Core chess game logic and state management
-// UPDATED: New merit thresholds, promotion/demotion system with safety net, and 10% move filter
+// UPDATED: Hidden accuracy bonus system (eval >= +0.5)
 
 class ChessTheoryApp {
   constructor() {
@@ -14,13 +14,15 @@ class ChessTheoryApp {
     this.lastAIMoveFEN = null;
     this.playerMoves = 0;
     this.topMoveChoices = 0;
-    this.qualityTrackedMoves = 0; // NEW: Track moves that count toward quality
+    this.qualityTrackedMoves = 0;
     this.hintUsed = false;
     this.topGames = [];
     this.recentGames = [];
     this.pieceImages = pieces;
     this.rankChangeMessage = null;
     this.currentPGN = null;
+    this.accuracyBonus = 0;  // NEW: Track accuracy bonus
+    this.accuracyTier = null; // NEW: Track accuracy tier name
 
     // Load progress from localStorage first
     this.legionMerits = JSON.parse(localStorage.getItem('chessTheoryLegionMerits') || '{}');
@@ -45,7 +47,6 @@ class ChessTheoryApp {
     this.render();
   }
 
-  // Add this method to your existing ChessTheoryApp class
   goHome() {
     this.playerColor = null;
     this.aiSource = null;
@@ -115,12 +116,13 @@ class ChessTheoryApp {
     this.gameCount = 0;
     this.playerMoves = 0;
     this.topMoveChoices = 0;
-    this.qualityTrackedMoves = 0; // NEW: Reset quality tracked moves
+    this.qualityTrackedMoves = 0;
     this.hintUsed = false;
     this.lastAIMoveFEN = null;
     this.topGames = [];
     this.recentGames = [];
     this.currentPGN = null;
+    // Removed: accuracy bonus tracking (now hidden)
   }
 
   async resetStats() {
@@ -159,7 +161,7 @@ class ChessTheoryApp {
       const countEl = document.getElementById('gameCount');
       if (countEl) {
         countEl.textContent = totalGames === 0 
-          ? 'Position data unavailable – continuing...' 
+          ? 'Position data unavailable — continuing...' 
           : `Position reached ${totalGames.toLocaleString()} times`;
       }
     } catch (e) {
@@ -255,7 +257,7 @@ class ChessTheoryApp {
         const others = moveNames.slice(2);
         commanderText = `🎖️ <strong>Commander speaks:</strong><br><br>
         "Soldier, I have seen this position many times.`;
-        commanderText += ` March with <strong>${first}</strong> – the most proven line.`;
+        commanderText += ` March with <strong>${first}</strong> — the most proven line.`;
         if (second) commanderText += ` Or <strong>${second}</strong>, trusted by many.`;
         if (others.length > 0) {
           const othersList = others.join(', ');
@@ -372,14 +374,18 @@ class ChessTheoryApp {
     const rawEval = await ChessAPI.getEvaluation(fen, this.evalCache);
     this.finalPlayerEval = Scoring.getPlayerEval(rawEval, this.playerColor);
     
-    // Use qualityTrackedMoves instead of playerMoves for quality calculation
-    const { score, penaltyReason } = Scoring.getTotalScore(
+    // Get score with hidden accuracy bonus (user doesn't see bonus breakdown)
+    const scoreResult = Scoring.getTotalScore(
       this.playerMoves, 
       this.topMoveChoices, 
       this.finalPlayerEval,
       this.aiSource,
-      this.qualityTrackedMoves  // NEW: Pass tracked moves for accurate quality %
+      this.qualityTrackedMoves
     );
+    
+    const score = scoreResult.score;
+    const penaltyReason = scoreResult.penaltyReason;
+    
     const battleRank = Scoring.getBattleRank(score, this.finalPlayerEval, penaltyReason, this.aiSource);
 
     const recentRanks = this.getRecentBattleRanks(this.aiSource);

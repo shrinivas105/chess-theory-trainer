@@ -7,6 +7,21 @@
 const SKIP_QUALITY_MOVES = 4;  // Skip quality check for first N player moves (opening book moves)
 
 // ========================================
+// ACCURACY BONUS THRESHOLDS
+// Hidden bonus for maintaining high quality over longer battles
+// Only awarded when final eval >= +0.5
+// ========================================
+const ACCURACY_BONUS = {
+  minQuality: 90,      // Minimum quality percentage required (90%)
+  minEval: 0.5,        // Minimum evaluation required (+0.5 or better)
+  tiers: [
+    { minMoves: 12, maxMoves: 15, bonus: 2, name: 'Tactical Precision' },
+    { minMoves: 16, maxMoves: 20, bonus: 4, name: 'Strategic Mastery' },
+    { minMoves: 21, maxMoves: Infinity, bonus: 6, name: 'Legendary Discipline' }
+  ]
+};
+
+// ========================================
 // MASTER CAMPAIGN WEIGHTS
 // ========================================
 const MASTER_WEIGHTS = {

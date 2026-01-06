@@ -10,6 +10,23 @@ class Scoring {
     return p > 0 ? Math.round((t / p) * 100) : 0; 
   }
   
+  // Calculate accuracy bonus based on moves, quality, and evaluation
+  // Hidden bonus - only awarded when eval >= +0.5
+  static getAccuracyBonus(playerMoves, qualityPercent, playerEval) {
+    // Must meet quality AND evaluation requirements
+    if (qualityPercent < ACCURACY_BONUS.minQuality || playerEval < ACCURACY_BONUS.minEval) {
+      return { bonus: 0, tier: null };
+    }
+    
+    for (const tier of ACCURACY_BONUS.tiers) {
+      if (playerMoves >= tier.minMoves && playerMoves <= tier.maxMoves) {
+        return { bonus: tier.bonus, tier: tier.name };
+      }
+    }
+    
+    return { bonus: 0, tier: null };
+  }
+  
   static getTotalScore(m, t, e, source = 'master', qualityTrackedMoves = null) {
     // Select weights based on campaign type
     const weights = source === 'master' ? MASTER_WEIGHTS : CLUB_WEIGHTS;
@@ -21,7 +38,8 @@ class Scoring {
     
     // Use qualityTrackedMoves if provided, otherwise fall back to total moves
     const movesForQuality = qualityTrackedMoves !== null ? qualityTrackedMoves : m;
-    const qs = this.getMoveQuality(t, movesForQuality) * weights.quality;
+    const qualityPercent = this.getMoveQuality(t, movesForQuality);
+    const qs = qualityPercent * weights.quality;
     
     const es = e < evalThresholds.catastrophic 
       ? 0 
@@ -41,12 +59,28 @@ class Scoring {
       r = 'Broken lines! The cohort reels under heavy assault, fighting on but losing ground.';
     }
     
-    // Cap score based on penalty
+    // Apply penalty multiplier to base score
+    let penalizedScore = base * mul;
+    
+    // Calculate hidden accuracy bonus AFTER penalty (only if eval >= +0.5)
+    // User does not see this bonus - it's silently added to final score
+    const accuracyResult = this.getAccuracyBonus(m, qualityPercent, e);
+    const finalScore = penalizedScore + accuracyResult.bonus;
+    
+    // Cap score based on penalty (but allow bonus to push slightly over)
     const maxScore = mul === penaltyMultipliers.catastrophic ? 30 : 
                      mul === penaltyMultipliers.poor ? 60 : 100;
-    const s = Math.min(Math.round(base * mul), maxScore);
     
-    return { score: s, penaltyReason: r };
+    // Only cap if no bonus, otherwise allow bonus to add to capped score
+    const s = accuracyResult.bonus > 0 
+      ? Math.round(Math.min(penalizedScore, maxScore) + accuracyResult.bonus)
+      : Math.min(Math.round(penalizedScore), maxScore);
+    
+    // Return WITHOUT bonus information (hidden from user)
+    return { 
+      score: s, 
+      penaltyReason: r
+    };
   }
   
   static getBattleRank(s, e, r, source = 'master') {
@@ -66,11 +100,11 @@ class Scoring {
     }
     
     const rks = {
-      Levy: { icon: "🪖", title: "Levy", msg: r || "Thrown onto the field unblooded – ranks break at first contact.", sub: "Fundamentals missing. Blunders erase all standing." },
-      Hastatus: { icon: "🛡️", title: "Hastatus", msg: r || "You held the front line, shield locked, testing the enemy.", sub: "A sound beginning – discipline and precision needed." },
+      Levy: { icon: "🪖", title: "Levy", msg: r || "Thrown onto the field unblooded — ranks break at first contact.", sub: "Fundamentals missing. Blunders erase all standing." },
+      Hastatus: { icon: "🛡️", title: "Hastatus", msg: r || "You held the front line, shield locked, testing the enemy.", sub: "A sound beginning — discipline and precision needed." },
       Principes: { icon: "⚔️", title: "Principes", msg: r || "You fought with order and purpose, pressing where it mattered.", sub: "Strong theory, reliable structure, few weaknesses." },
       Triarius: { icon: "🦅", title: "Triarius", msg: r || "When the battle wavered, you advanced and broke the stalemate.", sub: "Veteran-level command of position and timing." },
-      Imperator: { icon: "👑", title: "Imperator", msg: r || "Victory by design – the battlefield bent to your will.", sub: "Flawless theory, flawless execution." }
+      Imperator: { icon: "👑", title: "Imperator", msg: r || "Victory by design — the battlefield bent to your will.", sub: "Flawless theory, flawless execution." }
     };
     return { ...rks[n], score: s, penaltyReason: r };
   }
