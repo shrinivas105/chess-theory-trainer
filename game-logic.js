@@ -213,15 +213,17 @@ class ChessTheoryApp {
 
   async checkMoveQuality(prevFEN, playerUCI) {
     try {
-      // Skip quality tracking for first N player moves (opening book moves)
+      // Always increment quality tracked moves
+      this.qualityTrackedMoves++;
+      
+      // First N moves are automatically counted as top 3 moves (100% quality)
       if (this.playerMoves <= SKIP_QUALITY_MOVES) {
-        console.log(`⏭️ Skipping quality check for move ${this.playerMoves} (opening book)`);
+        this.topMoveChoices++;
+        console.log(`⭐️ Opening book move ${this.playerMoves} - auto-counted as top 3 (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
         return;
       }
       
-      // Now start tracking quality
-      this.qualityTrackedMoves++;
-      
+      // After first N moves, check if move is actually in top 3
       const data = await ChessAPI.queryExplorer(this.aiSource, prevFEN);
       if (data.moves && data.moves.length > 0) {
         const isTop3 = data.moves.slice(0, 3).some(m => m.uci === playerUCI);

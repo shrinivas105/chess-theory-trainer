@@ -4,7 +4,7 @@
 // ========================================
 // QUALITY TRACKING SETTINGS
 // ========================================
-const SKIP_QUALITY_MOVES = 3;  // Skip quality check for first N player moves (opening book moves)
+const SKIP_QUALITY_MOVES = 4;  // Skip quality check for first N player moves (opening book moves)
 
 // ========================================
 // MASTER CAMPAIGN WEIGHTS
