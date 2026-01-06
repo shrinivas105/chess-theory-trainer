@@ -10,7 +10,7 @@ class Scoring {
     return p > 0 ? Math.round((t / p) * 100) : 0; 
   }
   
-  static getTotalScore(m, t, e, source = 'master') {
+  static getTotalScore(m, t, e, source = 'master', qualityTrackedMoves = null) {
     // Select weights based on campaign type
     const weights = source === 'master' ? MASTER_WEIGHTS : CLUB_WEIGHTS;
     const penaltyMultipliers = source === 'master' ? MASTER_PENALTY_MULTIPLIERS : CLUB_PENALTY_MULTIPLIERS;
@@ -18,7 +18,11 @@ class Scoring {
     
     // Calculate component scores
     const ms = m * weights.movesMultiplier * weights.moves;
-    const qs = this.getMoveQuality(t, m) * weights.quality;
+    
+    // Use qualityTrackedMoves if provided, otherwise fall back to total moves
+    const movesForQuality = qualityTrackedMoves !== null ? qualityTrackedMoves : m;
+    const qs = this.getMoveQuality(t, movesForQuality) * weights.quality;
+    
     const es = e < evalThresholds.catastrophic 
       ? 0 
       : Math.max(0, (e + 3) * weights.evalMultiplier * weights.evaluation);

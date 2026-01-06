@@ -14,6 +14,7 @@ class ChessTheoryApp {
     this.lastAIMoveFEN = null;
     this.playerMoves = 0;
     this.topMoveChoices = 0;
+    this.qualityTrackedMoves = 0; // NEW: Track moves that count toward quality
     this.hintUsed = false;
     this.topGames = [];
     this.recentGames = [];
@@ -114,6 +115,7 @@ class ChessTheoryApp {
     this.gameCount = 0;
     this.playerMoves = 0;
     this.topMoveChoices = 0;
+    this.qualityTrackedMoves = 0; // NEW: Reset quality tracked moves
     this.hintUsed = false;
     this.lastAIMoveFEN = null;
     this.topGames = [];
@@ -211,12 +213,28 @@ class ChessTheoryApp {
 
   async checkMoveQuality(prevFEN, playerUCI) {
     try {
+      // Skip quality tracking for first N player moves (opening book moves)
+      if (this.playerMoves <= SKIP_QUALITY_MOVES) {
+        console.log(`⏭️ Skipping quality check for move ${this.playerMoves} (opening book)`);
+        return;
+      }
+      
+      // Now start tracking quality
+      this.qualityTrackedMoves++;
+      
       const data = await ChessAPI.queryExplorer(this.aiSource, prevFEN);
       if (data.moves && data.moves.length > 0) {
         const isTop3 = data.moves.slice(0, 3).some(m => m.uci === playerUCI);
-        if (isTop3) this.topMoveChoices++;
+        if (isTop3) {
+          this.topMoveChoices++;
+          console.log(`✅ Top 3 move! (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+        } else {
+          console.log(`❌ Not top 3 (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('Quality check error:', e);
+    }
   }
 
   async getHints() {
@@ -351,11 +369,14 @@ class ChessTheoryApp {
     const fen = this.game.fen();
     const rawEval = await ChessAPI.getEvaluation(fen, this.evalCache);
     this.finalPlayerEval = Scoring.getPlayerEval(rawEval, this.playerColor);
+    
+    // Use qualityTrackedMoves instead of playerMoves for quality calculation
     const { score, penaltyReason } = Scoring.getTotalScore(
       this.playerMoves, 
       this.topMoveChoices, 
       this.finalPlayerEval,
-      this.aiSource  // Pass source for campaign-specific weights
+      this.aiSource,
+      this.qualityTrackedMoves  // NEW: Pass tracked moves for accurate quality %
     );
     const battleRank = Scoring.getBattleRank(score, this.finalPlayerEval, penaltyReason, this.aiSource);
 
@@ -366,7 +387,8 @@ class ChessTheoryApp {
 
     await this.updateLegionMerit(score, battleRank.title);
 
-    const moveQuality = Scoring.getMoveQuality(this.topMoveChoices, this.playerMoves);
+    // Use qualityTrackedMoves for display quality percentage
+    const moveQuality = Scoring.getMoveQuality(this.topMoveChoices, this.qualityTrackedMoves);
     this.currentPGN = PGNExporter.generatePGN(
       this.game,
       this.playerColor,

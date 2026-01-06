@@ -2,12 +2,17 @@
 // Easy-to-modify constants for testing optimal weightages
 
 // ========================================
+// QUALITY TRACKING SETTINGS
+// ========================================
+const SKIP_QUALITY_MOVES = 3;  // Skip quality check for first N player moves (opening book moves)
+
+// ========================================
 // MASTER CAMPAIGN WEIGHTS
 // ========================================
 const MASTER_WEIGHTS = {
-  moves: 0.40,        // 25% - Number of moves played
-  quality: 0.30,      // 40% - Move quality (top 3 choices)
-  evaluation: 0.30,   // 35% - Final position evaluation
+  moves: 0.25,        // 25% - Number of moves played
+  quality: 0.40,      // 40% - Move quality (top 3 choices)
+  evaluation: 0.35,   // 35% - Final position evaluation
   movesMultiplier: 4, // Points per move (moves × 4)
   evalMultiplier: 12  // Evaluation scaling ((eval + 3) × 12)
 };
@@ -48,7 +53,7 @@ const CLUB_PENALTY_MULTIPLIERS = {
 // Used to determine penalty multipliers
 // ========================================
 const MASTER_EVAL_THRESHOLDS = {
-  catastrophic: -2.5,   // Total rout - shattered position
+  catastrophic: -3,   // Total rout - shattered position
   poor: -1.5          // Broken lines - losing ground
 };
 
