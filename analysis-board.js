@@ -332,7 +332,7 @@ class AnalysisBoard {
     // Just compute it and let the table rendering pick it up
     try {
       const fen = this.analysisGame.fen();
-      const rawEval = await ChessAPI.getEvaluation(fen, this.app.evalCache);
+      const rawEval = await ChessAPI.getEvaluationApi(fen, this.app.evalCache);
       
       // Flip evaluation if player is Black (eval is from White's perspective by default)
       const playerEval = this.app.playerColor === 'b' ? -rawEval : rawEval;
