@@ -93,6 +93,25 @@ const BATTLE_RANK_THRESHOLDS = {
   levy: 0          // 0-39
 };
 
+
+const MASTER_TRICKY_MOVE = {
+  enabled: true,              // Enable tricky move detection
+  minRank: 5,                 // Minimum move rank to check (5 = 5th move)
+  maxRank: 8,                 // Maximum move rank to check (8 = 8th move)
+  minWinAdvantage: 10,        // Minimum winning % advantage (e.g., 10 = +10%)
+  minGames: 3000              // Minimum games in resulting position
+};
+
+// CLUB CAMPAIGN - Tricky Move Thresholds (more lenient)
+const CLUB_TRICKY_MOVE = {
+  enabled: true,              // Enable tricky move detection
+  minRank: 5,                 // Minimum move rank to check (5 = 5th move)
+  maxRank: 8,                 // Maximum move rank to check (8 = 8th move)
+  minWinAdvantage: 10,         // Minimum winning % advantage (e.g., 8 = +8%, more lenient)
+  minGames: 5000              // Minimum games in resulting position (lower threshold)
+};
+
+
 // ========================================
 // TESTING PRESETS
 // Uncomment to quickly test different configurations

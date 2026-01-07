@@ -213,7 +213,7 @@ class ChessTheoryApp {
     this.ui.renderBoard();
   }
 
-  async checkMoveQuality(prevFEN, playerUCI) {
+async checkMoveQuality(prevFEN, playerUCI) {
     try {
       // Always increment quality tracked moves
       this.qualityTrackedMoves++;
@@ -225,19 +225,76 @@ class ChessTheoryApp {
         return;
       }
       
-      // After first N moves, check if move is actually in top 3
+      // After first N moves, check move quality using explorer data
       const data = await ChessAPI.queryExplorer(this.aiSource, prevFEN);
-      if (data.moves && data.moves.length > 0) {
-        const isTop3 = data.moves.slice(0, 3).some(m => m.uci === playerUCI);
-        if (isTop3) {
-          this.topMoveChoices++;
-          console.log(`✅ Top 3 move! (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+      
+      // If no moves data available, skip quality check for this move
+      if (!data.moves || data.moves.length === 0) {
+        console.log(`⚠️ No explorer data available for quality check (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+        return;
+      }
+      
+      // Find the index of the player's move in the explorer results
+      const moveIndex = data.moves.findIndex(m => m.uci === playerUCI);
+      
+      // If move not found in explorer data at all, it doesn't count as top move
+      if (moveIndex === -1) {
+        console.log(`❌ Move not found in explorer data (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+        return;
+      }
+      
+      // Check if move is in top 3 (existing logic)
+      const isTop3 = moveIndex < 3;
+      
+      if (isTop3) {
+        this.topMoveChoices++;
+        console.log(`✅ Top 3 move! Rank: ${moveIndex + 1} (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+        return;
+      }
+      
+      // NEW: Check if move qualifies as "tricky move" (ranks 5-8 with good stats)
+      const trickyConfig = this.aiSource === 'master' ? MASTER_TRICKY_MOVE : CLUB_TRICKY_MOVE;
+      
+      // Only check tricky moves if feature is enabled and move is in valid rank range
+      if (trickyConfig.enabled && moveIndex >= (trickyConfig.minRank - 1) && moveIndex <= (trickyConfig.maxRank - 1)) {
+        const move = data.moves[moveIndex];
+        const totalGames = move.white + move.draws + move.black;
+        
+        // Calculate winning percentage advantage for player's color
+        let playerWinPct, opponentWinPct;
+        if (this.playerColor === 'w') {
+          // Player is white
+          playerWinPct = (move.white / totalGames) * 100;
+          opponentWinPct = (move.black / totalGames) * 100;
         } else {
-          console.log(`❌ Not top 3 (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+          // Player is black
+          playerWinPct = (move.black / totalGames) * 100;
+          opponentWinPct = (move.white / totalGames) * 100;
         }
+        
+        const winAdvantage = playerWinPct - opponentWinPct;
+        
+        // Check if move meets BOTH tricky move criteria
+        const meetsWinAdvantage = winAdvantage >= trickyConfig.minWinAdvantage;
+        const meetsGameThreshold = totalGames >= trickyConfig.minGames;
+        
+        if (meetsWinAdvantage && meetsGameThreshold) {
+          // Move qualifies as a strategic "tricky move"
+          this.topMoveChoices++;
+          console.log(`🎯 Tricky move qualified! Rank: ${moveIndex + 1}, Win advantage: +${winAdvantage.toFixed(1)}%, Games: ${totalGames} (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+          return;
+        } else {
+          // Move didn't meet the criteria - log why
+          console.log(`❌ Tricky move failed: Rank ${moveIndex + 1}, Win adv: +${winAdvantage.toFixed(1)}% (need +${trickyConfig.minWinAdvantage}%), Games: ${totalGames} (need ${trickyConfig.minGames}) (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+        }
+      } else {
+        // Move is rank 4 or rank 9+ - doesn't qualify
+        console.log(`❌ Not top 3, rank: ${moveIndex + 1} (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
       }
     } catch (e) {
       console.error('Quality check error:', e);
+      // On error, we still incremented qualityTrackedMoves but didn't add to topMoveChoices
+      // This means the move counts against quality percentage
     }
   }
 
