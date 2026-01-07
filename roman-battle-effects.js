@@ -2,6 +2,9 @@
 // ALL ANIMATIONS REMOVED - SOUNDS ONLY
 
 class RomanBattleEffects {
+	
+	static currentMusic = null;
+	
   constructor() {
     // No visual effects initialization - performance optimized
   }
@@ -35,12 +38,38 @@ class RomanBattleEffects {
   
   static playMenuFanfare() {
     try {
-      const audio = new Audio('fanfare.mp3');  // Your new sound file
+      // Stop existing music if any
+      this.stopMusic();
+
+      const audio = new Audio('fanfare.mp3');
       audio.volume = 0.4;
+      audio.loop = true; // Enable the loop
+      this.currentMusic = audio;
+      
       audio.play().catch(e => console.log('Fanfare failed:', e));
-      console.log('🎺 Fanfare for the legions!');
+      console.log('🎺 Fanfare for the legions (looping)!');
     } catch (e) {
       console.log('Fanfare error:', e);
+    }
+  }
+  
+  static stopMusic() {
+    if (this.currentMusic) {
+      this.currentMusic.pause();
+      this.currentMusic.currentTime = 0;
+      this.currentMusic = null;
+      console.log('🔇 Music stopped for battle');
+    }
+  }
+  
+  
+
+  static stopMusic() {
+    if (this.currentMusic) {
+      this.currentMusic.pause();
+      this.currentMusic.currentTime = 0;
+      this.currentMusic = null;
+      console.log('🔇 Music stopped for battle');
     }
   }
 

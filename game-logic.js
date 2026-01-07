@@ -93,6 +93,11 @@ class ChessTheoryApp {
     const lastColor = this.aiSource === 'master' ? this.lastColorMaster : this.lastColorLichess;
     const nextColor = !lastColor ? 'w' : (lastColor === 'w' ? 'b' : 'w');
     
+	// STOP the music here
+    if (typeof RomanBattleEffects !== 'undefined') {
+      RomanBattleEffects.stopMusic();
+    }
+	
     console.log(`🎯 Starting battle - Last color: ${lastColor || 'none'}, Next color: ${nextColor}`);
     
     // Set player color and start game
