@@ -215,18 +215,20 @@ class UIRenderer {
       </div>
     `;
     
-	// Play a one-time fanfare when menu loads
-if (typeof RomanBattleEffects !== 'undefined') {
-  RomanBattleEffects.playMenuFanfare();
-}
-
-    //RomanBattleEffects.playAmbientLoop();
-
     // Render auth section as fixed element
     this.renderAuthSection();
     
-    document.getElementById('masterBtn').onclick = () => this.app.selectSource('master');
-    document.getElementById('lichessBtn').onclick = () => this.app.selectSource('lichess');
+   // document.getElementById('masterBtn').onclick = () => this.app.selectSource('master');
+    //document.getElementById('lichessBtn').onclick = () => this.app.selectSource('lichess');
+	document.getElementById('masterBtn').onclick = () => {
+  if (typeof RomanBattleEffects !== 'undefined') RomanBattleEffects.playMenuFanfare();
+  this.app.selectSource('master');
+};
+
+document.getElementById('lichessBtn').onclick = () => {
+  if (typeof RomanBattleEffects !== 'undefined') RomanBattleEffects.playMenuFanfare();
+  this.app.selectSource('lichess');
+};
     document.getElementById('resetBtn').onclick = () => this.app.resetStats();
     
     const rulesToggle = document.getElementById('rulesToggle');
