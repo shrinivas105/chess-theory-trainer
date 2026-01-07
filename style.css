@@ -266,7 +266,7 @@ body > * {
 
 /* ========================================
    MENU CONTAINER - SIMPLIFIED HOME
-   ======================================== */
+   
 
 .menu {
   max-width: 900px;
@@ -275,6 +275,32 @@ body > * {
   background: 
     linear-gradient(180deg, rgba(20,10,5,0.75) 0%, rgba(10,5,2,0.80) 100%),
     repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(212,175,55,0.03) 2px, rgba(212,175,55,0.03) 4px);
+  border: 2px solid var(--roman-gold);
+  border-radius: 12px;
+  box-shadow: 
+    0 20px 50px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(212,175,55,0.3),
+    0 0 30px rgba(212,175,55,0.2);
+  position: relative;
+  animation: fadeInUp 0.8s ease-out;
+  z-index: 1;
+}
+======================================== */
+
+/* --- UPDATED MENU CODE --- */
+.menu {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px 18px;
+  background: 
+    /* Changed 0.75 -> 0.4 and 0.80 -> 0.45 for much better transparency */
+    linear-gradient(180deg, rgba(20,10,5,0.4) 0%, rgba(10,5,2,0.45) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(212,175,55,0.03) 2px, rgba(212,175,55,0.03) 4px);
+  
+  /* ADDED: Glass effect to make text readable over the background image */
+  backdrop-filter: blur(0.5px);
+  -webkit-backdrop-filter: blur(0.5px); 
+
   border: 2px solid var(--roman-gold);
   border-radius: 12px;
   box-shadow: 
