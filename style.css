@@ -177,6 +177,19 @@ body > * {
   overflow: hidden;
   will-change: transform;
   transform: translateZ(0);
+    /* ADD THESE LINES HERE */
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  
+}
+/* ADD THIS NEW RULE AFTER .square */
+.square:focus-visible {
+  outline: 2px solid var(--roman-gold);
+  outline-offset: -2px;
+  z-index: 20;
 }
 
 /* Light squares - White */
