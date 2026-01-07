@@ -32,6 +32,29 @@ class RomanBattleEffects {
       console.log('Capture sound error:', e);
     }
   }
+  
+  static playMenuFanfare() {
+    try {
+      const audio = new Audio('fanfare.mp3');  // Your new sound file
+      audio.volume = 0.4;
+      audio.play().catch(e => console.log('Fanfare failed:', e));
+      console.log('🎺 Fanfare for the legions!');
+    } catch (e) {
+      console.log('Fanfare error:', e);
+    }
+  }
+
+  static playAmbientLoop() {
+    try {
+      const audio = new Audio('roman-ambient.mp3');
+      audio.volume = 0.2;
+      audio.loop = true;  // Loops forever
+      audio.play().catch(e => console.log('Ambient loop failed:', e));
+      console.log('🌿 Ambient Roman sounds playing');
+    } catch (e) {
+      console.log('Ambient error:', e);
+    }
+  }
 
   static playPromotionSound() {
     console.log('🎺 Legion promoted!');

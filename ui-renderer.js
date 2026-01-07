@@ -215,6 +215,13 @@ class UIRenderer {
       </div>
     `;
     
+	// Play a one-time fanfare when menu loads
+if (typeof RomanBattleEffects !== 'undefined') {
+  RomanBattleEffects.playMenuFanfare();
+}
+
+    //RomanBattleEffects.playAmbientLoop();
+
     // Render auth section as fixed element
     this.renderAuthSection();
     
