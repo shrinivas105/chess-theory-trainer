@@ -235,7 +235,13 @@ async checkMoveQuality(prevFEN, playerUCI) {
       }
       
       // Find the index of the player's move in the explorer results
-      const moveIndex = data.moves.findIndex(m => m.uci === playerUCI);
+      // FIX: Check BOTH uci and san to catch castling (O-O, O-O-O)
+      const moveIndex = data.moves.findIndex(m => 
+        m.uci === playerUCI || m.san === (
+          playerUCI === 'e1g1' || playerUCI === 'e8g8' ? 'O-O' : 
+          playerUCI === 'e1c1' || playerUCI === 'e8c8' ? 'O-O-O' : ''
+        )
+      );
       
       // If move not found in explorer data at all, it doesn't count as top move
       if (moveIndex === -1) {
@@ -294,9 +300,8 @@ async checkMoveQuality(prevFEN, playerUCI) {
     } catch (e) {
       console.error('Quality check error:', e);
       // On error, we still incremented qualityTrackedMoves but didn't add to topMoveChoices
-      // This means the move counts against quality percentage
     }
-  }
+}
 
   async getHints() {
     if (this.hintUsed) return;
