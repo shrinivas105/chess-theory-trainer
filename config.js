@@ -96,7 +96,6 @@ const BATTLE_RANK_THRESHOLDS = {
 // ========================================
 // MASTER CAMPAIGN - TRICKY MOVE CONFIGURATION
 // Rewards finding strong moves ranked 5-20 with positive win advantages
-// TIERED SYSTEM: Different thresholds based on position frequency
 // ========================================
 const MASTER_TRICKY_MOVE = {
   enabled: true,
@@ -104,17 +103,17 @@ const MASTER_TRICKY_MOVE = {
   maxRank: 20,         // Check up to 20th best move
   tiers: [
     {
-      minGames: 5000,           // High-frequency positions (5000+)
+      minGames: 5000,           // High-frequency positions
       maxGames: Infinity,
       minWinAdvantage: 10       // Requires +10% win advantage
     },
     {
-      minGames: 1000,           // Medium-frequency positions (1000-4999)
+      minGames: 1000,           // Medium-frequency positions
       maxGames: 4999,
       minWinAdvantage: 20       // Requires +20% win advantage
     },
     {
-      minGames: 1,              // Low-frequency positions (1-999)
+      minGames: 1,              // Low-frequency positions
       maxGames: 999,
       minWinAdvantage: 30       // Requires +30% win advantage
     }
@@ -124,7 +123,6 @@ const MASTER_TRICKY_MOVE = {
 // ========================================
 // CLUB CAMPAIGN - TRICKY MOVE CONFIGURATION
 // More lenient than Master - easier to qualify tricky moves
-// TIERED SYSTEM: Lower thresholds to reward club-level creativity
 // ========================================
 const CLUB_TRICKY_MOVE = {
   enabled: true,
@@ -132,17 +130,17 @@ const CLUB_TRICKY_MOVE = {
   maxRank: 20,         // Check up to 20th best move
   tiers: [
     {
-      minGames: 5000,           // High-frequency positions (5000+)
+      minGames: 5000,           // High-frequency positions
       maxGames: Infinity,
       minWinAdvantage: 8        // Requires +8% win advantage (easier)
     },
     {
-      minGames: 1000,           // Medium-frequency positions (1000-4999)
+      minGames: 1000,           // Medium-frequency positions
       maxGames: 4999,
       minWinAdvantage: 15       // Requires +15% win advantage (easier)
     },
     {
-      minGames: 1,              // Low-frequency positions (1-999)
+      minGames: 1,              // Low-frequency positions
       maxGames: 999,
       minWinAdvantage: 25       // Requires +25% win advantage (easier)
     }

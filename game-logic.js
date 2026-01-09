@@ -220,27 +220,21 @@ class ChessTheoryApp {
 
 async checkMoveQuality(prevFEN, playerUCI) {
     try {
-      // Always increment quality tracked moves
       this.qualityTrackedMoves++;
       
-      // First N moves are automatically counted as top 3 moves (100% quality)
       if (this.playerMoves <= SKIP_QUALITY_MOVES) {
         this.topMoveChoices++;
         console.log(`⭐️ Opening book move ${this.playerMoves} - auto-counted as top 3 (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
         return;
       }
       
-      // After first N moves, check move quality using explorer data
       const data = await ChessAPI.queryExplorer(this.aiSource, prevFEN);
       
-      // If no moves data available, skip quality check for this move
       if (!data.moves || data.moves.length === 0) {
         console.log(`⚠️ No explorer data available for quality check (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
         return;
       }
       
-      // Find the index of the player's move in the explorer results
-      // FIX: Check BOTH uci and san to catch castling (O-O, O-O-O)
       const moveIndex = data.moves.findIndex(m => 
         m.uci === playerUCI || m.san === (
           playerUCI === 'e1g1' || playerUCI === 'e8g8' ? 'O-O' : 
@@ -248,13 +242,11 @@ async checkMoveQuality(prevFEN, playerUCI) {
         )
       );
       
-      // If move not found in explorer data at all, it doesn't count as top move
       if (moveIndex === -1) {
         console.log(`❌ Move not found in explorer data (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
         return;
       }
       
-      // Check if move is in top 3 (existing logic)
       const isTop3 = moveIndex < 3;
       
       if (isTop3) {
@@ -263,50 +255,52 @@ async checkMoveQuality(prevFEN, playerUCI) {
         return;
       }
       
-      // NEW: Check if move qualifies as "tricky move" (ranks 5-8 with good stats)
+      // NEW TIERED TRICKY MOVE SYSTEM (Ranks 5-20)
       const trickyConfig = this.aiSource === 'master' ? MASTER_TRICKY_MOVE : CLUB_TRICKY_MOVE;
       
-      // Only check tricky moves if feature is enabled and move is in valid rank range
       if (trickyConfig.enabled && moveIndex >= (trickyConfig.minRank - 1) && moveIndex <= (trickyConfig.maxRank - 1)) {
         const move = data.moves[moveIndex];
         const totalGames = move.white + move.draws + move.black;
         
-        // Calculate winning percentage advantage for player's color
+        // Calculate win percentages
         let playerWinPct, opponentWinPct;
         if (this.playerColor === 'w') {
-          // Player is white
           playerWinPct = (move.white / totalGames) * 100;
           opponentWinPct = (move.black / totalGames) * 100;
         } else {
-          // Player is black
           playerWinPct = (move.black / totalGames) * 100;
           opponentWinPct = (move.white / totalGames) * 100;
         }
         
         const winAdvantage = playerWinPct - opponentWinPct;
         
-        // Check if move meets BOTH tricky move criteria
-        const meetsWinAdvantage = winAdvantage >= trickyConfig.minWinAdvantage;
-        const meetsGameThreshold = totalGames >= trickyConfig.minGames;
-        
-        if (meetsWinAdvantage && meetsGameThreshold) {
-          // Move qualifies as a strategic "tricky move"
-          this.topMoveChoices++;
-          console.log(`🎯 Tricky move qualified! Rank: ${moveIndex + 1}, Win advantage: +${winAdvantage.toFixed(1)}%, Games: ${totalGames} (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
-          return;
-        } else {
-          // Move didn't meet the criteria - log why
-          console.log(`❌ Tricky move failed: Rank ${moveIndex + 1}, Win adv: +${winAdvantage.toFixed(1)}% (need +${trickyConfig.minWinAdvantage}%), Games: ${totalGames} (need ${trickyConfig.minGames}) (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+        // Find the appropriate tier based on game count
+        let applicableTier = null;
+        for (const tier of trickyConfig.tiers) {
+          if (totalGames >= tier.minGames && totalGames <= tier.maxGames) {
+            applicableTier = tier;
+            break;
+          }
         }
-      } else {
-        // Move is rank 4 or rank 9+ - doesn't qualify
-        console.log(`❌ Not top 3, rank: ${moveIndex + 1} (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+        
+        if (applicableTier) {
+          const meetsWinAdvantage = winAdvantage >= applicableTier.minWinAdvantage;
+          
+          if (meetsWinAdvantage) {
+            this.topMoveChoices++;
+            console.log(`🎯 Tricky move qualified! Rank: ${moveIndex + 1}, Win advantage: +${winAdvantage.toFixed(1)}%, Games: ${totalGames}, Tier: ${applicableTier.minGames}-${applicableTier.maxGames === Infinity ? '+' : applicableTier.maxGames} games (requires +${applicableTier.minWinAdvantage}%) (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+            return;
+          } else {
+            console.log(`📊 Tricky move check: Rank ${moveIndex + 1}, Win advantage: +${winAdvantage.toFixed(1)}% (needs +${applicableTier.minWinAdvantage}%), Games: ${totalGames}`);
+          }
+        }
       }
+      
+      console.log(`❌ Not top 3, rank: ${moveIndex + 1} (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
     } catch (e) {
       console.error('Quality check error:', e);
-      // On error, we still incremented qualityTrackedMoves but didn't add to topMoveChoices
     }
-}
+  }
 
   async getHints() {
     if (this.hintUsed) return;
