@@ -93,50 +93,58 @@ const BATTLE_RANK_THRESHOLDS = {
   levy: 0          // 0-39
 };
 
-
+// ========================================
+// MASTER CAMPAIGN - TRICKY MOVE CONFIGURATION
+// Rewards finding strong moves ranked 5-20 with positive win advantages
+// TIERED SYSTEM: Different thresholds based on position frequency
+// ========================================
 const MASTER_TRICKY_MOVE = {
-  enabled: true,              // Enable tricky move detection
-  minRank: 5,                 // Minimum move rank to check (5 = 5th move)
-  maxRank: 8,                 // Maximum move rank to check (8 = 8th move)
-  minWinAdvantage: 10,        // Minimum winning % advantage (e.g., 10 = +10%)
-  minGames: 3000              // Minimum games in resulting position
+  enabled: true,
+  minRank: 5,          // Start checking from 5th best move
+  maxRank: 20,         // Check up to 20th best move
+  tiers: [
+    {
+      minGames: 5000,           // High-frequency positions (5000+)
+      maxGames: Infinity,
+      minWinAdvantage: 10       // Requires +10% win advantage
+    },
+    {
+      minGames: 1000,           // Medium-frequency positions (1000-4999)
+      maxGames: 4999,
+      minWinAdvantage: 20       // Requires +20% win advantage
+    },
+    {
+      minGames: 1,              // Low-frequency positions (1-999)
+      maxGames: 999,
+      minWinAdvantage: 30       // Requires +30% win advantage
+    }
+  ]
 };
 
-// CLUB CAMPAIGN - Tricky Move Thresholds (more lenient)
+// ========================================
+// CLUB CAMPAIGN - TRICKY MOVE CONFIGURATION
+// More lenient than Master - easier to qualify tricky moves
+// TIERED SYSTEM: Lower thresholds to reward club-level creativity
+// ========================================
 const CLUB_TRICKY_MOVE = {
-  enabled: true,              // Enable tricky move detection
-  minRank: 5,                 // Minimum move rank to check (5 = 5th move)
-  maxRank: 8,                 // Maximum move rank to check (8 = 8th move)
-  minWinAdvantage: 10,         // Minimum winning % advantage (e.g., 8 = +8%, more lenient)
-  minGames: 5000              // Minimum games in resulting position (lower threshold)
+  enabled: true,
+  minRank: 5,          // Start checking from 5th best move
+  maxRank: 20,         // Check up to 20th best move
+  tiers: [
+    {
+      minGames: 5000,           // High-frequency positions (5000+)
+      maxGames: Infinity,
+      minWinAdvantage: 8        // Requires +8% win advantage (easier)
+    },
+    {
+      minGames: 1000,           // Medium-frequency positions (1000-4999)
+      maxGames: 4999,
+      minWinAdvantage: 15       // Requires +15% win advantage (easier)
+    },
+    {
+      minGames: 1,              // Low-frequency positions (1-999)
+      maxGames: 999,
+      minWinAdvantage: 25       // Requires +25% win advantage (easier)
+    }
+  ]
 };
-
-
-// ========================================
-// TESTING PRESETS
-// Uncomment to quickly test different configurations
-// ========================================
-
-// // PRESET 1: Much Harder Master (emphasize quality even more)
-// MASTER_WEIGHTS.moves = 0.20;
-// MASTER_WEIGHTS.quality = 0.50;
-// MASTER_WEIGHTS.evaluation = 0.30;
-// MASTER_PENALTY_MULTIPLIERS.catastrophic = 0.2;  // 80% penalty
-// MASTER_PENALTY_MULTIPLIERS.poor = 0.7;          // 30% penalty
-
-// // PRESET 2: Much Easier Club (reward playing more moves)
-// CLUB_WEIGHTS.moves = 0.35;
-// CLUB_WEIGHTS.quality = 0.30;
-// CLUB_WEIGHTS.evaluation = 0.35;
-// CLUB_WEIGHTS.movesMultiplier = 5; // More points per move
-// CLUB_PENALTY_MULTIPLIERS.catastrophic = 0.5;  // 50% penalty
-// CLUB_PENALTY_MULTIPLIERS.poor = 0.9;          // 10% penalty
-
-// // PRESET 3: Balanced (same difficulty for both)
-// CLUB_WEIGHTS = {...MASTER_WEIGHTS};
-// CLUB_PENALTY_MULTIPLIERS = {...MASTER_PENALTY_MULTIPLIERS};
-// CLUB_EVAL_THRESHOLDS = {...MASTER_EVAL_THRESHOLDS};
-
-// // PRESET 4: Very Lenient Club Thresholds
-// CLUB_EVAL_THRESHOLDS.catastrophic = -4.5;  // Only -4.5 or worse is catastrophic
-// CLUB_EVAL_THRESHOLDS.poor = -2.5;          // -2.5 to -4.5 is poor
