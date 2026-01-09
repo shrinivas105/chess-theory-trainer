@@ -1,7 +1,7 @@
 // chess-game-state.js - Game State Management & Data Storage
 // Handles: initialization, state management, storage, stats tracking
 
-class ChessGameState {
+class ChessTheoryApp {
   constructor() {
     // Core game state
     this.game = new Chess();

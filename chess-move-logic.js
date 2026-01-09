@@ -2,7 +2,7 @@
 // Handles: player moves, AI moves, move quality, hints, game endings
 
 // Extend ChessGameState with move logic
-Object.assign(ChessGameState.prototype, {
+Object.assign(ChessTheoryApp.prototype, {
   
   // ========================================
   // CHESS API QUERIES
