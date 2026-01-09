@@ -513,9 +513,9 @@ class AnalysisBoard {
               <td style="padding: 3px 4px;">
                 <span style="color: ${row.color}; font-weight: bold;">${row.label}:</span> ${row.move}${moveIcon}
               </td>
-              <td style="padding: 3px 4px; text-align: center; color: #fff;">${row.whiteWin}%</td>
-              <td style="padding: 3px 4px; text-align: center; color: #f1c40f;">${row.draws}%</td>
+              <td style="padding: 3px 4px; text-align: center; color: #fff;">${row.whiteWin}%</td>            
               <td style="padding: 3px 4px; text-align: center; color: #bbb;">${row.blackWin}%</td>
+              <td style="padding: 3px 4px; text-align: center; color: #f1c40f;">${row.draws}%</td>
               <td style="padding: 3px 4px; text-align: center; color: #888; font-size: 0.58rem;">${row.totalGames.toLocaleString()}</td>
             </tr>
           `;
