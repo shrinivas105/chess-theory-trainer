@@ -23,6 +23,8 @@ class ChessTheoryApp {
     this.currentPGN = null;
     this.accuracyBonus = 0;  // NEW: Track accuracy bonus
     this.accuracyTier = null; // NEW: Track accuracy tier name
+	 this.gameEnded = false; // ← ADDED THIS
+  this.endGameData = null; // ← ADDED THIS
 
     // Load progress from localStorage first
     this.legionMerits = JSON.parse(localStorage.getItem('chessTheoryLegionMerits') || '{}');
@@ -127,7 +129,8 @@ class ChessTheoryApp {
     this.topGames = [];
     this.recentGames = [];
     this.currentPGN = null;
-    // Removed: accuracy bonus tracking (now hidden)
+      this.gameEnded = false; // ← ADDED THIS
+  this.endGameData = null; // ← ADDED THIS
   }
 
   async resetStats() {
@@ -473,6 +476,14 @@ async checkMoveQuality(prevFEN, playerUCI) {
       : this.finalPlayerEval.toFixed(1);
     const gamesToShow = this.aiSource === 'master' ? this.topGames : this.recentGames;
 
+  this.gameEnded = true;
+  this.endGameData = {
+    battleRank,
+    moveQuality,
+    displayEval,
+    gamesToShow
+  };
+
     this.ui.renderEndGameSummary(battleRank, moveQuality, displayEval, gamesToShow);
   }
 
@@ -557,23 +568,36 @@ async checkMoveQuality(prevFEN, playerUCI) {
   }
 
   render() {
-    if (!this.aiSource) {
-      this.ui.renderMenu();
-      return;
-    }
-    if (!this.playerColor) {
-      this.ui.renderColorChoice();
-      return;
-    }
+  if (!this.aiSource) {
+    this.ui.renderMenu();
+    return;
+  }
+  if (!this.playerColor) {
+    this.ui.renderColorChoice();
+    return;
+  }
 
+  // ← ADDED THIS ENTIRE SECTION
+  if (this.gameEnded && this.endGameData) {
+    this.ui.renderGameContainer();
     this.ui.renderBoard();
-    this.queryExplorer();
+    this.ui.renderEndGameSummary(
+      this.endGameData.battleRank,
+      this.endGameData.moveQuality,
+      this.endGameData.displayEval,
+      this.endGameData.gamesToShow
+    );
+    return;
+  }
 
-    if (this.game.turn() !== this.playerColor) {
-      const currentFEN = this.game.fen();
-      if (this.lastAIMoveFEN !== currentFEN) {
-        setTimeout(() => this.aiMove(), 800);
-      }
+  this.ui.renderBoard();
+  this.queryExplorer();
+
+  if (this.game.turn() !== this.playerColor) {
+    const currentFEN = this.game.fen();
+    if (this.lastAIMoveFEN !== currentFEN) {
+      setTimeout(() => this.aiMove(), 800);
     }
   }
+}
 }
