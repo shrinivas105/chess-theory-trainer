@@ -205,17 +205,15 @@ body > * {
   cursor: pointer;
   transition: filter 0.15s ease, box-shadow 0.15s ease;
   position: relative;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 2px solid transparent; /* Changed from 1px to 2px and made transparent by default */
   overflow: hidden;
   will-change: transform;
   transform: translateZ(0);
-    /* ADD THESE LINES HERE */
   outline: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
-  
 }
 /* ADD THIS NEW RULE AFTER .square */
 .square:focus-visible {
