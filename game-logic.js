@@ -253,6 +253,65 @@ async checkMoveQuality(prevFEN, playerUCI) {
       const isTop3 = moveIndex < 3;
       
       if (isTop3) {
+        // Check if this "top move" is actually bad compared to other top moves
+        const playerMove = data.moves[moveIndex];
+        const playerTotalGames = playerMove.white + playerMove.draws + playerMove.black;
+        
+        // Calculate player's win percentage and opponent's win percentage
+        let playerWinPct, opponentWinPct;
+        if (this.playerColor === 'w') {
+          playerWinPct = (playerMove.white / playerTotalGames) * 100;
+          opponentWinPct = (playerMove.black / playerTotalGames) * 100;
+        } else {
+          playerWinPct = (playerMove.black / playerTotalGames) * 100;
+          opponentWinPct = (playerMove.white / playerTotalGames) * 100;
+        }
+        
+        const playerWinRatio = opponentWinPct > 0 ? playerWinPct / opponentWinPct : 999;
+        
+        // Get other top 3 moves (excluding player's move)
+        const otherTopMoves = data.moves.slice(0, 3).filter((_, idx) => idx !== moveIndex);
+        
+        if (otherTopMoves.length >= 2) {
+          // Calculate win percentages for other top moves
+          const otherWinPercentages = otherTopMoves.map(move => {
+            const total = move.white + move.draws + move.black;
+            if (this.playerColor === 'w') {
+              return (move.white / total) * 100;
+            } else {
+              return (move.black / total) * 100;
+            }
+          });
+          
+          // Calculate win ratios for other top moves
+          const otherWinRatios = otherTopMoves.map(move => {
+            const total = move.white + move.draws + move.black;
+            let winPct, losePct;
+            if (this.playerColor === 'w') {
+              winPct = (move.white / total) * 100;
+              losePct = (move.black / total) * 100;
+            } else {
+              winPct = (move.black / total) * 100;
+              losePct = (move.white / total) * 100;
+            }
+            return losePct > 0 ? winPct / losePct : 999;
+          });
+          
+          // Condition 1: Check if gap is > 20%
+          const lowestOtherWinPct = Math.min(...otherWinPercentages);
+          const winPctGap = lowestOtherWinPct - playerWinPct;
+          const condition1 = winPctGap > 20;
+          
+          // Condition 2: Player ratio < 1.0 AND both other moves > 1.0
+          const condition2 = playerWinRatio < 1.0 && otherWinRatios.every(ratio => ratio > 1.0);
+          
+          // If BOTH conditions are true, this is a bad top move
+          if (condition1 && condition2) {
+            console.log(`⚠️ Bad top move detected! Rank: ${moveIndex + 1}, Player win: ${playerWinPct.toFixed(1)}%, Opponent win: ${opponentWinPct.toFixed(1)}%, Ratio: ${playerWinRatio.toFixed(2)}, Gap: ${winPctGap.toFixed(1)}%, Other ratios: [${otherWinRatios.map(r => r.toFixed(2)).join(', ')}] - NOT counting as quality move (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
+            return;
+          }
+        }
+        
         this.topMoveChoices++;
         console.log(`✅ Top 3 move! Rank: ${moveIndex + 1} (${this.topMoveChoices}/${this.qualityTrackedMoves})`);
         return;

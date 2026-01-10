@@ -348,7 +348,7 @@ class AnalysisBoard {
     }
   }
 
-  async updateMoveComparison() {
+ async updateMoveComparison() {
     const arrowLayer = document.getElementById('arrowLayer');
     const comparisonTable = document.getElementById('moveComparisonTable');
     const comparisonTableContent = document.getElementById('comparisonTableContent');
@@ -421,13 +421,64 @@ class AnalysisBoard {
       const moveLabel = isPlayerMove ? 'Your' : 'AI';
       
       // Add top 3 moves
-      topMoves.slice(0, 3).forEach((move, idx) => {
+      for (let idx = 0; idx < Math.min(3, topMoves.length); idx++) {
+        const move = topMoves[idx];
         const totalGames = move.white + move.draws + move.black;
         const whiteWin = totalGames > 0 ? ((move.white / totalGames) * 100).toFixed(1) : 0;
         const draws = totalGames > 0 ? ((move.draws / totalGames) * 100).toFixed(1) : 0;
         const blackWin = totalGames > 0 ? ((move.black / totalGames) * 100).toFixed(1) : 0;
         
         const isCurrentMove = move.uci === currentMoveUci;
+        
+        // Fetch evaluation based on:
+        // - If it's a PLAYER move: show eval for ALL top 3 moves
+        // - If it's an AI move: show eval only for the AI's actual move
+        let moveEval = '-';
+        let moveEvalColor = '#888';
+        
+        const shouldFetchEval = isPlayerMove || isCurrentMove;
+        
+        if (shouldFetchEval) {
+          moveEval = 'Loading...';
+          const moveFrom = move.uci.substring(0, 2);
+          const moveTo = move.uci.substring(2, 4);
+          const movePromotion = move.uci.length > 4 ? move.uci[4] : undefined;
+          
+          // Make the move in a temp game to get resulting position
+          const tempEvalGame = new Chess();
+          for (let i = 0; i < this.currentMoveIndex; i++) {
+            const histMove = this.moveHistory[i];
+            tempEvalGame.move({
+              from: histMove.from,
+              to: histMove.to,
+              promotion: histMove.promotion
+            });
+          }
+          tempEvalGame.move({
+            from: moveFrom,
+            to: moveTo,
+            promotion: movePromotion
+          });
+          
+          // Fetch evaluation asynchronously and update the table
+          const fen = tempEvalGame.fen();
+          ChessAPI.getEvaluation(fen, this.app.evalCache).then(rawEval => {
+            const playerEval = this.app.playerColor === 'b' ? -rawEval : rawEval;
+            const displayEval = playerEval > 0 ? '+' + playerEval.toFixed(1) : playerEval.toFixed(1);
+            
+            // Update the stored eval
+            tableData[idx].eval = displayEval;
+            tableData[idx].evalColor = playerEval > 1 ? '#2ecc71' : playerEval < -1 ? '#e74c3c' : '#f1c40f';
+            
+            // Re-render the table with updated eval
+            this.renderComparisonTable(tableData, positionText, evalText, evalColor, comparisonTableContent);
+          }).catch(err => {
+            console.error('Error fetching eval for move:', move.san, err);
+            tableData[idx].eval = 'N/A';
+            tableData[idx].evalColor = '#888';
+            this.renderComparisonTable(tableData, positionText, evalText, evalColor, comparisonTableContent);
+          });
+        }
         
         tableData.push({
           move: move.san,
@@ -438,9 +489,11 @@ class AnalysisBoard {
           blackWin,
           totalGames,
           isCurrentMove,
-          moveType: isCurrentMove ? moveLabel : ''
+          moveType: isCurrentMove ? moveLabel : '',
+          eval: moveEval,
+          evalColor: moveEvalColor
         });
-      });
+      }
       
       // If current move is not in top 3, add it separately
       if (currentMoveIndex === -1 || currentMoveIndex > 2) {
@@ -451,6 +504,33 @@ class AnalysisBoard {
           const draws = totalGames > 0 ? ((currentMoveData.draws / totalGames) * 100).toFixed(1) : 0;
           const blackWin = totalGames > 0 ? ((currentMoveData.black / totalGames) * 100).toFixed(1) : 0;
           
+          // Get evaluation for the move that was actually played (player or AI)
+          let moveEval = 'Loading...';
+          let moveEvalColor = '#888';
+          
+          // Get evaluation for current move (it's already been made)
+          const fen = this.analysisGame.fen();
+          ChessAPI.getEvaluation(fen, this.app.evalCache).then(rawEval => {
+            const playerEval = this.app.playerColor === 'b' ? -rawEval : rawEval;
+            const displayEval = playerEval > 0 ? '+' + playerEval.toFixed(1) : playerEval.toFixed(1);
+            
+            // Find and update the current move entry
+            const currentEntry = tableData.find(d => d.isCurrentMove);
+            if (currentEntry) {
+              currentEntry.eval = displayEval;
+              currentEntry.evalColor = playerEval > 1 ? '#2ecc71' : playerEval < -1 ? '#e74c3c' : '#f1c40f';
+              this.renderComparisonTable(tableData, positionText, evalText, evalColor, comparisonTableContent);
+            }
+          }).catch(err => {
+            console.error('Error fetching eval for current move:', err);
+            const currentEntry = tableData.find(d => d.isCurrentMove);
+            if (currentEntry) {
+              currentEntry.eval = 'N/A';
+              currentEntry.evalColor = '#888';
+              this.renderComparisonTable(tableData, positionText, evalText, evalColor, comparisonTableContent);
+            }
+          });
+          
           tableData.push({
             move: currentMove.san,
             color: '#3498db',
@@ -460,74 +540,28 @@ class AnalysisBoard {
             blackWin,
             totalGames,
             isCurrentMove: true,
-            moveType: moveLabel
+            moveType: moveLabel,
+            eval: moveEval,
+            evalColor: moveEvalColor
           });
         }
       }
       
-      // Render comparison table
-      if (comparisonTableContent && tableData.length > 0) {
-        // Get position info
-        let positionText = 'Starting Position';
-        
-        if (this.currentMoveIndex >= 0) {
-          const moveNum = Math.floor(this.currentMoveIndex / 2) + 1;
-          const side = this.currentMoveIndex % 2 === 0 ? 'W' : 'B';
-          const move = this.moveHistory[this.currentMoveIndex];
-          positionText = `Move ${moveNum} (${side}): ${move.san}`;
-        }
-        
-        const evalText = `Eval: ${this.currentEval || '0.0'}`;
-        const evalColor = this.currentEvalColor || '#f1c40f';
-        
-        let tableHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; font-size: 0.68rem;">
-            <span style="font-weight: bold; color: var(--roman-gold);">Move Comparison</span>
-            <div style="display: flex; gap: 8px; font-size: 0.63rem;">
-              <span style="color: #fff;">${positionText}</span>
-              <span style="color: ${evalColor};">${evalText}</span>
-            </div>
-          </div>
-          <table style="width: 100%; border-collapse: collapse; font-size: 0.65rem; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden;">
-            <thead>
-              <tr style="background: rgba(0,0,0,0.4);">
-                <th style="padding: 3px 4px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">Move</th>
-                <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚪ Win</th>
-				<th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚫ Win</th>
-                <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">🤝 Draw</th>             
-                <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">Games</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-        
-        tableData.forEach(row => {
-          const rowStyle = row.isCurrentMove 
-            ? `background: linear-gradient(90deg, ${row.color}20, ${row.color}10); border-left: 3px solid ${row.color}; font-weight: bold;`
-            : `border-left: 3px solid ${row.color};`;
-          
-          const moveIcon = row.isCurrentMove ? (isPlayerMove ? ' ✓' : ' 🤖') : '';
-          
-          tableHTML += `
-            <tr style="${rowStyle}">
-              <td style="padding: 3px 4px;">
-                <span style="color: ${row.color}; font-weight: bold;">${row.label}:</span> ${row.move}${moveIcon}
-              </td>
-              <td style="padding: 3px 4px; text-align: center; color: #fff;">${row.whiteWin}%</td>            
-              <td style="padding: 3px 4px; text-align: center; color: #bbb;">${row.blackWin}%</td>
-              <td style="padding: 3px 4px; text-align: center; color: #f1c40f;">${row.draws}%</td>
-              <td style="padding: 3px 4px; text-align: center; color: #888; font-size: 0.58rem;">${row.totalGames.toLocaleString()}</td>
-            </tr>
-          `;
-        });
-        
-        tableHTML += `
-            </tbody>
-          </table>
-        `;
-        
-        comparisonTableContent.innerHTML = tableHTML;
+      // Render comparison table with initial data
+      // Get position info first
+      let positionText = 'Starting Position';
+      
+      if (this.currentMoveIndex >= 0) {
+        const moveNum = Math.floor(this.currentMoveIndex / 2) + 1;
+        const side = this.currentMoveIndex % 2 === 0 ? 'W' : 'B';
+        const move = this.moveHistory[this.currentMoveIndex];
+        positionText = `Move ${moveNum} (${side}): ${move.san}`;
       }
+      
+      const evalText = `Eval: ${this.currentEval || '0.0'}`;
+      const evalColor = this.currentEvalColor || '#f1c40f';
+      
+      this.renderComparisonTable(tableData, positionText, evalText, evalColor, comparisonTableContent);
       
       // Draw arrows
       this.drawMoveArrows(currentMove, topMoves.slice(0, 3), currentMoveIndex, isPlayerMove);
@@ -535,6 +569,60 @@ class AnalysisBoard {
     } catch (error) {
       console.error('Error updating move comparison:', error);
     }
+  }
+
+  renderComparisonTable(tableData, positionText, evalText, evalColor, comparisonTableContent) {
+    if (!comparisonTableContent || tableData.length === 0) return;
+    
+    let tableHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; font-size: 0.68rem;">
+        <span style="font-weight: bold; color: var(--roman-gold);">Move Comparison</span>
+        <div style="display: flex; gap: 8px; font-size: 0.63rem;">
+          <span style="color: #fff;">${positionText}</span>
+          <span style="color: ${evalColor};">${evalText}</span>
+        </div>
+      </div>
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.65rem; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden;">
+        <thead>
+          <tr style="background: rgba(0,0,0,0.4);">
+            <th style="padding: 3px 4px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">Move</th>
+            <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚪ Win</th>
+            <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚫ Win</th>
+            <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">🤝 Draw</th>             
+            <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">Games</th>
+            <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">Eval</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    tableData.forEach(row => {
+      const rowStyle = row.isCurrentMove 
+        ? `background: linear-gradient(90deg, ${row.color}20, ${row.color}10); border-left: 3px solid ${row.color}; font-weight: bold;`
+        : `border-left: 3px solid ${row.color};`;
+      
+      const moveIcon = row.isCurrentMove ? (row.moveType === 'Your' ? ' ✓' : ' 🤖') : '';
+      
+      tableHTML += `
+        <tr style="${rowStyle}">
+          <td style="padding: 3px 4px;">
+            <span style="color: ${row.color}; font-weight: bold;">${row.label}:</span> ${row.move}${moveIcon}
+          </td>
+          <td style="padding: 3px 4px; text-align: center; color: #fff;">${row.whiteWin}%</td>            
+          <td style="padding: 3px 4px; text-align: center; color: #bbb;">${row.blackWin}%</td>
+          <td style="padding: 3px 4px; text-align: center; color: #f1c40f;">${row.draws}%</td>
+          <td style="padding: 3px 4px; text-align: center; color: #888; font-size: 0.58rem;">${row.totalGames.toLocaleString()}</td>
+          <td style="padding: 3px 4px; text-align: center; color: ${row.evalColor}; font-weight: bold;">${row.eval}</td>
+        </tr>
+      `;
+    });
+    
+    tableHTML += `
+        </tbody>
+      </table>
+    `;
+    
+    comparisonTableContent.innerHTML = tableHTML;
   }
 
   drawMoveArrows(currentMove, topMoves, currentMoveIndex, isPlayerMove) {
