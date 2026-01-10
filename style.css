@@ -149,20 +149,52 @@ body > * {
    ======================================== */
 
 .board-wrapper {
+  /* Core layout & size - must stay stable */
   width: 100%;
   max-width: 500px;
-  aspect-ratio: 1;
+  aspect-ratio: 1 / 1;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
+  
+  /* Visual appearance */
   border: 6px solid var(--maroon-costume);
   border-radius: 4px;
-  align-self: center;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-  animation: fadeInUp 0.6s ease-out 0.2s both;
-  position: relative;
   background: #1a1410;
+  
+  /* Shadow stays the same */
+  box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+  
+  /* Critical fixes for size stability */
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-sizing: border-box;           /* ← very important with thick border */
+  
+  /* Positioning & centering */
+  align-self: center;
   margin: 0 auto;
+  position: relative;
+  
+  /* Keep your animation if desired */
+  animation: fadeInUp 0.6s ease-out 0.2s both;
 }
+
+/* Block ALL possible focus indicators on this element */
+.board-wrapper:focus,
+.board-wrapper:focus-visible,
+.board-wrapper:focus-within,
+.board-wrapper:active {
+  outline: none !important;
+  outline-width: 0 !important;
+  outline-offset: 0 !important;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.8) !important; /* keep original only */
+}
+
+/* Extra safety: also block inherited/children focus outlines that might bubble */
+.board-wrapper *:focus,
+.board-wrapper *:focus-visible {
+  outline: none !important;
+}
+
 
 /* Squares - Hardware Accelerated */
 .square {
