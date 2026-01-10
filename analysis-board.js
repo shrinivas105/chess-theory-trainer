@@ -571,60 +571,6 @@ class AnalysisBoard {
     }
   }
 
-  renderComparisonTable(tableData, positionText, evalText, evalColor, comparisonTableContent) {
-    if (!comparisonTableContent || tableData.length === 0) return;
-    
-    let tableHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; font-size: 0.68rem;">
-        <span style="font-weight: bold; color: var(--roman-gold);">Move Comparison</span>
-        <div style="display: flex; gap: 8px; font-size: 0.63rem;">
-          <span style="color: #fff;">${positionText}</span>
-          <span style="color: ${evalColor};">${evalText}</span>
-        </div>
-      </div>
-      <table style="width: 100%; border-collapse: collapse; font-size: 0.65rem; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden;">
-        <thead>
-          <tr style="background: rgba(0,0,0,0.4);">
-            <th style="padding: 3px 4px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">Move</th>
-            <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚪ Win</th>
-            <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚫ Win</th>
-            <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">🤝 Draw</th>             
-            <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">Games</th>
-            <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">Eval</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
-    
-    tableData.forEach(row => {
-      const rowStyle = row.isCurrentMove 
-        ? `background: linear-gradient(90deg, ${row.color}20, ${row.color}10); border-left: 3px solid ${row.color}; font-weight: bold;`
-        : `border-left: 3px solid ${row.color};`;
-      
-      const moveIcon = row.isCurrentMove ? (row.moveType === 'Your' ? ' ✓' : ' 🤖') : '';
-      
-      tableHTML += `
-        <tr style="${rowStyle}">
-          <td style="padding: 3px 4px;">
-            <span style="color: ${row.color}; font-weight: bold;">${row.label}:</span> ${row.move}${moveIcon}
-          </td>
-          <td style="padding: 3px 4px; text-align: center; color: #fff;">${row.whiteWin}%</td>            
-          <td style="padding: 3px 4px; text-align: center; color: #bbb;">${row.blackWin}%</td>
-          <td style="padding: 3px 4px; text-align: center; color: #f1c40f;">${row.draws}%</td>
-          <td style="padding: 3px 4px; text-align: center; color: #888; font-size: 0.58rem;">${row.totalGames.toLocaleString()}</td>
-          <td style="padding: 3px 4px; text-align: center; color: ${row.evalColor}; font-weight: bold;">${row.eval}</td>
-        </tr>
-      `;
-    });
-    
-    tableHTML += `
-        </tbody>
-      </table>
-    `;
-    
-    comparisonTableContent.innerHTML = tableHTML;
-  }
-
   drawMoveArrows(currentMove, topMoves, currentMoveIndex, isPlayerMove) {
     const arrowLayer = document.getElementById('arrowLayer');
     const boardEl = document.getElementById('analysisBoard');
