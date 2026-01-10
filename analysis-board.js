@@ -493,8 +493,8 @@ class AnalysisBoard {
               <tr style="background: rgba(0,0,0,0.4);">
                 <th style="padding: 3px 4px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">Move</th>
                 <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚪ Win</th>
-                <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">🤝 Draw</th>
-                <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚫ Win</th>
+				<th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">⚫ Win</th>
+                <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">🤝 Draw</th>             
                 <th style="padding: 3px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">Games</th>
               </tr>
             </thead>

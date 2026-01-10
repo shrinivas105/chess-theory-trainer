@@ -302,25 +302,29 @@ document.getElementById('lichessBtn').onclick = () => {
   }
 
   renderGameContainer() {
-    if (document.querySelector('.game-container')) return;
-    document.getElementById('app').innerHTML = `
-      <button class="home-button" onclick="app.goHome()">🏠 Home</button>
-      
-      <div class="game-container">
-        <div class="board-wrapper" id="board"></div>
-        <div class="info-line" id="gameCount">Loading position data...</div>
-        <div id="endSummary" class="end-summary" style="display:none;"></div>
-        <div id="theoryMessage" class="theory-message" style="display:none;"></div>
-        <div class="action-buttons">
-          <button class="btn" onclick="location.reload()">🔄 New Battle</button>
-          <button class="btn" id="hintBtn">🎖️ Consult Commander</button>
-        </div>
-      </div>
-    `;
-    
-    // Render auth section as fixed element
-    this.renderAuthSection();
+  // Only create if it doesn't exist
+  if (document.querySelector('.game-container')) {
+    return;
   }
+  
+  console.log('Creating game container');
+  document.getElementById('app').innerHTML = `
+    <button class="home-button" onclick="app.goHome()">🏠 Home</button>
+    
+    <div class="game-container">
+      <div class="board-wrapper" id="board"></div>
+      <div class="info-line" id="gameCount">Loading position data...</div>
+      <div id="endSummary" class="end-summary" style="display:none;"></div>
+      <div id="theoryMessage" class="theory-message" style="display:none;"></div>
+      <div class="action-buttons">
+        <button class="btn" onclick="location.reload()">🔄 New Battle</button>
+        <button class="btn" id="hintBtn">🎖️ Consult Commander</button>
+      </div>
+    </div>
+  `;
+  this.renderAuthSection();
+  
+}
 
   renderAuthSection() {
     // Remove any existing auth section
@@ -386,99 +390,137 @@ document.getElementById('lichessBtn').onclick = () => {
     });
   }
 
-  renderEndGameSummary(battleRank, moveQuality, displayEval, gamesToShow) {
-    console.log('📊 Rendering end game summary...');
-    
-    const summaryEl = document.getElementById('endSummary');
-    const msgEl = document.getElementById('theoryMessage');
-
-    let rankChangeHtml = this.app.rankChangeMessage
-      ? (this.app.rankChangeMessage.includes('promoted')
-          ? `<div class="promotion-message">${this.app.rankChangeMessage}</div>`
-          : `<div class="demotion-message">${this.app.rankChangeMessage}</div>`)
-      : '';
-    this.app.rankChangeMessage = null;
-
-    const rankColors = {
-      'Levy': '#2ecc71',
-      'Hastatus': '#ecf0f1',
-      'Principes': '#e74c3c',
-      'Triarius': '#3498db',
-      'Imperator': '#9b59b6'
-    };
-    const rankColor = rankColors[battleRank.title] || '#d4af37';
-
-    summaryEl.innerHTML = `
-      ${rankChangeHtml}
-	  <h3 style="color: ${rankColor}; text-shadow: 0 0 20px ${rankColor}; font-size: 0.85rem; margin-bottom: 6px;">${battleRank.icon} ${battleRank.title} • Score: ${battleRank.score}/100</h3>
-<div class="stats-grid" style="gap: 5px; font-size: 0.68rem; margin: 6px 0;">
-  <div style="padding: 5px;">Moves<br><strong style="font-size: 0.9rem;">${this.app.playerMoves}</strong></div>
-  <div style="padding: 5px;">Quality<br><strong style="font-size: 0.9rem;">${moveQuality}%</strong></div>
-  <div style="padding: 5px;">Eval<br><strong style="font-size: 0.9rem;">${displayEval}</strong></div>
-</div>
-      <div style="font-style:italic;color:#bbb;margin:5px 0;font-size:0.7rem;">"${battleRank.msg}"</div>
-<div style="font-size:0.68rem;color:#aaa;margin:4px 0;"><em>${battleRank.sub}</em></div>
-     <div class="rank-progress" style="gap: 3px; margin: 6px 0;">
-  ${['Levy', 'Hastatus', 'Principes', 'Triarius', 'Imperator'].map(r => {
-    const color = rankColors[r];
-    const isActive = r === battleRank.title;
-    return `<div class="rank-step ${isActive ? 'active' : ''}" style="padding: 3px 6px; font-size: 0.65rem; ${isActive ? `background: linear-gradient(135deg, ${color}, ${color}); color: ${r === 'Hastatus' ? '#000' : '#fff'}; border-color: ${color};` : ''}">${r}</div>`;
-  }).join('')}
-</div>
-      
-    <div style="margin-top:10px; display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
-  <button id="showAnalysisBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
-    📊 Analyze
-  </button>
-  <button id="downloadPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
-    📥 PGN
-  </button>
-  <button id="copyPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
-    📋 Copy
-  </button>
-</div>
-    `;
-    summaryEl.style.display = 'block';
-
-    setTimeout(() => {
-      const analysisBtn = document.getElementById('showAnalysisBtn');
-      const downloadBtn = document.getElementById('downloadPGNBtn');
-      const copyBtn = document.getElementById('copyPGNBtn');
-      
-      if (analysisBtn) {
-        analysisBtn.onclick = () => this.app.showAnalysis();
-      }
-      
-      if (downloadBtn) {
-        downloadBtn.onclick = () => this.app.downloadPGN();
-      }
-      
-      if (copyBtn) {
-        copyBtn.onclick = () => this.app.copyPGN();
-      }
-    }, 100);
-
-    let html = `<strong>Historical games from this position:</strong><br>`;
-    if (gamesToShow.length > 0) {
-      gamesToShow.forEach((game, idx) => {
-        const whitePlayer = game.white?.name || 'Unknown';
-        const blackPlayer = game.black?.name || 'Unknown';
-        const whiteRating = game.white?.rating || '?';
-        const blackRating = game.black?.rating || '?';
-        const year = game.year || '';
-        const gameId = game.id || '';
-        const gameUrl = gameId ? `https://lichess.org/${gameId}` : '#';
-        let resultText = game.winner === 'white' ? '1-0' : game.winner === 'black' ? '0-1' : '½-½';
-        let resultColor = game.winner === 'white' ? '#fff' : game.winner === 'black' ? '#ccc' : '#f1c40f';
-        html += `<div class="game-list-item">
-          <strong>${idx + 1}.</strong> ${whitePlayer} (${whiteRating}) – ${blackPlayer} (${blackRating})${year ? `, ${year}` : ''}<br>
-          <span style="color:${resultColor};">${resultText}</span> • <a href="${gameUrl}" target="_blank">View ↗</a>
-        </div>`;
-      });
-    } else {
-      html += '<em style="color:#888;">No games found.</em>';
+ renderEndGameSummary(battleRank, moveQuality, displayEval, gamesToShow) {
+  console.log('📊 Rendering end game summary...');
+  
+  // Check if we need to create the game container
+  let summaryEl = document.getElementById('endSummary');
+  let msgEl = document.getElementById('theoryMessage');
+  
+  if (!summaryEl || !msgEl) {
+    console.log('⚠️ Elements not found, forcing container recreation...');
+    // Force recreate by removing existing container first
+    const existingContainer = document.querySelector('.game-container');
+    if (existingContainer) {
+      existingContainer.remove();
     }
-    msgEl.innerHTML = html;
-    msgEl.style.display = 'block';
+    
+    // Now create fresh container
+    document.getElementById('app').innerHTML = `
+      <button class="home-button" onclick="app.goHome()">🏠 Home</button>
+      
+      <div class="game-container">
+        <div class="board-wrapper" id="board"></div>
+        <div class="info-line" id="gameCount">Loading position data...</div>
+        <div id="endSummary" class="end-summary" style="display:none;"></div>
+        <div id="theoryMessage" class="theory-message" style="display:none;"></div>
+        <div class="action-buttons">
+          <button class="btn" onclick="location.reload()">🔄 New Battle</button>
+          <button class="btn" id="hintBtn">🎖️ Consult Commander</button>
+        </div>
+      </div>
+    `;
+    this.renderAuthSection();
+    
+    // Get elements again
+    summaryEl = document.getElementById('endSummary');
+    msgEl = document.getElementById('theoryMessage');
+    
+    if (!summaryEl || !msgEl) {
+      console.error('❌ Still cannot find summary elements after recreation!');
+      return;
+    }
   }
+  
+  console.log('✅ Found summary elements, rendering...');
+
+  let rankChangeHtml = this.app.rankChangeMessage
+    ? (this.app.rankChangeMessage.includes('promoted')
+        ? `<div class="promotion-message">${this.app.rankChangeMessage}</div>`
+        : `<div class="demotion-message">${this.app.rankChangeMessage}</div>`)
+    : '';
+  this.app.rankChangeMessage = null;
+
+  const rankColors = {
+    'Levy': '#2ecc71',
+    'Hastatus': '#ecf0f1',
+    'Principes': '#e74c3c',
+    'Triarius': '#3498db',
+    'Imperator': '#9b59b6'
+  };
+  const rankColor = rankColors[battleRank.title] || '#d4af37';
+
+  summaryEl.innerHTML = `
+    ${rankChangeHtml}
+    <h3 style="color: ${rankColor}; text-shadow: 0 0 20px ${rankColor}; font-size: 0.85rem; margin-bottom: 6px;">${battleRank.icon} ${battleRank.title} • Score: ${battleRank.score}/100</h3>
+    <div class="stats-grid" style="gap: 5px; font-size: 0.68rem; margin: 6px 0;">
+      <div style="padding: 5px;">Moves<br><strong style="font-size: 0.9rem;">${this.app.playerMoves}</strong></div>
+      <div style="padding: 5px;">Quality<br><strong style="font-size: 0.9rem;">${moveQuality}%</strong></div>
+      <div style="padding: 5px;">Eval<br><strong style="font-size: 0.9rem;">${displayEval}</strong></div>
+    </div>
+    <div style="font-style:italic;color:#bbb;margin:5px 0;font-size:0.7rem;">"${battleRank.msg}"</div>
+    <div style="font-size:0.68rem;color:#aaa;margin:4px 0;"><em>${battleRank.sub}</em></div>
+    <div class="rank-progress" style="gap: 3px; margin: 6px 0;">
+      ${['Levy', 'Hastatus', 'Principes', 'Triarius', 'Imperator'].map(r => {
+        const color = rankColors[r];
+        const isActive = r === battleRank.title;
+        return `<div class="rank-step ${isActive ? 'active' : ''}" style="padding: 3px 6px; font-size: 0.65rem; ${isActive ? `background: linear-gradient(135deg, ${color}, ${color}); color: ${r === 'Hastatus' ? '#000' : '#fff'}; border-color: ${color};` : ''}">${r}</div>`;
+      }).join('')}
+    </div>
+    
+    <div style="margin-top:10px; display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+      <button id="showAnalysisBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+        📊 Analyze
+      </button>
+      <button id="downloadPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+        📥 PGN
+      </button>
+      <button id="copyPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+        📋 Copy
+      </button>
+    </div>
+  `;
+  summaryEl.style.display = 'block';
+
+  setTimeout(() => {
+    const analysisBtn = document.getElementById('showAnalysisBtn');
+    const downloadBtn = document.getElementById('downloadPGNBtn');
+    const copyBtn = document.getElementById('copyPGNBtn');
+    
+    if (analysisBtn) {
+      analysisBtn.onclick = () => this.app.showAnalysis();
+    }
+    
+    if (downloadBtn) {
+      downloadBtn.onclick = () => this.app.downloadPGN();
+    }
+    
+    if (copyBtn) {
+      copyBtn.onclick = () => this.app.copyPGN();
+    }
+  }, 100);
+
+  let html = `<strong>Historical games from this position:</strong><br>`;
+  if (gamesToShow.length > 0) {
+    gamesToShow.forEach((game, idx) => {
+      const whitePlayer = game.white?.name || 'Unknown';
+      const blackPlayer = game.black?.name || 'Unknown';
+      const whiteRating = game.white?.rating || '?';
+      const blackRating = game.black?.rating || '?';
+      const year = game.year || '';
+      const gameId = game.id || '';
+      const gameUrl = gameId ? `https://lichess.org/${gameId}` : '#';
+      let resultText = game.winner === 'white' ? '1-0' : game.winner === 'black' ? '0-1' : '½-½';
+      let resultColor = game.winner === 'white' ? '#fff' : game.winner === 'black' ? '#ccc' : '#f1c40f';
+      html += `<div class="game-list-item">
+        <strong>${idx + 1}.</strong> ${whitePlayer} (${whiteRating}) – ${blackPlayer} (${blackRating})${year ? `, ${year}` : ''}<br>
+        <span style="color:${resultColor};">${resultText}</span> • <a href="${gameUrl}" target="_blank">View ↗</a>
+      </div>`;
+    });
+  } else {
+    html += '<em style="color:#888;">No games found.</em>';
+  }
+  msgEl.innerHTML = html;
+  msgEl.style.display = 'block';
+}
 }

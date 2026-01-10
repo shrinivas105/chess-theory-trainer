@@ -567,7 +567,7 @@ async checkMoveQuality(prevFEN, playerUCI) {
     await this.analysisBoard.initializeAnalysis();
   }
 
-  render() {
+render() {
   if (!this.aiSource) {
     this.ui.renderMenu();
     return;
@@ -577,16 +577,20 @@ async checkMoveQuality(prevFEN, playerUCI) {
     return;
   }
 
-  // ← ADDED THIS ENTIRE SECTION
+  // If game has ended, show end summary with final board position
   if (this.gameEnded && this.endGameData) {
-    this.ui.renderGameContainer();
-    this.ui.renderBoard();
+    // First render the end summary (which creates container if needed)
     this.ui.renderEndGameSummary(
       this.endGameData.battleRank,
       this.endGameData.moveQuality,
       this.endGameData.displayEval,
       this.endGameData.gamesToShow
     );
+    
+    // Then render the board with final position (after container exists)
+    setTimeout(() => {
+      this.ui.renderBoard();
+    }, 50);
     return;
   }
 
