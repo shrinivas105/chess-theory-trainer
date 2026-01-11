@@ -611,13 +611,29 @@ async checkMoveQuality(prevFEN, playerUCI) {
     }
   }
 
-  async showAnalysis() {
+ async showAnalysis() {
     console.log('📊 Show Analysis called');
     
     if (!this.analysisBoard) {
       console.error('❌ Analysis board not initialized');
       alert('Analysis board not available. Please refresh the page.');
       return;
+    }
+    
+    // Show loading indicator
+    const app = document.getElementById('app');
+    if (app) {
+      app.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; gap: 20px;">
+          <div style="font-size: 3rem;">⚔️</div>
+          <div style="color: var(--roman-gold); font-size: 1.2rem; font-weight: bold;">
+            Analyzing Battle...
+          </div>
+          <div style="color: #888; font-size: 0.9rem;">
+            Evaluating all positions...
+          </div>
+        </div>
+      `;
     }
     
     // Make the analysis board accessible globally for onclick handlers
