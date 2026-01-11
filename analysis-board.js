@@ -13,64 +13,63 @@ class AnalysisBoard {
   }
 
 async preloadAllData() {
-    const tempGame = new Chess();
+  const tempGame = new Chess();
+  const totalPositions = this.moveHistory.length + 1;
+  let processedPositions = 0;
+  
+  // Helper to update progress
+  const updateProgress = () => {
+    processedPositions++;
+    const percentage = Math.round((processedPositions / totalPositions) * 100);
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const loadingMessage = document.getElementById('loadingMessage');
     
-    // Preload data for each position in the game
-    for (let i = 0; i <= this.moveHistory.length; i++) {
-      const positionFen = tempGame.fen();
-      
-      // Fetch and cache top moves for this position
-      if (!this.topMovesData[positionFen]) {
-        try {
-          const data = await ChessAPI.queryExplorer(this.app.aiSource, positionFen);
-          this.topMovesData[positionFen] = data.moves || [];
+    if (progressBar) progressBar.style.width = percentage + '%';
+    if (progressText) progressText.textContent = percentage + '%';
+    if (loadingMessage) {
+      if (percentage < 30) {
+        loadingMessage.textContent = 'Fetching move database...';
+      } else if (percentage < 70) {
+        loadingMessage.textContent = 'Calculating evaluations...';
+      } else {
+        loadingMessage.textContent = 'Finalizing analysis...';
+      }
+    }
+  };
+  
+  // Preload data for each position in the game
+  for (let i = 0; i <= this.moveHistory.length; i++) {
+    const positionFen = tempGame.fen();
+    
+    // Fetch and cache top moves for this position
+    if (!this.topMovesData[positionFen]) {
+      try {
+        const data = await ChessAPI.queryExplorer(this.app.aiSource, positionFen);
+        this.topMovesData[positionFen] = data.moves || [];
+        
+        // If there are moves to evaluate and this is a player move position
+        if (i < this.moveHistory.length) {
+          const isWhiteMove = i % 2 === 0;
+          const isPlayerMove = (this.app.playerColor === 'w' && isWhiteMove) || 
+                               (this.app.playerColor === 'b' && !isWhiteMove);
           
-          // If there are moves to evaluate and this is a player move position
-          if (i < this.moveHistory.length) {
-            const isWhiteMove = i % 2 === 0;
-            const isPlayerMove = (this.app.playerColor === 'w' && isWhiteMove) || 
-                                 (this.app.playerColor === 'b' && !isWhiteMove);
-            
-            const topMoves = this.topMovesData[positionFen].slice(0, 3);
-            
-            // For player moves, preload evaluations for all top 3 moves
-            // For AI moves, only preload evaluation for the move that was actually played
-            if (isPlayerMove) {
-              // Preload all top 3 move evaluations
-              for (const move of topMoves) {
-                const evalKey = `${positionFen}_${move.uci}`;
-                if (!this.evaluationCache[evalKey]) {
-                  const evalGame = new Chess(positionFen);
-                  const moveFrom = move.uci.substring(0, 2);
-                  const moveTo = move.uci.substring(2, 4);
-                  const movePromotion = move.uci.length > 4 ? move.uci[4] : undefined;
-                  
-                  evalGame.move({ from: moveFrom, to: moveTo, promotion: movePromotion });
-                  const evalFen = evalGame.fen();
-                  
-                  try {
-                    const rawEval = await ChessAPI.getEvaluation(evalFen, this.app.evalCache);
-                    this.evaluationCache[evalKey] = rawEval;
-                  } catch (err) {
-                    console.error('Error preloading eval:', err);
-                    this.evaluationCache[evalKey] = null;
-                  }
-                }
-              }
-            } else {
-              // For AI moves, only preload the actual move played
-              const actualMove = this.moveHistory[i];
-              const actualMoveUci = actualMove.from + actualMove.to + (actualMove.promotion || '');
-              const evalKey = `${positionFen}_${actualMoveUci}`;
-              
+          const topMoves = this.topMovesData[positionFen].slice(0, 3);
+          
+          // For player moves, preload evaluations for all top 3 moves
+          // For AI moves, only preload evaluation for the move that was actually played
+          if (isPlayerMove) {
+            // Preload all top 3 move evaluations
+            for (const move of topMoves) {
+              const evalKey = `${positionFen}_${move.uci}`;
               if (!this.evaluationCache[evalKey]) {
-                // Make the move to get the resulting position
-                tempGame.move({
-                  from: actualMove.from,
-                  to: actualMove.to,
-                  promotion: actualMove.promotion
-                });
-                const evalFen = tempGame.fen();
+                const evalGame = new Chess(positionFen);
+                const moveFrom = move.uci.substring(0, 2);
+                const moveTo = move.uci.substring(2, 4);
+                const movePromotion = move.uci.length > 4 ? move.uci[4] : undefined;
+                
+                evalGame.move({ from: moveFrom, to: moveTo, promotion: movePromotion });
+                const evalFen = evalGame.fen();
                 
                 try {
                   const rawEval = await ChessAPI.getEvaluation(evalFen, this.app.evalCache);
@@ -79,29 +78,56 @@ async preloadAllData() {
                   console.error('Error preloading eval:', err);
                   this.evaluationCache[evalKey] = null;
                 }
-                
-                // Undo to continue the loop properly
-                tempGame.undo();
               }
             }
+          } else {
+            // For AI moves, only preload the actual move played
+            const actualMove = this.moveHistory[i];
+            const actualMoveUci = actualMove.from + actualMove.to + (actualMove.promotion || '');
+            const evalKey = `${positionFen}_${actualMoveUci}`;
+            
+            if (!this.evaluationCache[evalKey]) {
+              // Make the move to get the resulting position
+              tempGame.move({
+                from: actualMove.from,
+                to: actualMove.to,
+                promotion: actualMove.promotion
+              });
+              const evalFen = tempGame.fen();
+              
+              try {
+                const rawEval = await ChessAPI.getEvaluation(evalFen, this.app.evalCache);
+                this.evaluationCache[evalKey] = rawEval;
+              } catch (err) {
+                console.error('Error preloading eval:', err);
+                this.evaluationCache[evalKey] = null;
+              }
+              
+              // Undo to continue the loop properly
+              tempGame.undo();
+            }
           }
-        } catch (error) {
-          console.error('Error preloading data for position:', error);
-          this.topMovesData[positionFen] = [];
         }
-      }
-      
-      // Make the next move for the next iteration
-      if (i < this.moveHistory.length) {
-        const move = this.moveHistory[i];
-        tempGame.move({
-          from: move.from,
-          to: move.to,
-          promotion: move.promotion
-        });
+      } catch (error) {
+        console.error('Error preloading data for position:', error);
+        this.topMovesData[positionFen] = [];
       }
     }
+    
+    // Update progress after processing each position
+    updateProgress();
+    
+    // Make the next move for the next iteration
+    if (i < this.moveHistory.length) {
+      const move = this.moveHistory[i];
+      tempGame.move({
+        from: move.from,
+        to: move.to,
+        promotion: move.promotion
+      });
+    }
   }
+}
 
   async initializeAnalysis() {
     console.log('🔍 Initializing analysis board...');

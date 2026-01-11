@@ -611,36 +611,53 @@ async checkMoveQuality(prevFEN, playerUCI) {
     }
   }
 
- async showAnalysis() {
-    console.log('📊 Show Analysis called');
-    
-    if (!this.analysisBoard) {
-      console.error('❌ Analysis board not initialized');
-      alert('Analysis board not available. Please refresh the page.');
-      return;
-    }
-    
-    // Show loading indicator
-    const app = document.getElementById('app');
-    if (app) {
-      app.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; gap: 20px;">
-          <div style="font-size: 3rem;">⚔️</div>
-          <div style="color: var(--roman-gold); font-size: 1.2rem; font-weight: bold;">
-            Analyzing Battle...
-          </div>
-          <div style="color: #888; font-size: 0.9rem;">
-            Evaluating all positions...
-          </div>
-        </div>
-      `;
-    }
-    
-    // Make the analysis board accessible globally for onclick handlers
-    window.analysisBoard = this.analysisBoard;
-    
-    await this.analysisBoard.initializeAnalysis();
+async showAnalysis() {
+  console.log('📊 Show Analysis called');
+  
+  if (!this.analysisBoard) {
+    console.error('❌ Analysis board not initialized');
+    alert('Analysis board not available. Please refresh the page.');
+    return;
   }
+  
+  // Show loading indicator with progress bar
+  const app = document.getElementById('app');
+  if (app) {
+    app.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; gap: 20px; padding: 20px;">
+        <div style="font-size: 3rem; animation: pulse 2s ease-in-out infinite;">⚔️</div>
+        <div style="color: var(--roman-gold); font-size: 1.2rem; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+          Analyzing Battle...
+        </div>
+        <div style="color: #fff; font-size: 0.9rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">
+          <span id="loadingMessage">Evaluating all positions...</span>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div style="width: 100%; max-width: 400px; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
+          <div id="progressBar" style="width: 0%; height: 20px; background: linear-gradient(90deg, var(--roman-gold), #d4af37, var(--roman-gold)); border-radius: 8px; transition: width 0.3s ease; box-shadow: 0 2px 8px rgba(218, 165, 32, 0.6);"></div>
+        </div>
+        
+        <div style="color: #ddd; font-size: 0.75rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+          <span id="progressText">0%</span>
+        </div>
+      </div>
+      
+      <style>
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.1); opacity: 0.8; }
+        }
+      </style>
+    `;
+  }
+  
+  // Make the analysis board accessible globally for onclick handlers
+  window.analysisBoard = this.analysisBoard;
+  
+  await this.analysisBoard.initializeAnalysis();
+}
+
 
 render() {
   if (!this.aiSource) {
