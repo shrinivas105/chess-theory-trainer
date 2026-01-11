@@ -364,32 +364,16 @@ async checkMoveQuality(prevFEN, playerUCI) {
     }
   }
 
-  async getHints() {
-    if (this.hintUsed) return;
-    const fen = this.game.fen();
-    try {
-      const data = await ChessAPI.queryExplorer(this.aiSource, fen);
-      const topMoves = data.moves ? data.moves.slice(0, 5) : [];
-      let commanderText = '';
-      if (topMoves.length === 0) {
-        commanderText = '<em>No moves available in database.</em>';
-      } else {
-        const moveNames = topMoves.map(m => m.san);
-        const first = moveNames[0];
-        const second = moveNames[1];
-        const others = moveNames.slice(2);
-        commanderText = `🎖️ <strong>Commander speaks:</strong><br><br>
-        "Soldier, I have seen this position many times.`;
-        commanderText += ` March with <strong>${first}</strong> — the most proven line.`;
-        if (second) commanderText += ` Or <strong>${second}</strong>, trusted by many.`;
-        if (others.length > 0) {
-          const othersList = others.join(', ');
-          commanderText += ` Other paths: <strong>${othersList}</strong>.`;
-        }
-        commanderText += ` The choice is yours. Good luck."`;
-      }
+ async getHints() {
+  if (this.hintUsed) return;
+  const fen = this.game.fen();
+  try {
+    const data = await ChessAPI.queryExplorer(this.aiSource, fen);
+    const topMoves = data.moves ? data.moves.slice(0, 5) : [];
+    
+    if (topMoves.length === 0) {
       const msgEl = document.getElementById('theoryMessage');
-      msgEl.innerHTML = commanderText;
+      msgEl.innerHTML = '<em>No moves available in database.</em>';
       msgEl.style.display = 'block';
       this.hintUsed = true;
       const hintBtn = document.getElementById('hintBtn');
@@ -397,11 +381,105 @@ async checkMoveQuality(prevFEN, playerUCI) {
         hintBtn.disabled = true;
         hintBtn.textContent = '✓ Consulted';
       }
-    } catch (error) {
-      document.getElementById('theoryMessage').innerHTML = '<em>Unable to fetch hints.</em>';
-      document.getElementById('theoryMessage').style.display = 'block';
+      return;
     }
+    
+    const totalGames = (data.white || 0) + (data.draws || 0) + (data.black || 0);
+    let commanderText = '';
+    
+    // Determine threshold based on source: 50 for master, 500 for lichess
+    const threshold = this.aiSource === 'master' ? 50 : 500;
+    
+    // NEW LOGIC: If total games >= threshold, use intelligent recommendations
+    if (totalGames >= threshold && topMoves.length >= 3) {
+      const top3 = topMoves.slice(0, 3);
+      
+      // Calculate win percentages for player's color
+      const movesWithStats = top3.map(move => {
+        const moveTotal = move.white + move.draws + move.black;
+        const winPct = this.playerColor === 'w' 
+          ? (move.white / moveTotal) * 100 
+          : (move.black / moveTotal) * 100;
+        return {
+          san: move.san,
+          games: moveTotal,
+          winPct: winPct
+        };
+      });
+      
+      // Find most popular (most games)
+      const mostPopular = movesWithStats.reduce((max, move) => 
+        move.games > max.games ? move : max
+      );
+      
+      // Find highest win percentage
+      const highestWin = movesWithStats.reduce((max, move) => 
+        move.winPct > max.winPct ? move : max
+      );
+      
+      // Build commander message
+      commanderText = `🎖️ <strong>Commander speaks:</strong><br><br>"Soldier, I have seen this position many times.`;
+      
+      // Check if same move is both most popular AND highest win%
+      if (mostPopular.san === highestWin.san) {
+        commanderText += ` <strong>${mostPopular.san}</strong> is the most popular and strongest path — tried ${mostPopular.games.toLocaleString()} times with ${mostPopular.winPct.toFixed(1)}% victories!`;
+        
+        // Show second best option
+        const remaining = movesWithStats.filter(m => m.san !== mostPopular.san);
+        if (remaining.length > 0) {
+          const secondBest = remaining[0];
+          commanderText += ` Also consider <strong>${secondBest.san}</strong> — ${secondBest.games.toLocaleString()} games, ${secondBest.winPct.toFixed(1)}% win rate.`;
+        }
+      } else {
+        // Different moves for popularity and win rate
+        commanderText += ` The most popular path is <strong>${mostPopular.san}</strong> — tried ${mostPopular.games.toLocaleString()} times.`;
+        commanderText += ` Going for blood? March with <strong>${highestWin.san}</strong> — ${highestWin.winPct.toFixed(1)}% victories.`;
+      }
+      
+      // Add remaining alternatives (moves 4 and 5, or remaining from top 3)
+      const shownMoves = new Set([mostPopular.san, highestWin.san]);
+      const remaining = topMoves
+        .filter(m => !shownMoves.has(m.san))
+        .map(m => m.san)
+        .slice(0, 3);
+      
+      if (remaining.length > 0) {
+        commanderText += ` Other paths: <strong>${remaining.join(', ')}</strong>.`;
+      }
+      
+      commanderText += ` The choice is yours. Good luck."`;
+      
+    } else {
+      // EXISTING LOGIC: For positions below threshold
+      const moveNames = topMoves.map(m => m.san);
+      const first = moveNames[0];
+      const second = moveNames[1];
+      const others = moveNames.slice(2);
+      
+      commanderText = `🎖️ <strong>Commander speaks:</strong><br><br>"Soldier, I have seen this position many times.`;
+      commanderText += ` March with <strong>${first}</strong> — the most proven line.`;
+      if (second) commanderText += ` Or <strong>${second}</strong>, trusted by many.`;
+      if (others.length > 0) {
+        const othersList = others.join(', ');
+        commanderText += ` Other paths: <strong>${others.join(', ')}</strong>.`;
+      }
+      commanderText += ` The choice is yours. Good luck."`;
+    }
+    
+    const msgEl = document.getElementById('theoryMessage');
+    msgEl.innerHTML = commanderText;
+    msgEl.style.display = 'block';
+    this.hintUsed = true;
+    const hintBtn = document.getElementById('hintBtn');
+    if (hintBtn) {
+      hintBtn.disabled = true;
+      hintBtn.textContent = '✓ Consulted';
+    }
+  } catch (error) {
+    document.getElementById('theoryMessage').innerHTML = '<em>Unable to fetch hints.</em>';
+    document.getElementById('theoryMessage').style.display = 'block';
   }
+}
 
   async aiMove() {
     const fen = this.game.fen();
