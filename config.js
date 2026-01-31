@@ -10,6 +10,7 @@ const SKIP_QUALITY_MOVES = 4;  // Skip quality check for first N player moves (o
 // ACCURACY BONUS THRESHOLDS
 // Hidden bonus for maintaining high quality over longer battles
 // Only awarded when final eval >= +0.5
+// Master campaign skips this entirely (see scoring.js).
 // ========================================
 const ACCURACY_BONUS = {
   minQuality: 90,      // Minimum quality percentage required (90%)
@@ -24,12 +25,88 @@ const ACCURACY_BONUS = {
 // ========================================
 // MASTER CAMPAIGN WEIGHTS
 // ========================================
+// Game ends the moment the position leaves the opening book.
+//
+//   depth   (60%) → GATES the rank band. Primary rank driver.
+//   eval    (30%) → PRIMARY fine-tuner. Zoned (see MASTER_THEORY_DEPTH).
+//                   Can cross into an adjacent band on a winning line.
+//   quality (10%) → SECONDARY fine-tuner. Players usually hit high
+//                   quality in theory so this is not a differentiator.
 const MASTER_WEIGHTS = {
-  moves: 0.25,        // 25% - Number of moves played
-  quality: 0.40,      // 40% - Move quality (top 3 choices)
-  evaluation: 0.35,   // 35% - Final position evaluation
-  movesMultiplier: 4, // Points per move (moves × 4)
-  evalMultiplier: 12  // Evaluation scaling ((eval + 3) × 12)
+  depth: 0.60,        // 60% — theory depth (gates the rank band)
+  evaluation: 0.30,   // 30% — eval fine-tuner (zoned, can cross one band border)
+  quality: 0.10       // 10% — quality fine-tuner (stays within band)
+};
+
+// ========================================
+// MASTER CAMPAIGN - THEORY DEPTH SCORING
+// ========================================
+// Depth picks a BASE SCORE at the midpoint of each rank band.
+// Eval and quality then adjust around that base using the
+// zone logic defined below.
+//
+//   Rank          Score Range    Base Score   Theory Depth
+//   ────────────────────────────────────────────────────────
+//   Imperator     85 – 100       92.5         > 20 moves
+//   Triarius      70 – 84        77           > 15 moves
+//   Principes     55 – 69        62           > 10 moves
+//   Hastatus      40 – 54        47           >  5 moves
+//   Levy           0 – 39        19.5         ≤  5 moves
+//
+const MASTER_THEORY_DEPTH = {
+  tiers: [
+    { minMoves: 21, baseScore: 92.5, name: 'Imperator' },
+    { minMoves: 16, baseScore: 77,   name: 'Triarius' },
+    { minMoves: 11, baseScore: 62,   name: 'Principes' },
+    { minMoves: 6,  baseScore: 47,   name: 'Hastatus' },
+    { minMoves: 0,  baseScore: 19.5, name: 'Levy' }
+  ],
+
+  // --- Eval zones (piecewise, symmetric around 0) ---
+  //
+  // Eval is NOT linearly normalized. It is mapped through three zones:
+  //
+  //   Zone         Eval Range       Meaning              evalAdj
+  //   ──────────── ──────────────── ──────────────────── ──────────────────
+  //   Winning-     < -1.5           Losing badly         -7.5 → -15
+  //   Good-        -1.5 to -0.5     Slight disadvantage  -7.5 →  0
+  //   Equal        -0.5 to +0.5     Position is equal     0  (flat, no effect)
+  //   Good+        +0.5 to +1.5     Good advantage        0  → +7.5
+  //   Winning+     > +1.5           Winning advantage    +7.5 → +15
+  //   ──────────── ──────────────── ──────────────────── ──────────────────
+  //
+  // Why piecewise and not linear:
+  //   -0.5 to +0.5 is engine noise in the opening. Punishing or rewarding
+  //   it would be arbitrary. The Equal zone is a flat dead zone — no effect.
+  //   Good zone ramps steeply (7.5 pts per 1.0 eval) because the jump from
+  //   equal to good IS meaningful. Winning zone ramps slower (7.5 pts per
+  //   1.5 eval) — diminishing returns once you're already winning.
+  //
+  // Piecewise formula (see scoring.js for implementation):
+  //   eval < -1.5           → evalAdj = -7.5 + ((eval + 1.5) / 1.5) × 7.5   clamp min -15
+  //   -1.5 ≤ eval < -0.5   → evalAdj = ((eval + 0.5) / 1.0) × 7.5          scales -7.5 to 0
+  //   -0.5 ≤ eval ≤ +0.5   → evalAdj = 0                                     dead zone
+  //   +0.5 < eval ≤ +1.5   → evalAdj = ((eval - 0.5) / 1.0) × 7.5          scales 0 to +7.5
+  //   eval > +1.5           → evalAdj = 7.5 + ((eval - 1.5) / 1.5) × 7.5    clamp max +15
+  //
+  eval: {
+    equalMin: -0.5,       // Lower bound of equal zone
+    equalMax: 0.5,        // Upper bound of equal zone
+    goodMax: 1.5,         // Good zone ends / Winning zone starts
+    winningCap: 3.0,      // Eval values beyond this are clamped
+    goodSwing: 7.5,       // Max adjustment at end of Good zone (±7.5)
+    winningSwing: 15      // Max adjustment at Winning cap (±15 = 1 full band width)
+  },
+
+  // --- Quality adjustment ---
+  // Quality (0–100) maps to a ± swing within the band only.
+  //   qualAdj = (quality - 50) / 50 × qualitySwingMax
+  //
+  //   quality   0  → -3.75
+  //   quality  50  →  0
+  //   quality 100  → +3.75
+  //
+  qualitySwingMax: 3.75
 };
 
 // ========================================
@@ -45,12 +122,11 @@ const CLUB_WEIGHTS = {
 
 // ========================================
 // MASTER CAMPAIGN - PENALTY MULTIPLIERS
-// Applied to total score based on final position
 // ========================================
+// Not applicable — game ends at theory exit, eval never diverges.
+// Kept as no-op for structure consistency.
 const MASTER_PENALTY_MULTIPLIERS = {
-  catastrophic: 0.3,  // eval ≤ -3 (70% penalty, max 30 points)
-  poor: 0.8,          // -3 < eval < -1.5 (20% penalty, max 60 points)
-  acceptable: 1.0     // eval ≥ -1.5 (no penalty, max 100 points)
+  acceptable: 1.0
 };
 
 // ========================================
@@ -65,12 +141,10 @@ const CLUB_PENALTY_MULTIPLIERS = {
 
 // ========================================
 // MASTER CAMPAIGN - EVALUATION THRESHOLDS
-// Used to determine penalty multipliers
 // ========================================
-const MASTER_EVAL_THRESHOLDS = {
-  catastrophic: -3,   // Total rout - shattered position
-  poor: -1.5          // Broken lines - losing ground
-};
+// Not applicable — game ends at theory exit.
+// Kept as no-op for structure consistency.
+const MASTER_EVAL_THRESHOLDS = {};
 
 // ========================================
 // CLUB CAMPAIGN - EVALUATION THRESHOLDS

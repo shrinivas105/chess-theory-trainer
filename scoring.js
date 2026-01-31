@@ -12,6 +12,7 @@ class Scoring {
   
   // Calculate accuracy bonus based on moves, quality, and evaluation
   // Hidden bonus - only awarded when eval >= +0.5
+  // Skipped entirely for Master (depth-based scoring makes this redundant)
   static getAccuracyBonus(playerMoves, qualityPercent, playerEval) {
     // Must meet quality AND evaluation requirements
     if (qualityPercent < ACCURACY_BONUS.minQuality || playerEval < ACCURACY_BONUS.minEval) {
@@ -26,12 +27,89 @@ class Scoring {
     
     return { bonus: 0, tier: null };
   }
-  
+
+  // ──────────────────────────────────────────────────────────────
+  // MASTER SCORING: Zoned eval piecewise function
+  // Reads MASTER_THEORY_DEPTH.eval config for all thresholds.
+  //
+  //   eval < equalMin            → scales from -goodSwing down to -winningSwing
+  //   equalMin ≤ eval < goodMax  → scales from -goodSwing up to 0
+  //   -equalMax ≤ eval ≤ equalMax → 0  (dead zone)
+  //   equalMax < eval ≤ goodMax  → scales from 0 up to +goodSwing
+  //   eval > goodMax             → scales from +goodSwing up to +winningSwing
+  // ──────────────────────────────────────────────────────────────
+  static getEvalAdjustment(eval_) {
+    const cfg = MASTER_THEORY_DEPTH.eval;
+    const { equalMin, equalMax, goodMax, winningCap, goodSwing, winningSwing } = cfg;
+
+    // Clamp eval to ± winningCap before calculating
+    const e = Math.max(-winningCap, Math.min(winningCap, eval_));
+
+    // Equal zone — flat, no effect
+    if (e >= equalMin && e <= equalMax) {
+      return 0;
+    }
+
+    // Positive side
+    if (e > equalMax) {
+      if (e <= goodMax) {
+        // Good+ zone: scales 0 → +goodSwing
+        return ((e - equalMax) / (goodMax - equalMax)) * goodSwing;
+      } else {
+        // Winning+ zone: scales +goodSwing → +winningSwing
+        return goodSwing + ((e - goodMax) / (winningCap - goodMax)) * (winningSwing - goodSwing);
+      }
+    }
+
+    // Negative side (mirror)
+    if (e < equalMin) {
+      if (e >= -goodMax) {
+        // Good- zone: scales 0 → -goodSwing
+        return ((e - equalMin) / (goodMax - equalMax)) * goodSwing;
+      } else {
+        // Winning- zone: scales -goodSwing → -winningSwing
+        return -goodSwing + ((e + goodMax) / (winningCap - goodMax)) * (winningSwing - goodSwing);
+      }
+    }
+
+    return 0; // fallback (shouldn't reach)
+  }
+
   static getTotalScore(m, t, e, source = 'master', qualityTrackedMoves = null) {
-    // Select weights based on campaign type
-    const weights = source === 'master' ? MASTER_WEIGHTS : CLUB_WEIGHTS;
-    const penaltyMultipliers = source === 'master' ? MASTER_PENALTY_MULTIPLIERS : CLUB_PENALTY_MULTIPLIERS;
-    const evalThresholds = source === 'master' ? MASTER_EVAL_THRESHOLDS : CLUB_EVAL_THRESHOLDS;
+    // ─── MASTER: depth-based zoned scoring ───────────────────────
+    if (source === 'master') {
+      const theoryDepth = m; // game ends at theory exit, so playerMoves = theory depth
+
+      // 1. Pick base score from depth tier
+      let baseScore = MASTER_THEORY_DEPTH.tiers[MASTER_THEORY_DEPTH.tiers.length - 1].baseScore; // default: Levy
+      for (const tier of MASTER_THEORY_DEPTH.tiers) {
+        if (theoryDepth >= tier.minMoves) {
+          baseScore = tier.baseScore;
+          break;
+        }
+      }
+
+      // 2. Eval adjustment (piecewise zoned)
+      const evalAdj = this.getEvalAdjustment(e);
+
+      // 3. Quality adjustment
+      const movesForQuality = qualityTrackedMoves !== null ? qualityTrackedMoves : m;
+      const qualityPercent = this.getMoveQuality(t, movesForQuality);
+      const qualAdj = ((qualityPercent - 50) / 50) * MASTER_THEORY_DEPTH.qualitySwingMax;
+
+      // 4. Final score — clamp to [0, 100]
+      const finalScore = Math.round(Math.min(100, Math.max(0, baseScore + evalAdj + qualAdj)));
+
+      return {
+        score: finalScore,
+        penaltyReason: ''  // no penalty system in Master
+      };
+    }
+
+    // ─── CLUB: original scoring logic (unchanged) ────────────────
+    const weights = CLUB_WEIGHTS;
+    const penaltyMultipliers = CLUB_PENALTY_MULTIPLIERS;
+    const evalThresholds = CLUB_EVAL_THRESHOLDS;
     
     // Calculate component scores
     const ms = m * weights.movesMultiplier * weights.moves;
@@ -85,18 +163,29 @@ class Scoring {
   
   static getBattleRank(s, e, r, source = 'master') {
     const t = BATTLE_RANK_THRESHOLDS;
-    const evalThresholds = source === 'master' ? MASTER_EVAL_THRESHOLDS : CLUB_EVAL_THRESHOLDS;
     let n;
-    
-    if (e <= evalThresholds.catastrophic) {
-      n = 'Levy';
-    } else if (e < evalThresholds.poor) {
-      n = s >= t.hastatus ? 'Hastatus' : 'Levy';
+
+    if (source === 'master') {
+      // Master: score already has the rank baked in via depth + zoned eval.
+      // Pure score lookup — no eval overrides needed.
+      n = s >= t.imperator ? 'Imperator' :
+          s >= t.triarius  ? 'Triarius' :
+          s >= t.principes ? 'Principes' :
+          s >= t.hastatus  ? 'Hastatus' : 'Levy';
     } else {
-      n = s >= t.imperator ? 'Imperator' : 
-          s >= t.triarius ? 'Triarius' : 
-          s >= t.principes ? 'Principes' : 
-          s >= t.hastatus ? 'Hastatus' : 'Levy';
+      // Club: original logic with eval-based overrides (unchanged)
+      const evalThresholds = CLUB_EVAL_THRESHOLDS;
+
+      if (e <= evalThresholds.catastrophic) {
+        n = 'Levy';
+      } else if (e < evalThresholds.poor) {
+        n = s >= t.hastatus ? 'Hastatus' : 'Levy';
+      } else {
+        n = s >= t.imperator ? 'Imperator' : 
+            s >= t.triarius  ? 'Triarius' : 
+            s >= t.principes ? 'Principes' : 
+            s >= t.hastatus  ? 'Hastatus' : 'Levy';
+      }
     }
     
     const rks = {
@@ -186,29 +275,34 @@ class Scoring {
         if (battlesPlayed === 1 && eliteCount === 0) {
           return inSafetyNet
             ? '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 4 battles or lose all your gained Tribunus merits!'
-            : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 4 battles or be demoted to Centurion!';
+            : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 4 battles or face demotion to Centurion!';
         }
         
-        // After 2 battles with <1 elite
-        if (battlesPlayed === 2 && eliteCount < 1) {
-          return inSafetyNet
-            ? '⚔️ Commander: Tribunus, you MUST score <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 3 battles or lose all your gained Tribunus merits!'
-            : '⚔️ Commander: Tribunus, you MUST score <span style="color:#e74c3c">3 Triarius or Imperator</span> in your next 3 battles or face demotion to Centurion!';
+        // After 2 battles - check if still achievable
+        if (battlesPlayed === 2) {
+          if (neededElite === 3) {
+            // Need all 3 remaining (still possible but tight)
+            return inSafetyNet
+              ? '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">Triarius or Imperator in ALL remaining battles</span> or lose all your gained Tribunus merits!'
+              : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">Triarius or Imperator in ALL remaining battles</span> or face demotion to Centurion!';
+          } else if (neededElite === 2) {
+            return inSafetyNet
+              ? '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">2 more Triarius or Imperator</span> in 3 battles or lose all your gained Tribunus merits!'
+              : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">2 more Triarius or Imperator</span> in 3 battles or face demotion to Centurion!';
+          }
         }
         
-        // After 3 battles - only show warning if still achievable
+        // After 3 battles
         if (battlesPlayed === 3) {
-          // Don't show warning for 0 elite (impossible - immediate demotion)
           if (neededElite === 2) {
-            // 1 elite so far - need 2 more in 2 battles
+            // Need both remaining (still possible)
             return inSafetyNet
-              ? '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">2 more Triarius/Imperator</span> in your last 2 battles or lose all your gained Tribunus merits!'
-              : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">2 more Triarius/Imperator</span> in your last 2 battles or be demoted to Centurion!';
+              ? '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">Triarius or Imperator in BOTH remaining battles</span> or lose all your gained Tribunus merits!'
+              : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">Triarius or Imperator in BOTH remaining battles</span> or face demotion to Centurion!';
           } else if (neededElite === 1) {
-            // 2 elite so far - need 1 more
             return inSafetyNet
-              ? '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">1 more Triarius/Imperator</span> in your last 2 battles or lose all your gained Tribunus merits!'
-              : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">1 more Triarius/Imperator</span> in your last 2 battles or be demoted to Centurion!';
+              ? '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">1 more Triarius or Imperator</span> in 2 battles or lose all your gained Tribunus merits!'
+              : '⚔️ Commander: Tribunus, you need <span style="color:#e74c3c">1 more Triarius or Imperator</span> in 2 battles or face demotion to Centurion!';
           }
         }
         
