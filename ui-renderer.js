@@ -1,9 +1,147 @@
 // ui-renderer.js - Handles all UI rendering logic
 // UPDATED: Fixed auth section to be positioned fixed at top right
 
+// ──────────────────────────────────────────────
+// DONATION CONFIG — replace the slug once you have
+// your Ko-fi page set up at ko-fi.com.
+// Ko-fi takes zero platform fee on donations.
+// Set your page currency to INR in Ko-fi settings
+// so Indian donors pay directly in ₹ via UPI.
+// ──────────────────────────────────────────────
+const KOFI_SLUG = 'your-kofi-slug';
+
+// ──────────────────────────────────────────────
+// SUPPORTERS LIST — add donors here manually.
+// Only add someone if they've given permission.
+// Each entry: { name, country }
+//   name    → displayed as-is
+//   country → two-letter ISO code (used for flag emoji)
+//             e.g. 'IN' = India, 'US' = USA, 'GB' = UK
+// ──────────────────────────────────────────────
+const SUPPORTERS = [
+  // { name: 'Arjun',   country: 'IN' },
+  // { name: 'Sarah',   country: 'US' },
+  // { name: 'Marcus',  country: 'DE' },
+];
+
 class UIRenderer {
   constructor(app) {
     this.app = app;
+  }
+
+  // Converts a 2-letter ISO country code to a flag emoji.
+  // Falls back to the raw code in brackets if the emoji
+  // doesn't render (e.g. some Windows builds).
+  toFlag(code) {
+    try {
+      return code.toUpperCase().split('').map(
+        c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)
+      ).join('');
+    } catch {
+      return `[${code.toUpperCase()}]`;
+    }
+  }
+
+  // Renders the supporters list HTML.
+  // Returns empty string when the array is empty
+  // so the toggle doesn't appear at all until there's
+  // at least one supporter.
+  renderSupporters() {
+    if (SUPPORTERS.length === 0) return '';
+
+    const list = SUPPORTERS.map(s =>
+      `<div class="supporter-item">
+        <span class="supporter-flag">${this.toFlag(s.country)}</span>
+        <span class="supporter-name">${s.name}</span>
+      </div>`
+    ).join('');
+
+    return `
+      <button class="credits-toggle" id="supportersToggle">
+        <span>🙏 Supporters</span>
+        <span id="supportersArrow">▼</span>
+      </button>
+      <div id="supportersContent" class="supporters-content" style="display:none;">
+        <div class="supporters-list">${list}</div>
+      </div>
+    `;
+  }
+
+  // ──────────────────────────────────────────────
+  // Shared footer: donation button + credits.
+  // Called by renderMenu() and renderEndGameSummary().
+  // ──────────────────────────────────────────────
+  renderFooter() {
+    return `
+      <div class="footer-section">
+        <a href="https://ko-fi.com/${KOFI_SLUG}"
+           target="_blank" rel="noopener noreferrer"
+           class="coffee-btn">
+          ☕ Support Me on Ko-fi
+        </a>
+        ${this.renderSupporters()}
+        <button class="credits-toggle" id="creditsToggle">
+          <span>📜 Credits &amp; Thanks</span>
+          <span id="creditsArrow">▼</span>
+        </button>
+        <div id="creditsContent" class="credits-content" style="display:none;">
+          <p>This project runs on the shoulders of these open services:</p>
+          <div class="credits-row">
+            <a href="https://lichess.org/patron" target="_blank" rel="noopener noreferrer" class="credits-link">
+              <span class="credits-icon">♟️</span>
+              <span class="credits-text">
+                <strong>Lichess</strong><br>
+                <em>Masters &amp; Club opening database (explorer.lichess.ovh)</em>
+              </span>
+            </a>
+            <a href="https://chess-api.com" target="_blank" rel="noopener noreferrer" class="credits-link">
+              <span class="credits-icon">🧠</span>
+              <span class="credits-text">
+                <strong>Chess-API</strong><br>
+                <em>Position evaluation engine</em>
+              </span>
+            </a>
+            <a href="https://www.wikimedia.org/" target="_blank" rel="noopener noreferrer" class="credits-link">
+              <span class="credits-icon">🖼️</span>
+              <span class="credits-text">
+                <strong>Wikimedia Commons</strong><br>
+                <em>Chess piece artwork</em>
+              </span>
+            </a>
+          </div>
+          <p class="credits-note">
+            Lichess is a free, open-source chess charity. If you enjoy
+            this app, consider becoming a
+            <a href="https://lichess.org/patron" target="_blank" rel="noopener noreferrer">Lichess Patron</a> too.
+          </p>
+        </div>
+      </div>
+    `;
+  }
+
+  // Wires up the credits and supporters toggles after footer HTML is in the DOM.
+  bindFooter() {
+    const creditsToggle  = document.getElementById('creditsToggle');
+    const creditsContent = document.getElementById('creditsContent');
+    const creditsArrow   = document.getElementById('creditsArrow');
+    if (creditsToggle) {
+      creditsToggle.onclick = () => {
+        const open = creditsContent.style.display === 'block';
+        creditsContent.style.display = open ? 'none' : 'block';
+        creditsArrow.textContent = open ? '▼' : '▲';
+      };
+    }
+
+    const suppToggle  = document.getElementById('supportersToggle');
+    const suppContent = document.getElementById('supportersContent');
+    const suppArrow   = document.getElementById('supportersArrow');
+    if (suppToggle) {
+      suppToggle.onclick = () => {
+        const open = suppContent.style.display === 'block';
+        suppContent.style.display = open ? 'none' : 'block';
+        suppArrow.textContent = open ? '▼' : '▲';
+      };
+    }
   }
 
   renderBattleHistory(source) {
@@ -212,12 +350,14 @@ class UIRenderer {
             </div>
           </div>
         </div>
+
+        ${this.renderFooter()}
       </div>
     `;
     
     // Render auth section as fixed element
     this.renderAuthSection();
-    
+    this.bindFooter();
    // document.getElementById('masterBtn').onclick = () => this.app.selectSource('master');
     //document.getElementById('lichessBtn').onclick = () => this.app.selectSource('lichess');
 	document.getElementById('masterBtn').onclick = () => {
@@ -479,6 +619,12 @@ document.getElementById('lichessBtn').onclick = () => {
         📋 Copy
       </button>
     </div>
+
+    <a href="https://ko-fi.com/${KOFI_SLUG}"
+       target="_blank" rel="noopener noreferrer"
+       class="coffee-btn" style="margin-top:10px;">
+      ☕ Support Me on Ko-fi
+    </a>
   `;
   summaryEl.style.display = 'block';
 
