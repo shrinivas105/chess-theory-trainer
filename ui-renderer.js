@@ -2,13 +2,12 @@
 // UPDATED: Fixed auth section to be positioned fixed at top right
 
 // ──────────────────────────────────────────────
-// DONATION CONFIG — replace the slug once you have
-// your Ko-fi page set up at ko-fi.com.
-// Ko-fi takes zero platform fee on donations.
-// Set your page currency to INR in Ko-fi settings
-// so Indian donors pay directly in ₹ via UPI.
+// DONATION CONFIG
+// Replace with your PayPal.me link.
+// PayPal accepts USD (and all major currencies)
+// and converts to INR on payout to your bank.
 // ──────────────────────────────────────────────
-const KOFI_SLUG = 'your-kofi-slug';
+const DONATION_PAYPAL = 'https://paypal.me/yourhandle'; // ← replace this
 
 // ──────────────────────────────────────────────
 // SUPPORTERS LIST — add donors here manually.
@@ -40,6 +39,19 @@ class UIRenderer {
     } catch {
       return `[${code.toUpperCase()}]`;
     }
+  }
+
+  // Single PayPal donation button.
+  renderDonateButtons() {
+    return `
+      <div class="donate-wrap">
+        <a href="${DONATION_PAYPAL}" target="_blank" rel="noopener noreferrer"
+           class="coffee-btn coffee-btn--primary"
+           style="color:#ffffff !important; text-decoration:none !important; font-size:0.85rem;">
+          ☕ Enjoyed this game ? Leave a tip using Paypal
+        </a>
+      </div>
+    `;
   }
 
   // Renders the supporters list HTML.
@@ -74,45 +86,19 @@ class UIRenderer {
   renderFooter() {
     return `
       <div class="footer-section">
-        <a href="https://ko-fi.com/${KOFI_SLUG}"
-           target="_blank" rel="noopener noreferrer"
-           class="coffee-btn">
-          ☕ Support Me on Ko-fi
-        </a>
+        ${this.renderDonateButtons()}
         ${this.renderSupporters()}
         <button class="credits-toggle" id="creditsToggle">
-          <span>📜 Credits &amp; Thanks</span>
+          <span>about</span>
           <span id="creditsArrow">▼</span>
         </button>
         <div id="creditsContent" class="credits-content" style="display:none;">
-          <p>This project runs on the shoulders of these open services:</p>
-          <div class="credits-row">
-            <a href="https://lichess.org/patron" target="_blank" rel="noopener noreferrer" class="credits-link">
-              <span class="credits-icon">♟️</span>
-              <span class="credits-text">
-                <strong>Lichess</strong><br>
-                <em>Masters &amp; Club opening database (explorer.lichess.ovh)</em>
-              </span>
-            </a>
-            <a href="https://chess-api.com" target="_blank" rel="noopener noreferrer" class="credits-link">
-              <span class="credits-icon">🧠</span>
-              <span class="credits-text">
-                <strong>Chess-API</strong><br>
-                <em>Position evaluation engine</em>
-              </span>
-            </a>
-            <a href="https://www.wikimedia.org/" target="_blank" rel="noopener noreferrer" class="credits-link">
-              <span class="credits-icon">🖼️</span>
-              <span class="credits-text">
-                <strong>Wikimedia Commons</strong><br>
-                <em>Chess piece artwork</em>
-              </span>
-            </a>
-          </div>
-          <p class="credits-note">
-            Lichess is a free, open-source chess charity. If you enjoy
-            this app, consider becoming a
-            <a href="https://lichess.org/patron" target="_blank" rel="noopener noreferrer">Lichess Patron</a> too.
+          <p class="footer-note">
+            This is a completely free application — no subscriptions, no paywalls.<br>
+            If you enjoy it, support me via PayPal above or reach out at
+            <a href="mailto:linesofthelegion@gmail.com">linesofthelegion@gmail.com</a><br>
+            Thanks to <a href="https://lichess.org" target="_blank" rel="noopener noreferrer">Lichess</a>
+            and <a href="https://chess-api.com" target="_blank" rel="noopener noreferrer">Chess-API</a> for their free APIs.
           </p>
         </div>
       </div>
@@ -620,11 +606,9 @@ document.getElementById('lichessBtn').onclick = () => {
       </button>
     </div>
 
-    <a href="https://ko-fi.com/${KOFI_SLUG}"
-       target="_blank" rel="noopener noreferrer"
-       class="coffee-btn" style="margin-top:10px;">
-      ☕ Support Me on Ko-fi
-    </a>
+    <div style="margin-top:10px;">
+      ${this.renderDonateButtons()}
+    </div>
   `;
   summaryEl.style.display = 'block';
 
