@@ -323,12 +323,20 @@ class Scoring {
   }
   
   // Check if demotion should occur (with safety net)
+  // FIX: Include newBattleRank in levy/hastatus counts for Legionary and Optio
+  // so demotion fires immediately on the triggering battle (not 1 battle late).
+  // Centurion/Tribunus already check newBattleRank directly — no change needed there.
   static checkDemotion(rankTitle, recentRanks, newBattleRank, currentMerit = 0) {
     if (rankTitle === 'Recruit') return null;
-    
-    const levy = recentRanks.filter(r => r === 'Levy').length;
-    const hastatus = recentRanks.filter(r => r === 'Hastatus').length;
-    const triarius = recentRanks.filter(r => r === 'Triarius').length;
+
+    // ── FIX: merge current battle into counts for Legionary/Optio checks ──
+    const allRanks = [...recentRanks, newBattleRank];
+    const levy     = allRanks.filter(r => r === 'Levy').length;
+    const hastatus = allRanks.filter(r => r === 'Hastatus').length;
+
+    // Keep original recentRanks for Centurion/Tribunus elite tracking
+    // (those ranks check newBattleRank directly, so no change needed there)
+    const triarius  = recentRanks.filter(r => r === 'Triarius').length;
     const imperator = recentRanks.filter(r => r === 'Imperator').length;
     const eliteCount = triarius + imperator;
     
@@ -337,6 +345,7 @@ class Scoring {
     const inSafetyNet = safetyThreshold && currentMerit >= safetyThreshold;
     
     // Legionary: 2 Levy → Recruit or reset
+    // (now counts current battle — fires immediately on 2nd Levy)
     if (rankTitle === 'Legionary' && levy >= 2) {
       if (inSafetyNet) {
         return {
@@ -356,6 +365,7 @@ class Scoring {
     }
     
     // Optio: 2 Levy OR 2 Hastatus OR (1 Levy + 1 Hastatus) → Legionary or reset
+    // (now counts current battle — fires immediately on the triggering battle)
     if (rankTitle === 'Optio' && (levy >= 2 || hastatus >= 2 || (levy >= 1 && hastatus >= 1))) {
       if (inSafetyNet) {
         return {
