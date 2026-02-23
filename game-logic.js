@@ -602,6 +602,9 @@ async checkMoveQuality(prevFEN, playerUCI) {
     recentRanks.push(battleRank.title);
     if (recentRanks.length > 5) recentRanks.shift();
     this.setRecentBattleRanks(this.aiSource, recentRanks);
+    
+    // Save the updated battle history (merit was already saved in updateLegionMerit)
+    await this.saveAllProgress();
 
     // Use qualityTrackedMoves for display quality percentage
     const moveQuality = Scoring.getMoveQuality(this.topMoveChoices, this.qualityTrackedMoves);
