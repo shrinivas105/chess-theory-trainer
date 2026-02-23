@@ -595,16 +595,19 @@ async checkMoveQuality(prevFEN, playerUCI) {
     // Otherwise, if you have a Triarius as your 6th-oldest battle,
     // it gets shifted out BEFORE the promotion check, causing unfair resets.
     const recentRanksBeforeUpdate = this.getRecentBattleRanks(this.aiSource);
-    await this.updateLegionMerit(score, battleRank.title, recentRanksBeforeUpdate);
+    const rankChanged = await this.updateLegionMerit(score, battleRank.title, recentRanksBeforeUpdate);
 
-    // Now update the battle history array with the new battle
-    const recentRanks = this.getRecentBattleRanks(this.aiSource);
-    recentRanks.push(battleRank.title);
-    if (recentRanks.length > 5) recentRanks.shift();
-    this.setRecentBattleRanks(this.aiSource, recentRanks);
-    
-    // Save the updated battle history (merit was already saved in updateLegionMerit)
-    await this.saveAllProgress();
+    // Only add the new battle to history if no promotion/demotion occurred
+    // (promotion/demotion clears history, so we shouldn't re-add the triggering battle)
+    if (!rankChanged) {
+      const recentRanks = this.getRecentBattleRanks(this.aiSource);
+      recentRanks.push(battleRank.title);
+      if (recentRanks.length > 5) recentRanks.shift();
+      this.setRecentBattleRanks(this.aiSource, recentRanks);
+      
+      // Save the updated battle history (merit was already saved in updateLegionMerit)
+      await this.saveAllProgress();
+    }
 
     // Use qualityTrackedMoves for display quality percentage
     const moveQuality = Scoring.getMoveQuality(this.topMoveChoices, this.qualityTrackedMoves);
@@ -685,6 +688,8 @@ async checkMoveQuality(prevFEN, playerUCI) {
     }
 
     await this.saveAllProgress();
+    
+    return rankChanged;
   }
 
   downloadPGN() {
