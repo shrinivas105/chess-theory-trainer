@@ -589,12 +589,19 @@ async checkMoveQuality(prevFEN, playerUCI) {
     
     const battleRank = Scoring.getBattleRank(score, this.finalPlayerEval, penaltyReason, this.aiSource);
 
+    // ─── CRITICAL FIX: Check promotion/demotion BEFORE updating battle history ───
+    // This ensures the "last 5 battles" used for promotion requirements
+    // is the array from BEFORE adding this new battle.
+    // Otherwise, if you have a Triarius as your 6th-oldest battle,
+    // it gets shifted out BEFORE the promotion check, causing unfair resets.
+    const recentRanksBeforeUpdate = this.getRecentBattleRanks(this.aiSource);
+    await this.updateLegionMerit(score, battleRank.title, recentRanksBeforeUpdate);
+
+    // Now update the battle history array with the new battle
     const recentRanks = this.getRecentBattleRanks(this.aiSource);
     recentRanks.push(battleRank.title);
     if (recentRanks.length > 5) recentRanks.shift();
     this.setRecentBattleRanks(this.aiSource, recentRanks);
-
-    await this.updateLegionMerit(score, battleRank.title);
 
     // Use qualityTrackedMoves for display quality percentage
     const moveQuality = Scoring.getMoveQuality(this.topMoveChoices, this.qualityTrackedMoves);
@@ -624,7 +631,7 @@ async checkMoveQuality(prevFEN, playerUCI) {
     this.ui.renderEndGameSummary(battleRank, moveQuality, displayEval, gamesToShow);
   }
 
-  async updateLegionMerit(score, battleRankTitle) {
+  async updateLegionMerit(score, battleRankTitle, recentRanks) {
     const meritKey = `${this.aiSource}_merit`;
     const oldMerit = this.legionMerits[meritKey] || 0;
     const oldLegion = Scoring.getLegionRank(oldMerit);
@@ -632,8 +639,8 @@ async checkMoveQuality(prevFEN, playerUCI) {
     const tempLegion = Scoring.getLegionRank(newMerit);
     let rankChanged = false;
 
-    // Get recent battle ranks for demotion check
-    const recentRanks = this.getRecentBattleRanks(this.aiSource);
+    // Use the passed-in recentRanks (from BEFORE adding the new battle)
+    // This ensures promotion requirements check against the correct "last 5"
 
     // Check for demotion FIRST (pass oldMerit to check safety net)
     const demotionCheck = Scoring.checkDemotion(oldLegion.title, recentRanks, battleRankTitle, oldMerit);
