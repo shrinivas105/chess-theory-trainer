@@ -432,11 +432,12 @@ class Scoring {
     }
     
     // Tribunus: Mathematical impossibility - can't get 3 elite in remaining battles
+    // OR need ALL remaining battles to be elite (unrealistic)
     if (rankTitle === 'Tribunus') {
       const battlesLeft = 5 - recentRanks.length;
       const neededElite = 3 - eliteCount;
       
-      if (neededElite > battlesLeft) {
+      if (neededElite >= battlesLeft) {
         if (inSafetyNet) {
           return {
             demote: true,
