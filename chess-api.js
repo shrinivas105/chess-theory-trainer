@@ -32,7 +32,9 @@ class ChessAPI {
       return data;
     } catch (e) {
       console.warn('Explorer failed:', e);
-      return { white: 0, draws: 0, black: 0, moves: [] };
+      // Return apiError flag so callers can distinguish a real network failure
+      // from a genuine empty position (position not in DB returns normally with 0 games)
+      return { white: 0, draws: 0, black: 0, moves: [], apiError: true };
     }
   }
   static async queryGames(source, fen) {

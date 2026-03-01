@@ -164,6 +164,14 @@ class ChessTheoryApp {
     const fen = this.game.fen();
     try {
       const data = await ChessAPI.queryExplorer(this.aiSource, fen);
+
+      // If API is unreachable, end the game cleanly without scoring
+      if (data.apiError) {
+        console.error('❌ Lichess Explorer API is unreachable.');
+        this.endGameApiError();
+        return;
+      }
+
       const totalGames = (data.white || 0) + (data.draws || 0) + (data.black || 0);
       this.gameCount = totalGames;
       const countEl = document.getElementById('gameCount');
@@ -488,6 +496,14 @@ async checkMoveQuality(prevFEN, playerUCI) {
     
     try {
       const data = await ChessAPI.queryExplorer(this.aiSource, fen);
+
+      // If API is unreachable, end the game cleanly without scoring
+      if (data.apiError) {
+        console.error('❌ Lichess Explorer API is unreachable.');
+        this.endGameApiError();
+        return;
+      }
+
       const totalGames = (data.white || 0) + (data.draws || 0) + (data.black || 0);
       this.gameCount = totalGames;
       const minGames = this.aiSource === 'master' ? 5 : 20;
@@ -568,6 +584,43 @@ async checkMoveQuality(prevFEN, playerUCI) {
     } catch (error) {
       console.error('aiMove error:', error);
     }
+  }
+
+  endGameApiError() {
+    // End the game cleanly — API was unreachable, no scoring or rank/merit changes applied.
+    this.gameEnded = true;
+    this.endGameData = null;
+
+    const app = document.getElementById('app');
+    if (!app) return;
+
+    app.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  min-height:400px;gap:24px;padding:32px;text-align:center;">
+        <div style="font-size:3rem;">⚠️</div>
+        <div style="color:var(--roman-gold);font-size:1.3rem;font-weight:bold;
+                    text-shadow:2px 2px 4px rgba(0,0,0,0.8);">
+          Lichess Explorer Unavailable
+        </div>
+        <div style="color:#fff;font-size:0.95rem;max-width:400px;line-height:1.6;
+                    text-shadow:1px 1px 3px rgba(0,0,0,0.8);">
+          The Lichess opening database is currently unreachable — this is likely a
+          temporary outage. <strong>No rank or merit changes have been applied.</strong>
+        </div>
+        <div style="color:#aaa;font-size:0.8rem;">
+          Please try again in a few minutes.
+        </div>
+        <button id="apiErrorHomeBtn"
+                style="margin-top:8px;padding:12px 32px;background:var(--roman-gold);
+                       color:#1a0a00;font-weight:bold;font-size:1rem;border:none;
+                       border-radius:6px;cursor:pointer;">
+          ← Return to Home
+        </button>
+      </div>
+    `;
+
+    // Wire up button directly using 'this' — avoids relying on any global app reference
+    document.getElementById('apiErrorHomeBtn').addEventListener('click', () => this.goHome());
   }
 
   async stopGameDueToThinTheory() {
