@@ -8,7 +8,7 @@ const SKIP_QUALITY_MOVES = 4;  // Skip quality check for first N player moves (o
 
 // ========================================
 // ACCURACY BONUS THRESHOLDS
-// Hidden bonus for maintaining high quality over longer battles
+// Hidden bonus for maintaining high quality over longer battles.
 // Only awarded when final eval >= +0.5
 // Master campaign skips this entirely (see scoring.js).
 // ========================================
