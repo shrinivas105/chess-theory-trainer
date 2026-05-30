@@ -1,3 +1,7 @@
+// chess-api.js - Updated to send Authorization header on Lichess explorer calls
+// Lichess now requires a valid OAuth token on explorer.lichess.ovh after DDoS mitigation.
+// Token is obtained client-side via PKCE (see lichess-auth.js) — no server involved.
+
 const pieces = {
   wp: "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg",
   wr: "https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg",
@@ -15,35 +19,68 @@ const pieces = {
 
 class ChessAPI {
   static cache = {};
+
+  // ── Helper: build fetch headers with optional Lichess token ───────────────
+  static _explorerHeaders() {
+    const headers = {};
+    // LichessAuth is loaded by lichess-auth.js (must be included before chess-api.js)
+    if (typeof window.LichessAuth !== 'undefined') {
+      const auth = window.LichessAuth.authHeader();
+      if (auth) headers['Authorization'] = auth;
+    }
+    return headers;
+  }
+
+  // ── Opening explorer ──────────────────────────────────────────────────────
   static async queryExplorer(source, fen) {
     const key = `${source}_${fen}`;
     if (this.cache[key]) return this.cache[key];
-    let url = source === 'master' ? 'https://explorer.lichess.ovh/masters' : 'https://explorer.lichess.ovh/lichess';
+
+    let url = source === 'master'
+      ? 'https://explorer.lichess.ovh/masters'
+      : 'https://explorer.lichess.ovh/lichess';
     url += `?variant=standard&fen=${encodeURIComponent(fen)}&topGames=0&moves=5`;
     if (source === 'lichess') url += '&ratings=1600,1800,2000,2200,2500';
+
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 15000);
-      const response = await fetch(url, { signal: controller.signal });
+
+      const response = await fetch(url, {
+        signal: controller.signal,
+        headers: this._explorerHeaders(),
+      });
       clearTimeout(timeout);
-      if (!response.ok) throw new Error('API error');
+
+      // 401 / 403 → token missing or expired
+      if (response.status === 401 || response.status === 403) {
+        console.warn('Explorer: auth required. Please connect your Lichess account.');
+        return { white: 0, draws: 0, black: 0, moves: [], needsAuth: true };
+      }
+
+      if (!response.ok) throw new Error(`API error ${response.status}`);
+
       const data = await response.json();
       this.cache[key] = data;
       return data;
     } catch (e) {
       console.warn('Explorer failed:', e);
-      // Return apiError flag so callers can distinguish a real network failure
-      // from a genuine empty position (position not in DB returns normally with 0 games)
       return { white: 0, draws: 0, black: 0, moves: [], apiError: true };
     }
   }
+
+  // ── Top/recent games ──────────────────────────────────────────────────────
   static async queryGames(source, fen) {
     const base = source === 'master' ? 'masters' : 'lichess';
     let url = `https://explorer.lichess.ovh/${base}?variant=standard&fen=${encodeURIComponent(fen)}`;
     if (source === 'master') url += '&topGames=4';
     else url += '&recentGames=4&ratings=1600,1800,2000,2200,2500';
+
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { headers: this._explorerHeaders() });
+      if (response.status === 401 || response.status === 403) {
+        return { topGames: [], recentGames: [], needsAuth: true };
+      }
       if (!response.ok) return { topGames: [], recentGames: [] };
       const data = await response.json();
       return { topGames: data.topGames || [], recentGames: data.recentGames || [] };
@@ -52,6 +89,8 @@ class ChessAPI {
       return { topGames: [], recentGames: [] };
     }
   }
+
+  // ── Engine evaluation (chess-api.com — no auth needed) ────────────────────
   static async getEvaluation(fen, cache = {}) {
     if (cache[fen] !== undefined) return cache[fen];
     try {

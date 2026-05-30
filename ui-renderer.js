@@ -464,7 +464,18 @@ document.getElementById('lichessBtn').onclick = () => {
     const authDiv = document.createElement('div');
     authDiv.className = 'auth-section-fixed';
     authDiv.innerHTML = authHtml;
+
+    // Lichess connect button (needed for explorer API auth)
+    const lichessDiv = document.createElement('div');
+    lichessDiv.id = 'lichess-auth-btn';
+    authDiv.appendChild(lichessDiv);
+
     document.body.appendChild(authDiv);
+
+    // Render button content after it's in the DOM
+    if (typeof LichessAuth !== 'undefined') {
+      LichessAuth.renderButton('lichess-auth-btn');
+    }
   }
 
   renderBoard() {

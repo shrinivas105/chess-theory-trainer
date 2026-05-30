@@ -1,4 +1,5 @@
-// main.js - App initialization
-// Fixed: Create global app instance for onclick handlers
-
-window.app = new ChessTheoryApp();
+(async () => {
+  await LichessAuth.init();
+  LichessAuth.renderButton();
+  window.app = new ChessTheoryApp();
+})();
