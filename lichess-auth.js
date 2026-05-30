@@ -154,6 +154,8 @@ const LichessAuth = (() => {
     return token ? `Bearer ${token}` : null;
   }
 
+// skk
+
   /**
    * Renders a small "Connect Lichess" / "Disconnect" button.
    * Insert `<div id="lichess-auth-btn"></div>` wherever you want it in your UI,
