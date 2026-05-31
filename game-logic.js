@@ -8,6 +8,7 @@ class ChessTheoryApp {
     this.playerColor = null;
     this.aiSource = null;
     this.selected = null;
+    this.dragSource = null;
     this.lastMove = { from: null, to: null };
     this.gameCount = 0;
     this.evalCache = {};
@@ -119,6 +120,7 @@ class ChessTheoryApp {
   resetGameState() {
     this.game.reset();
     this.selected = null;
+    this.dragSource = null;
     this.lastMove = { from: null, to: null };
     this.gameCount = 0;
     this.playerMoves = 0;
@@ -226,6 +228,38 @@ class ChessTheoryApp {
       this.selected = square;
     }
     this.ui.renderBoard();
+  }
+
+  async handleDragMove(from, to) {
+    if (this.game.turn() !== this.playerColor || this.game.game_over()) return;
+    const moveOptions = { from, to, promotion: 'q' };
+    const preMoveFEN = this.game.fen();
+    const move = this.game.move(moveOptions);
+    if (!move) {
+      this.dragSource = null;
+      this.ui.renderBoard();
+      return;
+    }
+
+    this.lastMove = { from: move.from, to: move.to };
+    this.playerMoves++;
+    this.dragSource = null;
+
+    if (typeof RomanBattleEffects !== 'undefined') {
+      if (move.captured) {
+        RomanBattleEffects.playCaptureSound();
+      } else if (move.promotion) {
+        RomanBattleEffects.playPromotionSound();
+      } else {
+        RomanBattleEffects.playMoveSound();
+      }
+    }
+
+    const moveUCI = move.from + move.to + (move.promotion || '');
+    await this.checkMoveQuality(preMoveFEN, moveUCI);
+    this.selected = null;
+    document.getElementById('theoryMessage').style.display = 'none';
+    this.render();
   }
 
 async checkMoveQuality(prevFEN, playerUCI) {

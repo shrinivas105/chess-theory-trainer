@@ -522,13 +522,46 @@ document.getElementById('lichessBtn').onclick = () => {
         div.className = `square ${isLight ? 'light' : 'dark'} ${isSelected ? 'selected' : ''} ${isLastMove ? 'last-move' : ''} ${isMoveTarget ? 'move-target' : ''} ${!isPlayerTurn ? 'disabled' : ''}`;
         div.onclick = () => this.app.handleClick(actualRow, actualCol);
         div.onmousedown = e => e.preventDefault();
+        div.ondragover = e => {
+          if (isPlayerTurn && this.app.dragSource) {
+            e.preventDefault();
+          }
+        };
+        div.ondragenter = e => {
+          if (isPlayerTurn && this.app.dragSource) {
+            e.preventDefault();
+            div.classList.add('drag-over');
+          }
+        };
+        div.ondragleave = () => {
+          div.classList.remove('drag-over');
+        };
+        div.ondrop = e => {
+          if (!isPlayerTurn || !this.app.dragSource) return;
+          e.preventDefault();
+          div.classList.remove('drag-over');
+          const source = this.app.dragSource;
+          this.app.handleDragMove(source, sqName);
+        };
 
         if (square) {
           const img = document.createElement('img');
           img.src = this.app.pieceImages[square.color + square.type];
           img.className = 'piece';
-          img.draggable = false;
-          img.ondragstart = () => false;
+          img.draggable = isPlayerTurn && square.color === this.app.playerColor;
+          img.ondragstart = e => {
+            if (!isPlayerTurn || square.color !== this.app.playerColor) {
+              e.preventDefault();
+              return false;
+            }
+            this.app.dragSource = sqName;
+            e.dataTransfer.setData('text/plain', sqName);
+            e.dataTransfer.effectAllowed = 'move';
+            return true;
+          };
+          img.ondragend = () => {
+            this.app.dragSource = null;
+          };
           div.appendChild(img);
         }
         fragment.appendChild(div);
