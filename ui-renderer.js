@@ -503,6 +503,11 @@ document.getElementById('lichessBtn').onclick = () => {
     if (!boardEl) return;
     boardEl.innerHTML = '';
 
+    const fragment = document.createDocumentFragment();
+    const legalTargets = this.app.selected
+      ? new Set(this.app.game.moves({ square: this.app.selected, verbose: true }).map(m => m.to))
+      : new Set();
+
     renderedBoard.forEach((row, r) => {
       row.forEach((square, c) => {
         const actualRow = isFlipped ? 7 - r : r;
@@ -511,20 +516,26 @@ document.getElementById('lichessBtn').onclick = () => {
         const isLight = (actualRow + actualCol) % 2 === 0;
         const isSelected = this.app.selected === sqName;
         const isLastMove = this.app.lastMove.from === sqName || this.app.lastMove.to === sqName;
+        const isMoveTarget = legalTargets.has(sqName);
 
         const div = document.createElement('div');
-        div.className = `square ${isLight ? 'light' : 'dark'} ${isSelected ? 'selected' : ''} ${isLastMove ? 'last-move' : ''} ${!isPlayerTurn ? 'disabled' : ''}`;
+        div.className = `square ${isLight ? 'light' : 'dark'} ${isSelected ? 'selected' : ''} ${isLastMove ? 'last-move' : ''} ${isMoveTarget ? 'move-target' : ''} ${!isPlayerTurn ? 'disabled' : ''}`;
         div.onclick = () => this.app.handleClick(actualRow, actualCol);
+        div.onmousedown = e => e.preventDefault();
 
         if (square) {
           const img = document.createElement('img');
           img.src = this.app.pieceImages[square.color + square.type];
           img.className = 'piece';
+          img.draggable = false;
+          img.ondragstart = () => false;
           div.appendChild(img);
         }
-        boardEl.appendChild(div);
+        fragment.appendChild(div);
       });
     });
+
+    boardEl.appendChild(fragment);
   }
 
  renderEndGameSummary(battleRank, moveQuality, displayEval, gamesToShow) {

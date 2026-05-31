@@ -215,8 +215,7 @@ class ChessTheoryApp {
         await this.checkMoveQuality(preMoveFEN, moveUCI);
         this.selected = null;
         document.getElementById('theoryMessage').style.display = 'none';
-        this.ui.renderBoard();
-        setTimeout(() => this.render(), 100);
+        this.render();
         return;
       }
       this.selected = null;
