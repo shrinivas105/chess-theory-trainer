@@ -143,6 +143,9 @@ class ChessTheoryApp {
     this.practiceStartingPosition = false;
     this.gameEnded = false;
     this.endGameData = null;
+    if (typeof RomanBattleEffects !== 'undefined') {
+      RomanBattleEffects.stopMusic();
+    }
     this.resetGameState();
     this.render();
   }
@@ -279,9 +282,8 @@ class ChessTheoryApp {
         this.lastMove = { from: move.from, to: move.to };
         this.playerMoves++;
         
-        // Play sound effects based on move type
-        console.log('Attempting to play sound...');
-        if (typeof RomanBattleEffects !== 'undefined') {
+        // Play sound effects based on move type, but mute in practice mode
+        if (this.mode !== 'practice' && typeof RomanBattleEffects !== 'undefined') {
           if (move.captured) {
             RomanBattleEffects.playCaptureSound();
           } else if (move.promotion) {
@@ -289,8 +291,6 @@ class ChessTheoryApp {
           } else {
             RomanBattleEffects.playMoveSound();
           }
-        } else {
-          console.error('RomanBattleEffects not loaded!');
         }
         
         const moveUCI = move.from + move.to + (move.promotion || '');
@@ -486,7 +486,7 @@ async checkMoveQuality(prevFEN, playerUCI) {
   }
 
  async getHints() {
-  if (this.hintUsed) return;
+  if (this.hintUsed && this.mode !== 'practice') return;
   const fen = this.game.fen();
   try {
     const data = await ChessAPI.queryExplorer(this.aiSource, fen);
@@ -496,11 +496,13 @@ async checkMoveQuality(prevFEN, playerUCI) {
       const msgEl = document.getElementById('theoryMessage');
       msgEl.innerHTML = '<em>No moves available in database.</em>';
       msgEl.style.display = 'block';
-      this.hintUsed = true;
-      const hintBtn = document.getElementById('hintBtn');
-      if (hintBtn) {
-        hintBtn.disabled = true;
-        hintBtn.textContent = '✓ Consulted';
+      if (this.mode !== 'practice') {
+        this.hintUsed = true;
+        const hintBtn = document.getElementById('hintBtn');
+        if (hintBtn) {
+          hintBtn.disabled = true;
+          hintBtn.textContent = '✓ Consulted';
+        }
       }
       return;
     }
@@ -590,11 +592,13 @@ async checkMoveQuality(prevFEN, playerUCI) {
     const msgEl = document.getElementById('theoryMessage');
     msgEl.innerHTML = commanderText;
     msgEl.style.display = 'block';
-    this.hintUsed = true;
-    const hintBtn = document.getElementById('hintBtn');
-    if (hintBtn) {
-      hintBtn.disabled = true;
-      hintBtn.textContent = '✓ Consulted';
+    if (this.mode !== 'practice') {
+      this.hintUsed = true;
+      const hintBtn = document.getElementById('hintBtn');
+      if (hintBtn) {
+        hintBtn.disabled = true;
+        hintBtn.textContent = '✓ Consulted';
+      }
     }
   } catch (error) {
     document.getElementById('theoryMessage').innerHTML = '<em>Unable to fetch hints.</em>';
@@ -683,9 +687,8 @@ async checkMoveQuality(prevFEN, playerUCI) {
       if (move) {
         this.lastMove = { from: move.from, to: move.to };
         
-        // Play sound effects for AI moves
-        console.log('AI move - attempting to play sound...');
-        if (typeof RomanBattleEffects !== 'undefined') {
+        // Play sound effects for AI moves, but mute in practice mode
+        if (this.mode !== 'practice' && typeof RomanBattleEffects !== 'undefined') {
           if (move.captured) {
             RomanBattleEffects.playCaptureSound();
           } else if (move.promotion) {
@@ -693,8 +696,6 @@ async checkMoveQuality(prevFEN, playerUCI) {
           } else {
             RomanBattleEffects.playMoveSound();
           }
-        } else {
-          console.error('RomanBattleEffects not loaded for AI move!');
         }
         
         this.ui.renderBoard();

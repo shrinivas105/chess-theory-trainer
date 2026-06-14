@@ -361,7 +361,6 @@ class UIRenderer {
     };
 
     document.getElementById('practiceBtn').onclick = () => {
-      if (typeof RomanBattleEffects !== 'undefined') RomanBattleEffects.playMenuFanfare();
       this.app.startPracticePicker();
     };
 
@@ -540,9 +539,12 @@ class UIRenderer {
 
     const hintBtn = document.getElementById('hintBtn');
     if (hintBtn) {
-      hintBtn.disabled = !isPlayerTurn || this.app.hintUsed;
+      const hintEnabled = this.app.mode === 'practice'
+        ? !this.app.hintUsed
+        : isPlayerTurn && !this.app.hintUsed;
+      hintBtn.disabled = !hintEnabled;
       hintBtn.textContent = this.app.hintUsed ? '✓ Consulted' : '🎖️ Consult Commander';
-      hintBtn.onclick = isPlayerTurn && !this.app.hintUsed ? () => this.app.getHints() : null;
+      hintBtn.onclick = hintEnabled ? () => this.app.getHints() : null;
     }
 
     const boardEl = document.getElementById('board');
@@ -699,12 +701,14 @@ class UIRenderer {
       <button id="showAnalysisBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
         📊 Analyze
       </button>
+      ${!isPractice ? `
       <button id="downloadPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
         📥 PGN
       </button>
       <button id="copyPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
         📋 Copy
       </button>
+      ` : ''}
       <button id="tryAgainBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
         🔄 Try Again
       </button>

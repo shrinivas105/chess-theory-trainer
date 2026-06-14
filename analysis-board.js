@@ -14,7 +14,7 @@ class AnalysisBoard {
   }
 
 async preloadAllData() {
-  const tempGame = new Chess();
+  const tempGame = this.analysisStartFen ? new Chess(this.analysisStartFen) : new Chess();
   const totalPositions = this.moveHistory.length + 1;
   let processedPositions = 0;
   
@@ -533,7 +533,7 @@ async preloadAllData() {
     
     try {
       // Get the position BEFORE the current move
-      const tempGame = new Chess();
+      const tempGame = this.analysisStartFen ? new Chess(this.analysisStartFen) : new Chess();
       for (let i = 0; i < this.currentMoveIndex; i++) {
         const move = this.moveHistory[i];
         tempGame.move({

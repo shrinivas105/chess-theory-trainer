@@ -261,9 +261,12 @@ class ChessTheoryApp {
 
     const hintBtn = document.getElementById('hintBtn');
     if (hintBtn) {
-      hintBtn.disabled = !isPlayerTurn || this.hintUsed;
+      const hintEnabled = this.mode === 'practice'
+        ? !this.hintUsed
+        : isPlayerTurn && !this.hintUsed;
+      hintBtn.disabled = !hintEnabled;
       hintBtn.textContent = this.hintUsed ? '✓ Consulted' : '🎖️ Consult Commander';
-      hintBtn.onclick = isPlayerTurn && !this.hintUsed ? () => this.getHints() : null;
+      hintBtn.onclick = hintEnabled ? () => this.getHints() : null;
     }
 
     const boardEl = document.getElementById('board');
