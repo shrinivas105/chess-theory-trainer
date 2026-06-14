@@ -10,6 +10,7 @@ class AnalysisBoard {
     this.isAnalyzing = false;
     this.topMovesData = {}; // Cache for top moves at each position
     this.evaluationCache = {}; // Cache for all evaluations -- NEW LINE
+    this.analysisStartFen = null;
   }
 
 async preloadAllData() {
@@ -139,11 +140,33 @@ async preloadAllData() {
     }
 
     try {
-      // Store the current game state
-      this.analysisGame = new Chess();
+      // Determine the true starting position for analysis.
+      // Practice mode may begin from a custom FEN rather than the normal starting position.
+      this.analysisStartFen = (this.app.mode === 'practice' && this.app.practiceOpening && this.app.practiceOpening.fen)
+        ? this.app.practiceOpening.fen
+        : null;
+
+      const currentGameFen = this.app.game.fen();
+      const historyVerbose = this.app.game.history({ verbose: true });
+      const historySimple = this.app.game.history({ verbose: false });
+
+      console.log('🔍 Analysis initialize debug:', {
+        mode: this.app.mode,
+        aiSource: this.app.aiSource,
+        playerColor: this.app.playerColor,
+        currentGameFen,
+        practiceOpening: this.app.practiceOpening,
+        analysisStartFen: this.analysisStartFen,
+        historyVerbose,
+        historySimple,
+        historyLength: historyVerbose.length
+      });
+
+      // Store the current game state from the actual starting position.
+      this.analysisGame = this.analysisStartFen ? new Chess(this.analysisStartFen) : new Chess();
       
       // Get move history from the current game
-      const history = this.app.game.history({ verbose: true });
+      const history = historyVerbose;
       console.log('📜 Move history:', history);
       
       this.moveHistory = history;
@@ -349,10 +372,18 @@ async preloadAllData() {
   }
 
   goToMove(moveIndex) {
-    console.log(`Going to move ${moveIndex}`);
+    console.log(`Going to move ${moveIndex}`, {
+      analysisStartFen: this.analysisStartFen,
+      currentMoveIndex: this.currentMoveIndex,
+      moveHistoryLength: this.moveHistory.length
+    });
     
-    // Reset game to start
-    this.analysisGame.reset();
+    // Reset game to the actual analysis starting position
+    if (this.analysisStartFen) {
+      this.analysisGame = new Chess(this.analysisStartFen);
+    } else {
+      this.analysisGame.reset();
+    }
     
     // Replay moves up to the target index
     for (let i = 0; i < moveIndex && i < this.moveHistory.length; i++) {

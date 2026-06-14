@@ -5,8 +5,11 @@ class ChessTheoryApp {
   constructor() {
     // Game state
     this.game = new Chess();
+    this.mode = null;                     // 'master', 'lichess', 'practice'
     this.playerColor = null;
     this.aiSource = null;
+    this.practiceOpening = null;
+    this.practiceStartingPosition = false;
     this.selected = null;
     this.dragSource = null;
     this.lastMove = { from: null, to: null };
@@ -22,10 +25,10 @@ class ChessTheoryApp {
     this.pieceImages = pieces;
     this.rankChangeMessage = null;
     this.currentPGN = null;
-    this.accuracyBonus = 0;  // NEW: Track accuracy bonus
-    this.accuracyTier = null; // NEW: Track accuracy tier name
-	 this.gameEnded = false; // ← ADDED THIS
-  this.endGameData = null; // ← ADDED THIS
+    this.accuracyBonus = 0;
+    this.accuracyTier = null;
+    this.gameEnded = false;
+    this.endGameData = null;
 
     // Load progress from localStorage first
     this.legionMerits = JSON.parse(localStorage.getItem('chessTheoryLegionMerits') || '{}');
@@ -51,8 +54,13 @@ class ChessTheoryApp {
   }
 
   goHome() {
+    this.mode = null;
     this.playerColor = null;
     this.aiSource = null;
+    this.practiceOpening = null;
+    this.practiceStartingPosition = false;
+    this.gameEnded = false;
+    this.endGameData = null;
     this.resetGameState();
     this.render();
   }
@@ -85,9 +93,81 @@ class ChessTheoryApp {
     }
   }
 
+  async updateLegionMerit(score, battleRankTitle, recentRanks) {
+    const meritKey = `${this.aiSource}_merit`;
+    const oldMerit = this.legionMerits[meritKey] || 0;
+    const oldLegion = Scoring.getLegionRank(oldMerit);
+    let newMerit = oldMerit + score;
+    const tempLegion = Scoring.getLegionRank(newMerit);
+    let rankChanged = false;
+
+    const demotionCheck = Scoring.checkDemotion(oldLegion.title, recentRanks, battleRankTitle, oldMerit);
+    if (demotionCheck && demotionCheck.demote) {
+      newMerit = demotionCheck.newMerit;
+      this.rankChangeMessage = demotionCheck.message;
+      rankChanged = true;
+      this.setRecentBattleRanks(this.aiSource, []);
+    } else if (Scoring.canPromote(oldLegion.title, newMerit, recentRanks) && tempLegion.level > oldLegion.level) {
+      newMerit = tempLegion.thresholds[tempLegion.level];
+      this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you’ve won. 🏺`;
+      rankChanged = true;
+      this.setRecentBattleRanks(this.aiSource, []);
+    }
+
+    this.legionMerits[meritKey] = newMerit;
+
+    if (this.aiSource === 'master') {
+      this.gamesPlayedMaster++;
+      this.lastColorMaster = this.playerColor;
+    } else {
+      this.gamesPlayedLichess++;
+      this.lastColorLichess = this.playerColor;
+    }
+
+    await this.saveAllProgress();
+    return rankChanged;
+  }
+
   // Game flow methods
   selectSource(source) {
+    this.mode = source;
     this.aiSource = source;
+    this.render();
+  }
+
+  startPracticePicker() {
+    this.mode = 'practice';
+    this.aiSource = PRACTICE_MODE.source;
+    this.practiceOpening = null;
+    this.playerColor = null;
+    this.practiceStartingPosition = false;
+    this.gameEnded = false;
+    this.endGameData = null;
+    this.resetGameState();
+    this.render();
+  }
+
+  startPracticeOpening(opening) {
+    this.mode = 'practice';
+    this.aiSource = PRACTICE_MODE.source;
+    this.practiceOpening = opening;
+    this.playerColor = opening.orientation === 'white' ? 'w' : 'b';
+    this.practiceStartingPosition = true;
+    this.gameEnded = false;
+    this.endGameData = null;
+    this.resetGameState();
+    this.game.load(opening.fen);
+    this.selected = null;
+    this.lastMove = { from: null, to: null };
+    this.gameCount = 0;
+    this.lastAIMoveFEN = null;
+    this.playerMoves = 0;
+    this.topMoveChoices = 0;
+    this.qualityTrackedMoves = 0;
+    this.hintUsed = false;
+    this.topGames = [];
+    this.recentGames = [];
+    this.currentPGN = null;
     this.render();
   }
 
@@ -539,14 +619,20 @@ async checkMoveQuality(prevFEN, playerUCI) {
 
       const totalGames = (data.white || 0) + (data.draws || 0) + (data.black || 0);
       this.gameCount = totalGames;
-      const minGames = this.aiSource === 'master' ? 5 : 20;
-      
-      if (totalGames < minGames || !data.moves || data.moves.length === 0) {
+      const minGames = this.mode === 'practice' ? PRACTICE_MODE.minGames : (this.aiSource === 'master' ? 5 : 20);
+      const hasMoves = data.moves && data.moves.length > 0;
+      const ignoreThinAtStart = this.mode === 'practice' && this.practiceStartingPosition && this.game.history().length === 0;
+
+      if ((!ignoreThinAtStart && (totalGames < minGames || !hasMoves)) || (!hasMoves && ignoreThinAtStart)) {
         const gamesData = await ChessAPI.queryGames(this.aiSource, fen);
         this.topGames = gamesData.topGames || [];
         this.recentGames = gamesData.recentGames || [];
         await this.stopGameDueToThinTheory();
         return;
+      }
+
+      if (this.practiceStartingPosition && this.game.history().length === 0) {
+        this.practiceStartingPosition = false;
       }
       
       // Calculate total from top 5 moves only
@@ -675,6 +761,35 @@ async checkMoveQuality(prevFEN, playerUCI) {
     
     const battleRank = Scoring.getBattleRank(score, this.finalPlayerEval, penaltyReason, this.aiSource);
 
+    if (this.mode === 'practice') {
+      const moveQuality = Scoring.getMoveQuality(this.topMoveChoices, this.qualityTrackedMoves);
+      const displayEval = this.finalPlayerEval > 0 
+        ? '+' + this.finalPlayerEval.toFixed(1) 
+        : this.finalPlayerEval.toFixed(1);
+
+      this.currentPGN = PGNExporter.generatePGN(
+        this.game,
+        this.playerColor,
+        this.aiSource,
+        battleRank,
+        score,
+        moveQuality,
+        this.finalPlayerEval
+      );
+
+      this.gameEnded = true;
+      this.endGameData = {
+        battleRank,
+        moveQuality,
+        displayEval,
+        gamesToShow: this.recentGames,
+        isPractice: true
+      };
+
+      this.ui.renderEndGameSummary(battleRank, moveQuality, displayEval, this.recentGames, true);
+      return;
+    }
+
     // ─── CRITICAL FIX: Check promotion/demotion BEFORE updating battle history ───
     // This ensures the "last 5 battles" used for promotion requirements
     // is the array from BEFORE adding this new battle.
@@ -712,70 +827,16 @@ async checkMoveQuality(prevFEN, playerUCI) {
       : this.finalPlayerEval.toFixed(1);
     const gamesToShow = this.aiSource === 'master' ? this.topGames : this.recentGames;
 
-  this.gameEnded = true;
-  this.endGameData = {
-    battleRank,
-    moveQuality,
-    displayEval,
-    gamesToShow
-  };
+    this.gameEnded = true;
+    this.endGameData = {
+      battleRank,
+      moveQuality,
+      displayEval,
+      gamesToShow,
+      isPractice: false
+    };
 
-    this.ui.renderEndGameSummary(battleRank, moveQuality, displayEval, gamesToShow);
-  }
-
-  async updateLegionMerit(score, battleRankTitle, recentRanks) {
-    const meritKey = `${this.aiSource}_merit`;
-    const oldMerit = this.legionMerits[meritKey] || 0;
-    const oldLegion = Scoring.getLegionRank(oldMerit);
-    let newMerit = oldMerit + score;
-    const tempLegion = Scoring.getLegionRank(newMerit);
-    let rankChanged = false;
-
-    // Use the passed-in recentRanks (from BEFORE adding the new battle)
-    // This ensures promotion requirements check against the correct "last 5"
-
-    // Check for demotion FIRST (pass oldMerit to check safety net)
-    const demotionCheck = Scoring.checkDemotion(oldLegion.title, recentRanks, battleRankTitle, oldMerit);
-    
-    if (demotionCheck && demotionCheck.demote) {
-      // Apply demotion (or safety net reset)
-      newMerit = demotionCheck.newMerit;
-      this.rankChangeMessage = demotionCheck.message;
-      rankChanged = true;
-      // Clear battle history on demotion/reset
-      this.setRecentBattleRanks(this.aiSource, []);
-    } else {
-      // Check if player can be promoted (merit + requirements met)
-      if (Scoring.canPromote(oldLegion.title, newMerit, recentRanks) && tempLegion.level > oldLegion.level) {
-        // Promotion happens
-        newMerit = tempLegion.thresholds[tempLegion.level];
-        this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you've won. 🏺`;
-        rankChanged = true;
-        // Clear battle history on promotion
-        this.setRecentBattleRanks(this.aiSource, []);
-      }
-    }
-
-    // Update merit
-    this.legionMerits[meritKey] = newMerit;
-    
-    // Update games played count
-    if (this.aiSource === 'master') {
-      this.gamesPlayedMaster++;
-    } else {
-      this.gamesPlayedLichess++;
-    }
-
-    // Save last played color for alternation
-    if (this.aiSource === 'master') {
-      this.lastColorMaster = this.playerColor;
-    } else {
-      this.lastColorLichess = this.playerColor;
-    }
-
-    await this.saveAllProgress();
-    
-    return rankChanged;
+    this.ui.renderEndGameSummary(battleRank, moveQuality, displayEval, gamesToShow, false);
   }
 
   downloadPGN() {
@@ -839,6 +900,11 @@ async showAnalysis() {
 
 
 render() {
+  if (this.mode === 'practice' && !this.practiceOpening) {
+    this.ui.renderPracticePicker();
+    return;
+  }
+
   if (!this.aiSource) {
     this.ui.renderMenu();
     return;
@@ -855,7 +921,8 @@ render() {
       this.endGameData.battleRank,
       this.endGameData.moveQuality,
       this.endGameData.displayEval,
-      this.endGameData.gamesToShow
+      this.endGameData.gamesToShow,
+      this.endGameData.isPractice
     );
     
     // Then render the board with final position (after container exists)

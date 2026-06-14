@@ -7,6 +7,15 @@
 const SKIP_QUALITY_MOVES = 4;  // Skip quality check for first N player moves (opening book moves)
 
 // ========================================
+// PRACTICE MODE CONFIGURATION
+// Practice Mode always uses the Club (Lichess) explorer database.
+// This single constant controls the practice source and thin-theory threshold.
+const PRACTICE_MODE = {
+  source: 'lichess',
+  minGames: 20
+};
+
+// ========================================
 // ACCURACY BONUS THRESHOLDS
 // Hidden bonus for maintaining high quality over longer battles.
 // Only awarded when final eval >= +0.5

@@ -232,6 +232,10 @@ class UIRenderer {
             <button id="lichessBtn" class="menu-btn" style="background: linear-gradient(135deg, var(--roman-silver) 0%, #a0a0a0 100%); box-shadow: 0 6px 0 #808080, 0 8px 15px rgba(192,192,192,0.4); border-color: rgba(192,192,192,0.3); color: #000; font-weight: 800;">
               ♟️ Club Campaign
             </button>
+
+            <button id="practiceBtn" class="menu-btn" style="background: linear-gradient(135deg, #4a90e2 0%, #2a6fb8 100%); box-shadow: 0 6px 0 #1f4f82, 0 8px 15px rgba(46, 134, 193, 0.4); border-color: rgba(69, 121, 191, 0.3); color: #fff;">
+              📖 Practice Mode
+            </button>
             
            <button id="resetBtn" class="menu-btn" style="background: transparent; border: 2px dashed #555; color: #888; box-shadow: none; font-size: 0.65rem; padding: 6px;">
   ↺ Reset Progress
@@ -347,15 +351,20 @@ class UIRenderer {
    // document.getElementById('masterBtn').onclick = () => this.app.selectSource('master');
     //document.getElementById('lichessBtn').onclick = () => this.app.selectSource('lichess');
 	document.getElementById('masterBtn').onclick = () => {
-  if (typeof RomanBattleEffects !== 'undefined') RomanBattleEffects.playMenuFanfare();
-  this.app.selectSource('master');
-};
+      if (typeof RomanBattleEffects !== 'undefined') RomanBattleEffects.playMenuFanfare();
+      this.app.selectSource('master');
+    };
 
-document.getElementById('lichessBtn').onclick = () => {
-  if (typeof RomanBattleEffects !== 'undefined') RomanBattleEffects.playMenuFanfare();
-  this.app.selectSource('lichess');
-};
-    document.getElementById('resetBtn').onclick = () => this.app.resetStats();
+    document.getElementById('lichessBtn').onclick = () => {
+      if (typeof RomanBattleEffects !== 'undefined') RomanBattleEffects.playMenuFanfare();
+      this.app.selectSource('lichess');
+    };
+
+    document.getElementById('practiceBtn').onclick = () => {
+      if (typeof RomanBattleEffects !== 'undefined') RomanBattleEffects.playMenuFanfare();
+      this.app.startPracticePicker();
+    };
+
     
     const rulesToggle = document.getElementById('rulesToggle');
     const rulesContent = document.getElementById('rulesContent');
@@ -366,6 +375,43 @@ document.getElementById('lichessBtn').onclick = () => {
       rulesContent.style.display = isOpen ? 'none' : 'block';
       rulesArrow.textContent = isOpen ? '▼' : '▲';
     };
+  }
+
+  renderPracticePicker() {
+    const grouped = PracticeOpenings.reduce((acc, opening, index) => {
+      if (!acc[opening.category]) acc[opening.category] = [];
+      acc[opening.category].push({ ...opening, index });
+      return acc;
+    }, {});
+
+    const sections = Object.keys(grouped).sort().map(category => {
+      const items = grouped[category].map(opening => `
+        <button class="practice-opening-btn" onclick="app.startPracticeOpening(PracticeOpenings[${opening.index}])">
+          <div class="practice-opening-name">${opening.name}</div>
+          <div class="practice-opening-meta">${opening.orientation === 'white' ? 'White' : 'Black'} • ${opening.fen.split(' ').slice(0,2).join(' ')}</div>
+        </button>
+      `).join('');
+
+      return `
+        <div class="practice-category">
+          <h3>${category}</h3>
+          <div class="practice-list">${items}</div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('app').innerHTML = `
+      <button class="home-button" onclick="app.goHome()">🏠 Home</button>
+      <div class="menu">
+        <h1 class="menu-title">Practice Mode</h1>
+        <p class="menu-subtitle">Pick an opening and drill the position from a real-game opening book.</p>
+        <div class="practice-warning">
+          <strong>Note:</strong> Practice results are not saved and do not affect your Master/Club merit, rank, or history.
+        </div>
+        ${sections}
+      </div>
+    `;
+    this.renderAuthSection();
   }
 
   renderColorChoice() {
@@ -571,7 +617,7 @@ document.getElementById('lichessBtn').onclick = () => {
     boardEl.appendChild(fragment);
   }
 
- renderEndGameSummary(battleRank, moveQuality, displayEval, gamesToShow) {
+ renderEndGameSummary(battleRank, moveQuality, displayEval, gamesToShow, isPractice = false) {
   console.log('📊 Rendering end game summary...');
   
   // Check if we need to create the game container
@@ -659,6 +705,16 @@ document.getElementById('lichessBtn').onclick = () => {
       <button id="copyPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
         📋 Copy
       </button>
+      <button id="tryAgainBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+        🔄 Try Again
+      </button>
+      <button id="homeBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+        🏠 Home
+      </button>
+    </div>
+
+    <div style="margin-top:10px; color:#d9d9d9; font-size:0.8rem; text-align:center;">
+      ${isPractice ? 'Practice games do not affect campaign merit, rank, game history, or PGN export.' : ''}
     </div>
 
     <div style="margin-top:10px;">
@@ -671,6 +727,8 @@ document.getElementById('lichessBtn').onclick = () => {
     const analysisBtn = document.getElementById('showAnalysisBtn');
     const downloadBtn = document.getElementById('downloadPGNBtn');
     const copyBtn = document.getElementById('copyPGNBtn');
+    const tryAgainBtn = document.getElementById('tryAgainBtn');
+    const homeBtn = document.getElementById('homeBtn');
     
     if (analysisBtn) {
       analysisBtn.onclick = () => this.app.showAnalysis();
@@ -682,6 +740,20 @@ document.getElementById('lichessBtn').onclick = () => {
     
     if (copyBtn) {
       copyBtn.onclick = () => this.app.copyPGN();
+    }
+    
+    if (tryAgainBtn) {
+      tryAgainBtn.onclick = () => {
+        if (isPractice && this.app.practiceOpening) {
+          this.app.startPracticeOpening(this.app.practiceOpening);
+        } else {
+          this.app.startBattle();
+        }
+      };
+    }
+    
+    if (homeBtn) {
+      homeBtn.onclick = () => this.app.goHome();
     }
   }, 100);
 
