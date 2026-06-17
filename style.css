@@ -277,8 +277,16 @@ body > * {
 
 /* Last Move */
 .square.last-move {
-  box-shadow: inset 0 0 12px rgba(212,175,55,0.4);
-  filter: brightness(1.1);
+  box-shadow: inset 0 0 0 4px rgba(20, 50, 130, 0.9), inset 0 0 18px rgba(20, 50, 130, 0.55);
+  background-blend-mode: multiply;
+}
+
+.square.light.last-move {
+  background: linear-gradient(rgba(30, 70, 170, 0.45), rgba(30, 70, 170, 0.45)), var(--board-white);
+}
+
+.square.dark.last-move {
+  background: linear-gradient(rgba(30, 70, 170, 0.55), rgba(30, 70, 170, 0.55)), var(--board-maroon);
 }
 
 /* ========================================
@@ -520,66 +528,148 @@ body > * {
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
-.practice-warning {
-  font-size: 0.85rem;
-  color: #f7f7f7;
-  background: rgba(74, 144, 226, 0.12);
-  border: 1px solid rgba(74, 144, 226, 0.3);
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 18px;
-  line-height: 1.45;
-}
-
 .practice-category {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  border-radius: 12px;
+  padding: 16px 18px;
+  border: 2px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.18);
 }
 
 .practice-category h3 {
-  margin-bottom: 10px;
-  font-size: 0.95rem;
-  color: #f4f4f4;
+  margin-bottom: 12px;
+  font-size: 1rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
 }
 
-.practice-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(180px, 1fr));
-  gap: 12px;
+.practice-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 8px;
 }
 
-.practice-opening-btn {
-  text-align: left;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 14px 16px;
-  color: #fff;
+.practice-opening-row {
   cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
-.practice-opening-btn:hover {
-  transform: translateY(-2px);
-  border-color: rgba(74, 144, 226, 0.6);
-  background: rgba(74, 144, 226, 0.15);
+.practice-opening-row td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.practice-opening-row:last-child td {
+  border-bottom: none;
+}
+
+.practice-opening-row:hover {
+  background: rgba(255,255,255,0.08);
 }
 
 .practice-opening-name {
-  font-weight: 700;
-  margin-bottom: 6px;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
 }
 
-.practice-opening-meta {
-  font-size: 0.75rem;
-  color: #ccc;
+.practice-opening-side {
+  text-align: right;
+  font-size: 0.78rem;
+  opacity: 0.85;
+  white-space: nowrap;
+  width: 70px;
 }
 
-@media (max-width: 780px) {
-  .practice-list {
-    grid-template-columns: 1fr;
+/* d4 Openings (White) — Cinzel, gold tones */
+.practice-category--d4-openings-white {
+  border-color: rgba(212,175,55,0.45);
+}
+.practice-category--d4-openings-white h3 {
+  font-family: 'Cinzel', serif;
+  color: #d4af37;
+}
+.practice-category--d4-openings-white .practice-opening-name {
+  font-family: 'Cinzel', serif;
+  color: #f0dca0;
+}
+.practice-category--d4-openings-white .practice-table {
+  border: 1px solid rgba(212,175,55,0.3);
+}
+
+/* d4 Defenses (Black) — Spectral, deep red tones */
+.practice-category--d4-defenses-black {
+  border-color: rgba(176,58,58,0.5);
+}
+.practice-category--d4-defenses-black h3 {
+  font-family: 'Spectral', serif;
+  color: #e07a7a;
+}
+.practice-category--d4-defenses-black .practice-opening-name {
+  font-family: 'Spectral', serif;
+  font-weight: 600;
+  color: #f2c2c2;
+}
+.practice-category--d4-defenses-black .practice-table {
+  border: 1px solid rgba(176,58,58,0.35);
+}
+
+/* e4 Openings (White) — Marcellus, bronze/olive tones */
+.practice-category--e4-openings-white {
+  border-color: rgba(160,160,90,0.5);
+}
+.practice-category--e4-openings-white h3 {
+  font-family: 'Marcellus', serif;
+  color: #c7c177;
+}
+.practice-category--e4-openings-white .practice-opening-name {
+  font-family: 'Marcellus', serif;
+  color: #e3e0b0;
+}
+.practice-category--e4-openings-white .practice-table {
+  border: 1px solid rgba(160,160,90,0.35);
+}
+
+/* e4 Defenses (Black) — Cormorant Garamond, steel blue tones */
+.practice-category--e4-defenses-black {
+  border-color: rgba(74,144,226,0.5);
+}
+.practice-category--e4-defenses-black h3 {
+  font-family: 'Cormorant Garamond', serif;
+  color: #8fb8f0;
+}
+.practice-category--e4-defenses-black .practice-opening-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  color: #c7dcf7;
+}
+.practice-category--e4-defenses-black .practice-table {
+  border: 1px solid rgba(74,144,226,0.35);
+}
+
+/* e4 Openings (Black) — Eagle Lake, deep teal tones */
+.practice-category--e4-openings-black {
+  border-color: rgba(60,160,150,0.5);
+}
+.practice-category--e4-openings-black h3 {
+  font-family: 'Eagle Lake', serif;
+  letter-spacing: 0.5px;
+  color: #6fd6c4;
+}
+.practice-category--e4-openings-black .practice-opening-name {
+  font-family: Georgia, 'Cormorant Garamond', serif;
+  color: #b6ece2;
+}
+.practice-category--e4-openings-black .practice-table {
+  border: 1px solid rgba(60,160,150,0.35);
+}
+
+@media (max-width: 600px) {
+  .practice-opening-side {
+    width: 50px;
+    font-size: 0.7rem;
+  }
+  .practice-opening-name {
+    font-size: 0.85rem;
   }
 }
 

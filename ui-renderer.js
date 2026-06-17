@@ -383,18 +383,26 @@ class UIRenderer {
       return acc;
     }, {});
 
+    const categorySlug = category => category
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
     const sections = Object.keys(grouped).sort().map(category => {
-      const items = grouped[category].map(opening => `
-        <button class="practice-opening-btn" onclick="app.startPracticeOpening(PracticeOpenings[${opening.index}])">
-          <div class="practice-opening-name">${opening.name}</div>
-          <div class="practice-opening-meta">${opening.orientation === 'white' ? 'White' : 'Black'} • ${opening.fen.split(' ').slice(0,2).join(' ')}</div>
-        </button>
+      const slug = categorySlug(category);
+      const rows = grouped[category].map(opening => `
+        <tr class="practice-opening-row" onclick="app.startPracticeOpening(PracticeOpenings[${opening.index}])">
+          <td class="practice-opening-name">${opening.name}</td>
+          <td class="practice-opening-side">${opening.orientation === 'white' ? 'White' : 'Black'}</td>
+        </tr>
       `).join('');
 
       return `
-        <div class="practice-category">
+        <div class="practice-category practice-category--${slug}">
           <h3>${category}</h3>
-          <div class="practice-list">${items}</div>
+          <table class="practice-table">
+            <tbody>${rows}</tbody>
+          </table>
         </div>
       `;
     }).join('');
@@ -404,9 +412,6 @@ class UIRenderer {
       <div class="menu">
         <h1 class="menu-title">Practice Mode</h1>
         <p class="menu-subtitle">Pick an opening and drill the position from a real-game opening book.</p>
-        <div class="practice-warning">
-          <strong>Note:</strong> Practice results are not saved and do not affect your Master/Club merit, rank, or history.
-        </div>
         ${sections}
       </div>
     `;
