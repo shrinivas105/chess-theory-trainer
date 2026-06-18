@@ -151,7 +151,7 @@ body > * {
 .board-wrapper {
   /* Core layout & size - must stay stable */
   width: 100%;
-  max-width: 560px;
+  max-width: 100%;
   aspect-ratio: 1 / 1;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
@@ -1020,12 +1020,14 @@ body > * {
   
   .board-wrapper {
     width: 100%;
-    max-width: 98vw;
+    max-width: 100vw;
+    margin: 0 auto;
   }
   
   .game-container {
     width: 100%;
     max-width: 100vw;
+    padding: 4px;
   }
 }
 
@@ -1122,16 +1124,16 @@ body > * {
 }
 
 /* ========================================
-   GAME CONTAINER - FIXED SIZE
+   GAME CONTAINER - FULL WIDTH WITH MINIMAL INNER PADDING
    ======================================== */
 
 .game-container {
-  max-width: 600px;
+  max-width: 100%;
   width: 100%;
   background: rgba(15,10,5,0.75);
   border: 2px solid var(--roman-gold);
   border-radius: 12px;
-  padding: 8px;
+  padding: 6px;
   margin: 10px auto;
   display: flex;
   flex-direction: column;
