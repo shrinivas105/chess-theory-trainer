@@ -13,7 +13,7 @@
 
 /* Analysis mode specific */
 .game-container.analysis-mode {
-  max-width: 600px;
+  max-width: 100%;
 }
 
 .game-container.analysis-mode .board-wrapper {
@@ -256,7 +256,7 @@
 /* Tablet - Larger board */
 @media (min-width: 769px) and (max-width: 1023px) {
   .game-container {
-    max-width: 600px;
+    max-width: 100%;
     padding: 10px;
   }
 
@@ -268,7 +268,7 @@
 /* Desktop - Maximum board size */
 @media (min-width: 1024px) {
   .game-container {
-    max-width: 600px;
+    max-width: 100%;
     padding: 10px;
   }
 
@@ -280,7 +280,7 @@
 /* Large Desktop */
 @media (min-width: 1400px) {
   .game-container {
-    max-width: 650px;
+    max-width: 100%;
   }
 
   .menu {
