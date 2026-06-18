@@ -378,28 +378,25 @@ class UIRenderer {
 
   renderPracticePicker() {
     const grouped = PracticeOpenings.reduce((acc, opening, index) => {
-      if (!acc[opening.category]) acc[opening.category] = [];
-      acc[opening.category].push({ ...opening, index });
+      const group = opening.orientation === 'black' ? 'Black Defense' : 'White Opening';
+      if (!acc[group]) acc[group] = [];
+      acc[group].push({ ...opening, index });
       return acc;
     }, {});
 
-    const categorySlug = category => category
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-
-    const sections = Object.keys(grouped).sort().map(category => {
-      const slug = categorySlug(category);
-      const rows = grouped[category].map(opening => `
+    const order = ['White Opening', 'Black Defense'];
+    const sections = order.map(group => {
+      const rows = (grouped[group] || []).map(opening => `
         <tr class="practice-opening-row" onclick="app.startPracticeOpening(PracticeOpenings[${opening.index}])">
           <td class="practice-opening-name">${opening.name}</td>
           <td class="practice-opening-side">${opening.orientation === 'white' ? 'White' : 'Black'}</td>
         </tr>
       `).join('');
 
+      if (!rows) return '';
       return `
-        <div class="practice-category practice-category--${slug}">
-          <h3>${category}</h3>
+        <div class="practice-category practice-category--${group.toLowerCase().replace(/\s+/g, '-')}">
+          <h3>${group}</h3>
           <table class="practice-table">
             <tbody>${rows}</tbody>
           </table>
@@ -407,15 +404,53 @@ class UIRenderer {
       `;
     }).join('');
 
+    const isLoading = !PracticeOpeningsManager.isLoaded;
+    const emptyMessage = isLoading
+      ? 'Loading practice openings…'
+      : (PracticeOpenings.length === 0 ? 'No practice lines loaded yet. Add one or upload a CSV.' : '');
+
     document.getElementById('app').innerHTML = `
       <button class="home-button" onclick="app.goHome()">🏠 Home</button>
       <div class="menu">
         <h1 class="menu-title">Practice Mode</h1>
         <p class="menu-subtitle">Pick an opening and drill the position from a real-game opening book.</p>
-        ${sections}
+
+        <div class="practice-message">${emptyMessage}</div>
+
+        ${isLoading ? '' : sections}
+
+        <div class="practice-toolbar practice-toolbar--bottom">
+          <button id="practiceAddBtn" class="menu-btn">+ Add Practice Line</button>
+          <button id="practiceUploadBtn" class="menu-btn">📂 Upload CSV</button>
+          <button id="practiceDownloadBtn" class="menu-btn">💾 Download CSV</button>
+        </div>
+
+        <input id="practiceOpeningsUploadInput" type="file" accept=".csv" style="display:none;" />
+
+        <div id="practiceAddModal" class="practice-modal-backdrop" style="display:none;">
+          <div class="practice-modal">
+            <h2>Add Practice Line</h2>
+            <p class="practice-helper">Enter the FEN and choose the orientation for the opening.</p>
+            <label for="practiceAddName">Name</label>
+            <input id="practiceAddName" type="text" placeholder="Example: Queen's Gambit Declined" />
+            <label for="practiceAddFen">FEN</label>
+            <input id="practiceAddFen" type="text" placeholder="Example: rnbqkb1r/ppp2ppp/4pn2/3p4/3P1B2/4PN2/PPP2PPP/RN1QKB1R b KQkq - 1 4" />
+            <label>Orientation</label>
+            <div class="practice-radio-group">
+              <label><input type="radio" name="practiceAddOrientation" value="white" checked /> White</label>
+              <label><input type="radio" name="practiceAddOrientation" value="black" /> Black</label>
+            </div>
+            <div class="practice-actions">
+              <button id="practiceAddCancelBtn" class="menu-btn">Cancel</button>
+              <button id="practiceAddSaveBtn" class="menu-btn">Save</button>
+            </div>
+          </div>
+        </div>
       </div>
     `;
+
     this.renderAuthSection();
+    PracticeOpeningsManager.bindPracticePicker();
   }
 
   renderColorChoice() {

@@ -1,14 +1,220 @@
-const PracticeOpenings = [
-  { name: "Center Game (Black Play)", fen: "r1bqkbnr/pppp1ppp/2n5/8/4P3/4Q3/PPP2PPP/RNB1KBNR b KQkq - 2 4", orientation: "black", category: "e4 Openings (Black)" },
-  { name: "London System (Black Play)", fen: "rnbqkb1r/ppp2ppp/4pn2/3p4/3P1B2/4PN2/PPP2PPP/RN1QKB1R b KQkq - 1 4", orientation: "black", category: "d4 Defenses (Black)" },
-  { name: "D11 Slav Defense: Modern Line (White Play)", fen: "rnbqkbnr/pp2pppp/2p5/3p4/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3", orientation: "white", category: "d4 Openings (White)" },
-    { name: "B22 Sicilian Defense: Alapin Variation, Barmen Defense, Central Exchange (White Play)", fen: "r3kbnr/pp2pppp/2n5/3q4/3P2b1/5N2/PP3PPP/RNBQKB1R w KQkq - 1 7", orientation: "white", category: "d4 Openings (White)" },
-  { name: "Berlin defense (Black Play)", fen: "r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3", orientation: "black", category: "e4 Defenses (Black)" },
-   { name: "C45 Scotch Game: Schmidt Variation", fen: "r1bqkb1r/pppp1ppp/2n2n2/8/3NP3/8/PPP2PPP/RNBQKB1R w KQkq - 1 5", orientation: "white", category: "e4 Openings (White)" },
-    { name: "C45 Scotch Game: Blumenfeld Attack", fen: "r1b1k1nr/pppp1ppp/2n5/1N6/4q3/4P1P1/PPP4P/RN1QKB1R w KQkq - 0 9", orientation: "white", category: "e4 Openings (White)" },
-  { name: "B22 Sicilian Defense: Alapin Variation", fen: "rnbqkb1r/pp1ppppp/5n2/2p5/4P3/2P5/PP1P1PPP/RNBQKBNR w KQkq - 1 3", orientation: "white", category: "e4 Openings (White)" },
-  { name: "B13 Caro-Kann Defense: Panov Attack", fen: "rnbqkb1r/pp2pppp/5n2/3p4/2PP4/8/PP3PPP/RNBQKBNR w KQkq - 1 5", orientation: "white", category: "e4 Openings (White)" },
-   { name: "C30 King's Gambit", fen: "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq - 0 2", orientation: "black", category: "e4 Openings (Black)" },
-   { name: "C29 Vienna Game: Vienna Gambit", fen: "rnbqkb1r/pppp1ppp/5n2/4p3/4PP2/2N5/PPPP2PP/R1BQKBNR b KQkq - 0 3", orientation: "black", category: "e4 Openings (Black)" },
-   { name: "C51 Italian Game: Evans Gambit", fen: "r1bqk1nr/pppp1ppp/2n5/2b1p3/1PB1P3/5N2/P1PP1PPP/RNBQK2R b KQkq - 0 4", orientation: "black", category: "e4 Openings (Black)" }
-];
+const PracticeOpenings = [];
+
+const PracticeOpeningsManager = {
+  storageKey: 'practiceOpeningsUserLines',
+  csvFileName: 'practice-openings.csv',
+  baseRows: [],
+  userRows: [],
+  isLoaded: false,
+  loadPromise: null,
+
+  init() {
+    if (this.loadPromise) return this.loadPromise;
+    return this.loadPromise = this.load();
+  },
+
+  async load() {
+    const csvText = await this.loadCsvFile();
+    this.baseRows = csvText ? this.parseCsv(csvText) : [];
+    this.userRows = this.loadUserRows();
+    this.refreshPracticeOpenings();
+    this.isLoaded = true;
+    if (window.app && window.app.mode === 'practice') {
+      window.app.render();
+    }
+    return PracticeOpenings;
+  },
+
+  async loadCsvFile() {
+    try {
+      const response = await fetch(this.csvFileName, { cache: 'reload' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.text();
+    } catch (error) {
+      console.warn('Practice openings CSV could not be loaded:', error);
+      return '';
+    }
+  },
+
+  loadUserRows() {
+    try {
+      const raw = localStorage.getItem(this.storageKey);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  saveUserRows() {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.userRows));
+    } catch {}
+  },
+
+  refreshPracticeOpenings() {
+    PracticeOpenings.length = 0;
+    [...this.baseRows, ...this.userRows].forEach(row => PracticeOpenings.push(row));
+  },
+
+  formatName(name) {
+    return String(name || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .split(' ')
+      .map(word => word ? word[0].toUpperCase() + word.slice(1) : '')
+      .join(' ');
+  },
+
+  addLine({ name, fen, orientation }) {
+    const row = {
+      name: this.formatName(name),
+      fen: String(fen || '').trim(),
+      orientation: String(orientation || '').trim().toLowerCase() === 'black' ? 'black' : 'white',
+    };
+    if (!row.name || !row.fen) {
+      alert('Name, FEN, and orientation are required.');
+      return;
+    }
+    this.userRows.push(row);
+    this.saveUserRows();
+    this.refreshPracticeOpenings();
+    if (window.app) window.app.render();
+    this.downloadCsvFile(`practice-openings-${new Date().toISOString().slice(0, 10)}.csv`);
+    this.toggleAddModal(false);
+  },
+
+  normalizeRow(row) {
+    const name = this.formatName(row.name);
+    const fen = String(row.fen || '').trim();
+    let orientation = String(row.orientation || '').trim().toLowerCase();
+    if (!name || !fen) return null;
+    if (orientation !== 'black') orientation = 'white';
+    return { name, fen, orientation };
+  },
+
+  parseCsv(text) {
+    const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const lines = normalized.split('\n').filter(line => line.trim().length > 0);
+    if (!lines.length) return [];
+    const header = this.parseCsvLine(lines[0]).map(h => h.trim().toLowerCase());
+    return lines.slice(1).map(line => {
+      const values = this.parseCsvLine(line);
+      const row = {};
+      header.forEach((key, index) => { row[key] = values[index] ?? ''; });
+      return this.normalizeRow(row);
+    }).filter(Boolean);
+  },
+
+  parseCsvLine(line) {
+    const values = [];
+    let current = '';
+    let insideQuotes = false;
+    for (let i = 0; i < line.length; i += 1) {
+      const char = line[i];
+      if (insideQuotes) {
+        if (char === '"') {
+          if (line[i + 1] === '"') {
+            current += '"';
+            i += 1;
+          } else {
+            insideQuotes = false;
+          }
+        } else {
+          current += char;
+        }
+      } else if (char === '"') {
+        insideQuotes = true;
+      } else if (char === ',') {
+        values.push(current);
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    values.push(current);
+    return values;
+  },
+
+  stringifyCsv(rows) {
+    const header = ['name', 'fen', 'orientation'];
+    const escape = value => `"${String(value || '').replace(/"/g, '""')}"`;
+    const lines = rows.map(row => header.map(key => escape(row[key] ?? '')).join(','));
+    return [header.join(','), ...lines].join('\n');
+  },
+
+  downloadCsvFile(filename = 'practice-openings.csv') {
+    const csv = this.stringifyCsv(PracticeOpenings);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  openUploadDialog() {
+    document.getElementById('practiceOpeningsUploadInput')?.click();
+  },
+
+  handleFileChange(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    event.target.value = '';
+    this.handleUploadFile(file);
+  },
+
+  async handleUploadFile(file) {
+    try {
+      const text = await file.text();
+      const rows = this.parseCsv(text);
+      if (!rows.length) {
+        alert('No valid practice lines found. Each row needs name, fen, and orientation.');
+        return;
+      }
+      this.userRows = rows;
+      this.saveUserRows();
+      this.refreshPracticeOpenings();
+      if (window.app) window.app.render();
+      alert(`Loaded ${rows.length} practice line${rows.length !== 1 ? 's' : ''} from ${file.name}`);
+    } catch (error) {
+      console.error(error);
+      alert('Unable to load the CSV file. Please upload a valid practice openings CSV.');
+    }
+  },
+
+  toggleAddModal(show) {
+    const modal = document.getElementById('practiceAddModal');
+    if (!modal) return;
+    modal.style.display = show ? 'flex' : 'none';
+    if (show) {
+      const nameField = document.getElementById('practiceAddName');
+      if (nameField) nameField.focus();
+    }
+  },
+
+  handleAddSave() {
+    const name = document.getElementById('practiceAddName')?.value || '';
+    const fen = document.getElementById('practiceAddFen')?.value || '';
+    const orientation = document.querySelector('input[name="practiceAddOrientation"]:checked')?.value || 'white';
+    this.addLine({ name, fen, orientation });
+  },
+
+  bindPracticePicker() {
+    const uploadInput = document.getElementById('practiceOpeningsUploadInput');
+    if (uploadInput) uploadInput.onchange = (event) => this.handleFileChange(event);
+    const addBtn = document.getElementById('practiceAddBtn');
+    if (addBtn) addBtn.onclick = () => this.toggleAddModal(true);
+    const uploadBtn = document.getElementById('practiceUploadBtn');
+    if (uploadBtn) uploadBtn.onclick = () => this.openUploadDialog();
+    const downloadBtn = document.getElementById('practiceDownloadBtn');
+    if (downloadBtn) downloadBtn.onclick = () => this.downloadCsvFile();
+    const saveBtn = document.getElementById('practiceAddSaveBtn');
+    if (saveBtn) saveBtn.onclick = () => this.handleAddSave();
+    const cancelBtn = document.getElementById('practiceAddCancelBtn');
+    if (cancelBtn) cancelBtn.onclick = () => this.toggleAddModal(false);
+  },
+};
+
+PracticeOpeningsManager.init();

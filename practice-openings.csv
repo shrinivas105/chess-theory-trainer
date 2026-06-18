@@ -1,0 +1,13 @@
+name,fen,orientation,category
+"Center Game (Black Play)","r1bqkbnr/pppp1ppp/2n5/8/4P3/4Q3/PPP2PPP/RNB1KBNR b KQkq - 2 4","black","e4 Openings (Black)"
+"London System (Black Play)","rnbqkb1r/ppp2ppp/4pn2/3p4/3P1B2/4PN2/PPP2PPP/RN1QKB1R b KQkq - 1 4","black","d4 Defenses (Black)"
+"D11 Slav Defense: Modern Line (White Play)","rnbqkbnr/pp2pppp/2p5/3p4/2PP4/8/PP2PPPP/RNBQKB1R w KQkq - 0 3","white","d4 Openings (White)"
+"B22 Sicilian Defense: Alapin Variation, Barmen Defense, Central Exchange (White Play)","r3kbnr/pp2pppp/2n5/3q4/3P2b1/5N2/PP3PPP/RNBQKB1R w KQkq - 1 7","white","d4 Openings (White)"
+"Berlin defense (Black Play)","r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3","black","e4 Defenses (Black)"
+"C45 Scotch Game: Schmidt Variation","r1bqkb1r/pppp1ppp/2n2n2/8/3NP3/8/PPP2PPP/RNBQKB1R w KQkq - 1 5","white","e4 Openings (White)"
+"C45 Scotch Game: Blumenfeld Attack","r1b1k1nr/pppp1ppp/2n5/1N6/4q3/4P1P1/PPP4P/RN1QKB1R w KQkq - 0 9","white","e4 Openings (White)"
+"B22 Sicilian Defense: Alapin Variation","rnbqkb1r/pp1ppppp/5n2/2p5/4P3/2P5/PP1P1PPP/RNBQKBNR w KQkq - 1 3","white","e4 Openings (White)"
+"B13 Caro-Kann Defense: Panov Attack","rnbqkb1r/pp2pppp/5n2/3p4/2PP4/8/PP3PPP/RNBQKB1R w KQkq - 1 5","white","e4 Openings (White)"
+"C30 King's Gambit","rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKB1R b KQkq - 0 2","black","e4 Openings (Black)"
+"C29 Vienna Game: Vienna Gambit","rnbqkb1r/pppp1ppp/5n2/4p3/4PP2/2N5/PPPP2PP/R1BQKBNR b KQkq - 0 3","black","e4 Openings (Black)"
+"C51 Italian Game: Evans Gambit","r1bqk1nr/pppp1ppp/2n5/2b1p3/1PB1P3/5N2/P1PP1PPP/RNBQK2R b KQkq - 0 4","black","e4 Openings (Black)"
