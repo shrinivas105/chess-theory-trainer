@@ -225,16 +225,16 @@ class UIRenderer {
           <div class="menu-campaigns">
             <h3 style="color: var(--roman-gold); font-size: 0.9rem; margin-bottom: 10px; text-align: center;">Choose Your Campaign</h3>
             
-            <button id="masterBtn" class="menu-btn" style="background: linear-gradient(135deg, var(--roman-gold) 0%, #b8941f 100%); box-shadow: 0 6px 0 #8b6f1a, 0 8px 15px rgba(212,175,55,0.4); border-color: rgba(212,175,55,0.3);">
-              🏆 Master Campaign
+            <button id="masterBtn" class="menu-btn" style="background: linear-gradient(135deg, var(--roman-gold) 0%, #b8941f 100%); box-shadow: 0 6px 0 #8b6f1a, 0 8px 15px rgba(212,175,55,0.4); border-color: rgba(212,175,55,0.3); font-size: 1.5rem;">
+              🏆
             </button>
             
-            <button id="lichessBtn" class="menu-btn" style="background: linear-gradient(135deg, var(--roman-silver) 0%, #a0a0a0 100%); box-shadow: 0 6px 0 #808080, 0 8px 15px rgba(192,192,192,0.4); border-color: rgba(192,192,192,0.3); color: #000; font-weight: 800;">
-              ♟️ Club Campaign
+            <button id="lichessBtn" class="menu-btn" style="background: linear-gradient(135deg, var(--roman-silver) 0%, #a0a0a0 100%); box-shadow: 0 6px 0 #808080, 0 8px 15px rgba(192,192,192,0.4); border-color: rgba(192,192,192,0.3); color: #000; font-weight: 800; font-size: 1.5rem;">
+              ♟️
             </button>
 
-            <button id="practiceBtn" class="menu-btn" style="background: linear-gradient(135deg, #4a90e2 0%, #2a6fb8 100%); box-shadow: 0 6px 0 #1f4f82, 0 8px 15px rgba(46, 134, 193, 0.4); border-color: rgba(69, 121, 191, 0.3); color: #fff;">
-              📖 Practice Mode
+            <button id="practiceBtn" class="menu-btn" style="background: linear-gradient(135deg, #4a90e2 0%, #2a6fb8 100%); box-shadow: 0 6px 0 #1f4f82, 0 8px 15px rgba(46, 134, 193, 0.4); border-color: rgba(69, 121, 191, 0.3); color: #fff; font-size: 1.5rem;">
+              📖
             </button>
             
            <button id="resetBtn" class="menu-btn" style="background: transparent; border: 2px dashed #555; color: #888; box-shadow: none; font-size: 0.65rem; padding: 6px;">
@@ -410,7 +410,7 @@ class UIRenderer {
       : (PracticeOpenings.length === 0 ? 'No practice lines loaded yet. Add one or upload a CSV.' : '');
 
     document.getElementById('app').innerHTML = `
-      <button class="home-button" onclick="app.goHome()">🏠 Home</button>
+      <button class="home-button" onclick="app.goHome()">🏠</button>
       <div class="menu">
         <h1 class="menu-title">Practice Mode</h1>
         <p class="menu-subtitle">Pick an opening and drill the position from a real-game opening book.</p>
@@ -471,12 +471,12 @@ class UIRenderer {
     const gamesPlayed = isMaster ? this.app.gamesPlayedMaster : this.app.gamesPlayedLichess;
     
     document.getElementById('app').innerHTML = `
-      <button class="home-button" onclick="app.goHome()">🏠 Home</button>
+      <button class="home-button" onclick="app.goHome()">🏠</button>
       
       <div class="menu">
         <h1 class="menu-title">LINES OF THE LEGION</h1>
         <p class="menu-subtitle">
-          ${isMaster ? '🏆 Master Campaign' : '♟️ Club Campaign'}
+          ${isMaster ? '🏆' : '♟️'}
         </p>
 
         <!-- Current Legion Status -->

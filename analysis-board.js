@@ -196,7 +196,7 @@ async preloadAllData() {
     }
 
     const html = `
-  <button class="home-button" onclick="app.goHome()">🏠 Home</button>
+  <button class="home-button" onclick="app.goHome()">🏠</button>
   
   <div class="game-container analysis-mode">
         <h2 style="text-align: center; color: var(--roman-gold); margin-bottom: 4px; font-size: 1rem;">

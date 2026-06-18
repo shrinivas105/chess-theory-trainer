@@ -223,7 +223,7 @@ class AuthModule {
     } else {
       return `
         <button class="auth-btn" onclick="app.auth.handleSignIn()">
-          🔐 Sync
+          🔐
         </button>
       `;
     }

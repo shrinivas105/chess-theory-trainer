@@ -569,12 +569,12 @@ body > * {
 }
 
 .practice-opening-name {
-  font-size: 0.82rem;
+  font-size: 0.65rem;
 }
 
 .practice-opening-side {
   text-align: right;
-  font-size: 0.72rem;
+  font-size: 0.6rem;
   opacity: 0.85;
   white-space: nowrap;
   width: 70px;
