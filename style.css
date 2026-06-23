@@ -24,6 +24,14 @@
   box-sizing: border-box;
 }
 
+#app {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
 body {
   font-family: 'Cinzel', Georgia, serif;
   background: url('roman.png') center/cover no-repeat fixed;
@@ -1024,28 +1032,23 @@ body > * {
 
 @media (max-width: 768px) {
   .tooltip-content {
-    left: auto;
-    right: 0;
-    top: auto;
-    bottom: calc(100% + 12px);
-    transform: none;
-    min-width: 280px;
-    max-width: 92vw;
+    position: fixed;
+    left: 4vw;
+    right: 4vw;
     width: 92vw;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    min-width: unset;
+    max-width: 92vw;
   }
   
   .tooltip-container:hover .tooltip-content {
-    transform: none;
+    transform: translateY(-50%);
   }
   
   .tooltip-content::after {
-    top: auto;
-    bottom: -8px;
-    left: auto;
-    right: 10px;
-    transform: none;
-    border-right-color: transparent;
-    border-top-color: var(--roman-gold);
+    display: none;
   }
   
   .board-wrapper {
