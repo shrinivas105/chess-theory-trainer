@@ -361,7 +361,7 @@ body > * {
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  padding: 16px 10px;
+  padding: 16px 0px;
   box-sizing: border-box;
   background: 
     /* Changed 0.75 -> 0.4 and 0.80 -> 0.45 for much better transparency */
@@ -400,6 +400,7 @@ body > * {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  width: 100%;
 }
 
 .menu-rules {
@@ -826,7 +827,7 @@ body > * {
 
 /* Legion Cards */
 .legion-card {
-  margin: 8px auto;
+  margin: 0;
   padding: 10px 8px;
   border-radius: 8px;
   background: rgba(15,10,5,0.9);
@@ -1348,14 +1349,14 @@ body > * {
   }
 
   .menu {
-    padding: 12px 4px;
+    padding: 12px 0px;
     border-width: 1px;
   }
 
   .legion-card {
-    padding: 8px 4px;
+    padding: 8px 6px;
     max-width: 100%;
-    margin: 4px 0;
+    margin: 0;
     width: 100%;
   }
 
