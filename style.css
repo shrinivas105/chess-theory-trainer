@@ -1324,7 +1324,8 @@ body > * {
 
 @media (max-width: 600px) {
   body {
-    padding: 50px 2px 12px 2px;
+    padding: 50px 0px 12px 0px;
+    align-items: stretch;
   }
 
   .game-container {
@@ -1351,6 +1352,9 @@ body > * {
   .menu {
     padding: 12px 0px;
     border-width: 1px;
+    width: 100%;
+    align-self: stretch;
+    border-radius: 0;
   }
 
   .legion-card {
