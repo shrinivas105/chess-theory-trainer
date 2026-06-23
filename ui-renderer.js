@@ -473,30 +473,82 @@ class UIRenderer {
     const currentSafetyNet = isMaster ? masterSafetyNet : clubSafetyNet;
     const gamesPlayed = isMaster ? this.app.gamesPlayedMaster : this.app.gamesPlayedLichess;
     
+    // Calculate progress to next rank
+    const currentLevel = currentLegion.level || 0;
+    const currentThreshold = currentLegion.thresholds ? currentLegion.thresholds[currentLevel] : 0;
+    const nextThreshold = currentLegion.thresholds && currentLevel < currentLegion.rankOrder.length - 1
+      ? currentLegion.thresholds[currentLevel + 1]
+      : currentThreshold;
+    const progressInSegment = currentThreshold === nextThreshold
+      ? 100
+      : Math.round(((currentMerit - currentThreshold) / (nextThreshold - currentThreshold)) * 100);
+    const clampedProgress = Math.min(100, Math.max(0, progressInSegment));
+    
+    // Generate progress path visualization with medal images
+    const rankImageMap = {
+      'Recruit': 'recruit.jpg',
+      'Legionary': 'Legionary.jpg',
+      'Optio': 'optio.jpg',
+      'Centurion': 'centurion.jpg',
+      'Tribunus': 'trbunus.jpg',
+      'Legatus': 'legatus.jpg'
+    };
+    
+    const pathSteps = currentLegion.rankOrder.map((rank, i) => {
+      const isReached = i <= currentLevel;
+      const isCurrent = i === currentLevel;
+      const threshold = currentLegion.thresholds ? currentLegion.thresholds[i] : 0;
+      const imageSrc = rankImageMap[rank] || '';
+      return `
+        <div class="legion-path-step ${isReached ? 'legion-path-step--reached' : ''} ${isCurrent ? 'legion-path-step--current' : ''}">
+          <div class="legion-path-node">
+            ${imageSrc ? `<img src="${imageSrc}" alt="${rank}" class="legion-path-medal" onerror="this.style.display='none'; this.parentElement.innerHTML='${rank.substring(0,1)}';"/>` : rank.substring(0, 1)}
+          </div>
+          <div class="legion-path-label">${rank}</div>
+          <div class="legion-path-merit">${threshold}</div>
+        </div>
+      `;
+    }).join('');
+    
     document.getElementById('app').innerHTML = `
       <button class="home-button" onclick="app.goHome()">🏠</button>
       
       <div class="menu">
-        <h1 class="menu-title">LINES OF THE LEGION</h1>
-        <p class="menu-subtitle">
-          ${isMaster ? '🏆' : '♟️'}
-        </p>
-
         <!-- Current Legion Status -->
         <div class="legion-card ${isMaster ? 'masters' : 'club'}">
           <div class="legion-header">${isMaster ? '🏆 Masters Legion' : '♟️ Club Legion'}</div>
           <div class="legion-status">
             ${currentLegion.title} (${currentMerit} merit) ${currentLegion.icon}
           </div>
-          ${currentLegion.nextRank
-            ? `<div class="legion-next">${currentLegion.title} → ${currentLegion.nextRank}: ${currentLegion.pointsNeeded} more</div>`
-            : `<div class="legion-next">Highest rank achieved</div>`}
-          ${currentSafetyNet ? `<div class="safety-net-display">🛡️ Demotion Safety Net: ${currentSafetyNet} merit</div>` : ''}
-          <div class="rank-progress">
-            ${currentLegion.rankOrder.map(r =>
-              `<div class="rank-step ${r === currentLegion.title ? 'active' : ''}">${r}</div>`
-            ).join('')}
+          
+          <!-- Road to Legatus Progress -->
+          <div style="margin: 20px 0;">
+            <div style="font-size: 0.85rem; font-weight: bold; color: var(--roman-gold); margin-bottom: 12px; text-align: center;">Road to Legatus</div>
+            
+            <!-- Progress Path -->
+            <div class="legion-path">
+              ${pathSteps}
+            </div>
+            
+            <!-- Progress Bar to Next Rank -->
+            ${currentLegion.nextRank ? `
+              <div style="margin-top: 16px;">
+                <div style="font-size: 0.75rem; color: #aaa; margin-bottom: 6px; text-align: center;">
+                  ${currentLegion.title} → ${currentLegion.nextRank}
+                </div>
+                <div style="background: rgba(0,0,0,0.3); border-radius: 4px; height: 12px; overflow: hidden; border: 1px solid var(--roman-gold);">
+                  <div style="background: linear-gradient(90deg, var(--roman-gold), #d4af37); height: 100%; width: ${clampedProgress}%; transition: width 0.3s ease;"></div>
+                </div>
+                <div style="font-size: 0.7rem; color: #aaa; margin-top: 4px; text-align: center;">
+                  ${currentMerit} / ${nextThreshold} merit (${clampedProgress}%)
+                </div>
+              </div>
+            ` : `
+              <div style="font-size: 0.75rem; color: var(--roman-gold); text-align: center; margin-top: 12px; font-weight: bold;">✨ Highest rank achieved ✨</div>
+            `}
           </div>
+          
+          ${currentSafetyNet ? `<div class="safety-net-display">🛡️ Demotion Safety Net: ${currentSafetyNet} merit</div>` : ''}
           ${currentBattleHistory}
           <div style="font-size:0.75rem;color:#aaa;margin-top:4px;text-align:center;">
             Battles Fought: ${gamesPlayed}
@@ -677,16 +729,14 @@ class UIRenderer {
       existingContainer.remove();
     }
     
-    // Now create fresh container
+    // Now create fresh container (NO home button here)
     document.getElementById('app').innerHTML = `
-      <button class="home-button" onclick="app.goHome()">🏠 Home</button>
-      
       <div class="game-container">
         <div class="board-wrapper" id="board"></div>
         <div class="info-line" id="gameCount">Loading position data...</div>
         <div id="endSummary" class="end-summary" style="display:none;"></div>
         <div id="theoryMessage" class="theory-message" style="display:none;"></div>
-        <div class="action-buttons">
+        <div class="action-buttons" style="display:none;">
           <button class="btn" onclick="location.reload()">🔄 New Battle</button>
           <button class="btn" id="hintBtn">🎖️ Consult Commander</button>
         </div>
@@ -727,7 +777,7 @@ class UIRenderer {
     <h3 style="color: ${rankColor}; text-shadow: 0 0 20px ${rankColor}; font-size: 0.85rem; margin-bottom: 6px;">${battleRank.icon} ${battleRank.title} • Score: ${battleRank.score}/100</h3>
     <div class="stats-grid" style="gap: 5px; font-size: 0.68rem; margin: 6px 0;">
       <div style="padding: 5px;">Moves<br><strong style="font-size: 0.9rem;">${this.app.playerMoves}</strong></div>
-      <div style="padding: 5px;">Quality<br><strong style="font-size: 0.9rem;">${moveQuality}%</strong></div>
+      <div style="padding: 5px;">Book Move<br><strong style="font-size: 0.9rem;">${moveQuality}%</strong></div>
       <div style="padding: 5px;">Eval<br><strong style="font-size: 0.9rem;">${displayEval}</strong></div>
     </div>
     <div style="font-style:italic;color:#bbb;margin:5px 0;font-size:0.7rem;">"${battleRank.msg}"</div>
@@ -752,11 +802,17 @@ class UIRenderer {
         📋 Copy
       </button>
       ` : ''}
+      ${isPractice ? `
       <button id="tryAgainBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
         🔄 Try Again
       </button>
-      <button id="homeBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
-        🏠 Home
+      ` : `
+      <button id="continueCampaignBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+        ⚔️ Continue Campaign
+      </button>
+      `}
+      <button id="exitBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+        🚪 Exit
       </button>
     </div>
 
@@ -775,7 +831,8 @@ class UIRenderer {
     const downloadBtn = document.getElementById('downloadPGNBtn');
     const copyBtn = document.getElementById('copyPGNBtn');
     const tryAgainBtn = document.getElementById('tryAgainBtn');
-    const homeBtn = document.getElementById('homeBtn');
+    const continueCampaignBtn = document.getElementById('continueCampaignBtn');
+    const exitBtn = document.getElementById('exitBtn');
     
     if (analysisBtn) {
       analysisBtn.onclick = () => this.app.showAnalysis();
@@ -799,32 +856,19 @@ class UIRenderer {
       };
     }
     
-    if (homeBtn) {
-      homeBtn.onclick = () => this.app.goHome();
+    if (continueCampaignBtn) {
+      continueCampaignBtn.onclick = () => {
+        app.renderColorChoice();
+      };
+    }
+    
+    if (exitBtn) {
+      exitBtn.onclick = () => this.app.goHome();
     }
   }, 100);
 
-  let html = `<strong>Historical games from this position:</strong><br>`;
-  if (gamesToShow.length > 0) {
-    gamesToShow.forEach((game, idx) => {
-      const whitePlayer = game.white?.name || 'Unknown';
-      const blackPlayer = game.black?.name || 'Unknown';
-      const whiteRating = game.white?.rating || '?';
-      const blackRating = game.black?.rating || '?';
-      const year = game.year || '';
-      const gameId = game.id || '';
-      const gameUrl = gameId ? `https://lichess.org/${gameId}` : '#';
-      let resultText = game.winner === 'white' ? '1-0' : game.winner === 'black' ? '0-1' : '½-½';
-      let resultColor = game.winner === 'white' ? '#fff' : game.winner === 'black' ? '#ccc' : '#f1c40f';
-      html += `<div class="game-list-item">
-        <strong>${idx + 1}.</strong> ${whitePlayer} (${whiteRating}) – ${blackPlayer} (${blackRating})${year ? `, ${year}` : ''}<br>
-        <span style="color:${resultColor};">${resultText}</span> • <a href="${gameUrl}" target="_blank">View ↗</a>
-      </div>`;
-    });
-  } else {
-    html += '<em style="color:#888;">No games found.</em>';
-  }
-  msgEl.innerHTML = html;
-  msgEl.style.display = 'block';
+  // Hide historical games section
+  msgEl.innerHTML = '';
+  msgEl.style.display = 'none';
 }
 }

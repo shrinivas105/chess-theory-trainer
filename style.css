@@ -1191,6 +1191,133 @@ body > * {
   border: 2px solid rgba(255,255,255,0.2);
   border-radius: 8px;
   font-weight: 600;
+}
+
+/* ========================================
+   LEGION PATH - PROGRESS VISUALIZATION
+   ======================================== */
+
+.legion-path {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 20px 10px 10px 10px;
+  position: relative;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  min-height: 120px;
+}
+
+/* Connecting line behind steps */
+.legion-path::before {
+  content: '';
+  position: absolute;
+  bottom: 50px;
+  left: 15px;
+  right: 15px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(212,175,55,0.3) 0%, rgba(212,175,55,0.6) 50%, rgba(212,175,55,0.3) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.legion-path-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+  opacity: 0.5;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.legion-path-step--reached {
+  opacity: 1;
+}
+
+.legion-path-step--current {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.legion-path-node {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(212,175,55,0.2);
+  border: 2px solid rgba(212,175,55,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: rgba(212,175,55,0.6);
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.legion-path-medal {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.legion-path-step--reached .legion-path-node {
+  background: rgba(212,175,55,0.4);
+  border-color: var(--roman-gold);
+  color: var(--roman-gold);
+  box-shadow: 0 0 8px rgba(212,175,55,0.4);
+}
+
+.legion-path-step--current .legion-path-node {
+  background: linear-gradient(135deg, var(--roman-gold), #cb9b51);
+  border-color: #ffd700;
+  color: #000;
+  box-shadow: 0 0 20px rgba(212,175,55,0.9), inset 0 0 12px rgba(255,255,255,0.4), 0 0 30px rgba(212,175,55,0.7);
+  width: 52px;
+  height: 52px;
+  border-width: 3px;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+}
+
+.legion-path-label {
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: #aaa;
+  text-align: center;
+  margin-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+.legion-path-step--reached .legion-path-label {
+  color: var(--roman-gold);
+}
+
+.legion-path-step--current .legion-path-label {
+  color: #ffd700;
+  font-size: 0.7rem;
+}
+
+.legion-path-merit {
+  font-size: 0.6rem;
+  color: #777;
+  transition: color 0.3s ease;
+}
+
+.legion-path-step--reached .legion-path-merit {
+  color: #999;
+}
+
+.legion-path-step--current .legion-path-merit {
+  color: var(--roman-gold);
+  font-weight: bold;
+}
   font-size: 0.8rem;
   font-family: 'Cinzel', serif;
   cursor: pointer;

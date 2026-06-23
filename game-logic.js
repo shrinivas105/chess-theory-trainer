@@ -193,6 +193,10 @@ class ChessTheoryApp {
     this.render();
   }
 
+  renderColorChoice() {
+    this.ui.renderColorChoice();
+  }
+
   selectColor(color) {
     this.playerColor = color;
     this.hintUsed = false;
