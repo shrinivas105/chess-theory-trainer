@@ -1323,7 +1323,7 @@ body > * {
 
 @media (max-width: 600px) {
   body {
-    padding: 50px 4px 12px 4px;
+    padding: 50px 2px 12px 2px;
   }
 
   .game-container {
@@ -1348,14 +1348,15 @@ body > * {
   }
 
   .menu {
-    padding: 12px 10px;
+    padding: 12px 4px;
     border-width: 1px;
   }
 
   .legion-card {
-    padding: 8px 8px;
+    padding: 8px 4px;
     max-width: 100%;
     margin: 4px 0;
+    width: 100%;
   }
 
   .legion-header {
