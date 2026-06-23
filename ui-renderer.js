@@ -522,8 +522,8 @@ class UIRenderer {
           </div>
           
           <!-- Road to Legatus Progress -->
-          <div style="margin: 20px 0;">
-            <div style="font-size: 0.85rem; font-weight: bold; color: var(--roman-gold); margin-bottom: 12px; text-align: center;">Road to Legatus</div>
+          <div style="margin: 8px 0;">
+            <div style="font-size: 0.8rem; font-weight: bold; color: var(--roman-gold); margin-bottom: 8px; text-align: center;">Road to Legatus</div>
             
             <!-- Progress Path -->
             <div class="legion-path">
@@ -532,31 +532,31 @@ class UIRenderer {
             
             <!-- Progress Bar to Next Rank -->
             ${currentLegion.nextRank ? `
-              <div style="margin-top: 16px;">
-                <div style="font-size: 0.75rem; color: #aaa; margin-bottom: 6px; text-align: center;">
+              <div style="margin-top: 10px;">
+                <div style="font-size: 0.7rem; color: #aaa; margin-bottom: 4px; text-align: center;">
                   ${currentLegion.title} → ${currentLegion.nextRank}
                 </div>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 4px; height: 12px; overflow: hidden; border: 1px solid var(--roman-gold);">
+                <div style="background: rgba(0,0,0,0.3); border-radius: 4px; height: 10px; overflow: hidden; border: 1px solid var(--roman-gold);">
                   <div style="background: linear-gradient(90deg, var(--roman-gold), #d4af37); height: 100%; width: ${clampedProgress}%; transition: width 0.3s ease;"></div>
                 </div>
-                <div style="font-size: 0.7rem; color: #aaa; margin-top: 4px; text-align: center;">
+                <div style="font-size: 0.65rem; color: #aaa; margin-top: 3px; text-align: center;">
                   ${currentMerit} / ${nextThreshold} merit (${clampedProgress}%)
                 </div>
               </div>
             ` : `
-              <div style="font-size: 0.75rem; color: var(--roman-gold); text-align: center; margin-top: 12px; font-weight: bold;">✨ Highest rank achieved ✨</div>
+              <div style="font-size: 0.7rem; color: var(--roman-gold); text-align: center; margin-top: 6px; font-weight: bold;">✨ Highest rank achieved ✨</div>
             `}
           </div>
           
           ${currentSafetyNet ? `<div class="safety-net-display">🛡️ Demotion Safety Net: ${currentSafetyNet} merit</div>` : ''}
           ${currentBattleHistory}
-          <div style="font-size:0.75rem;color:#aaa;margin-top:4px;text-align:center;">
+          <div style="font-size:0.7rem;color:#aaa;margin-top:2px;text-align:center;">
             Battles Fought: ${gamesPlayed}
           </div>
         </div>
 
-        <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
-          <button id="startBattleBtn" class="menu-btn" style="width: auto; padding: 12px 24px; font-size: 0.9rem;">⚔️ Start Battle</button>
+        <div style="display:flex; gap:10px; justify-content:center; margin:8px 0;">
+          <button id="startBattleBtn" class="menu-btn" style="width: auto; padding: 10px 20px; font-size: 0.85rem;">⚔️ Start Battle</button>
         </div>
       </div>
     `;
