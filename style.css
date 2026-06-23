@@ -431,14 +431,14 @@ body > * {
   border: none;
   color: var(--roman-gold);
   font-family: 'Cinzel', serif;
-  font-size: 1rem;
+  font-size: 0.6rem;
   font-weight: 700;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .rules-toggle:hover {
@@ -517,25 +517,43 @@ body > * {
 
 .menu-btn {
   width: 100%;
-  padding: 10px 12px;
-  margin: 5px 0;
+  padding: 6px 10px;
+  margin: 3px 0;
   background: linear-gradient(135deg, var(--maroon-costume), #600002);
   color: #fff;
   border: 2px solid rgba(255,255,255,0.2);
-  border-radius: 10px;
-  font-size: 0.8rem;
+  border-radius: 8px;
+  font-size: 0.6rem;
   font-weight: 700;
   font-family: 'Cinzel', serif;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 0 #4a0001, 0 6px 12px rgba(0,0,0,0.4);
+  box-shadow: 0 3px 0 #4a0001, 0 4px 8px rgba(0,0,0,0.4);
 }
 
 .menu-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 #4a0001, 0 10px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 5px 0 #4a0001, 0 8px 16px rgba(0,0,0,0.5);
 }
+
+.campaign-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.campaign-btn-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.campaign-btn-label {
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+}
+
 
 /* Game Description Section */
 .game-description {

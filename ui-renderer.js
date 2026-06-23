@@ -225,17 +225,20 @@ class UIRenderer {
           <div class="menu-campaigns">
             <h3 style="color: var(--roman-gold); font-size: 0.9rem; margin-bottom: 10px; text-align: center;">Choose Your Campaign</h3>
             
-            <button id="masterBtn" class="menu-btn" style="background: linear-gradient(135deg, var(--roman-gold) 0%, #b8941f 100%); box-shadow: 0 6px 0 #8b6f1a, 0 8px 15px rgba(212,175,55,0.4); border-color: rgba(212,175,55,0.3); font-size: 1.5rem;">
-              🏆
-            </button>
+           <button id="masterBtn" class="menu-btn campaign-btn" style="background: linear-gradient(135deg, var(--roman-gold) 0%, #b8941f 100%); box-shadow: 0 4px 0 #8b6f1a, 0 5px 10px rgba(212,175,55,0.4); border-color: rgba(212,175,55,0.3);">
+  <span class="campaign-btn-icon">🏆</span>
+  <span class="campaign-btn-label">Master Campaign</span>
+</button>
             
-            <button id="lichessBtn" class="menu-btn" style="background: linear-gradient(135deg, var(--roman-silver) 0%, #a0a0a0 100%); box-shadow: 0 6px 0 #808080, 0 8px 15px rgba(192,192,192,0.4); border-color: rgba(192,192,192,0.3); color: #000; font-weight: 800; font-size: 1.5rem;">
-              ♟️
-            </button>
+     <button id="lichessBtn" class="menu-btn campaign-btn" style="background: linear-gradient(135deg, var(--roman-silver) 0%, #a0a0a0 100%); box-shadow: 0 4px 0 #808080, 0 5px 10px rgba(192,192,192,0.4); border-color: rgba(192,192,192,0.3); color: #000; font-weight: 800;">
+  <span class="campaign-btn-icon">♟️</span>
+  <span class="campaign-btn-label">Club Campaign</span>
+</button>
 
-            <button id="practiceBtn" class="menu-btn" style="background: linear-gradient(135deg, #4a90e2 0%, #2a6fb8 100%); box-shadow: 0 6px 0 #1f4f82, 0 8px 15px rgba(46, 134, 193, 0.4); border-color: rgba(69, 121, 191, 0.3); color: #fff; font-size: 1.5rem;">
-              📖
-            </button>
+     <button id="practiceBtn" class="menu-btn campaign-btn" style="background: linear-gradient(135deg, #4a90e2 0%, #2a6fb8 100%); box-shadow: 0 4px 0 #1f4f82, 0 5px 10px rgba(46, 134, 193, 0.4); border-color: rgba(69, 121, 191, 0.3); color: #fff;">
+  <span class="campaign-btn-icon">📖</span>
+  <span class="campaign-btn-label">Practice</span>
+</button>
             
            <button id="resetBtn" class="menu-btn" style="background: transparent; border: 2px dashed #555; color: #888; box-shadow: none; font-size: 0.65rem; padding: 6px;">
   ↺ Reset Progress
