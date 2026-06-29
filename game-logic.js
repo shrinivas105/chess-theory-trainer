@@ -703,6 +703,13 @@ async checkMoveQuality(prevFEN, playerUCI) {
         }
         
         this.ui.renderBoard();
+
+        // If the AI's move ended the game (checkmate, stalemate, etc.), stop here
+        if (this.game.game_over()) {
+          this.stopGameDueToThinTheory();
+          return;
+        }
+
         this.queryExplorer();
       }
     } catch (error) {
@@ -761,9 +768,21 @@ async checkMoveQuality(prevFEN, playerUCI) {
       this.qualityTrackedMoves
     );
     
-    const score = scoreResult.score;
-    const penaltyReason = scoreResult.penaltyReason;
-    
+    let score = scoreResult.score;
+    let penaltyReason = scoreResult.penaltyReason;
+
+    // Checkmate overrides: player delivers checkmate → 100 (Imperator), player gets checkmated → 0 (Levy)
+    if (this.game.in_checkmate()) {
+      const playerWon = this.game.turn() !== this.playerColor; // loser's turn after checkmate
+      if (playerWon) {
+        score = 100;
+        penaltyReason = null;
+      } else {
+        score = 0;
+        penaltyReason = null;
+      }
+    }
+
     const battleRank = Scoring.getBattleRank(score, this.finalPlayerEval, penaltyReason, this.aiSource);
 
     if (this.mode === 'practice') {
@@ -938,6 +957,13 @@ render() {
   }
 
   this.ui.renderBoard();
+
+  // Catch checkmate, stalemate, or any other terminal position
+  if (this.game.game_over()) {
+    this.stopGameDueToThinTheory();
+    return;
+  }
+
   this.queryExplorer();
 
   if (this.game.turn() !== this.playerColor) {
