@@ -1495,15 +1495,15 @@ body > * {
 
 .promotion-message {
   background: linear-gradient(135deg, rgba(39,174,96,0.9), rgba(27,143,78,0.9));
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 12px;
+  padding: 8px;
+  border-radius: 7px;
+  margin-bottom: 8px;
   font-weight: bold;
   text-align: center;
-  border: 2px solid #27ae60;
+  border: 1.4px solid #27ae60;
   color: #fff;
-  font-size: 0.85rem;
-  box-shadow: 0 6px 16px rgba(39,174,96,0.5);
+  font-size: 0.595rem;
+  box-shadow: 0 4px 11px rgba(39,174,96,0.5);
   max-width: 100%;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -1538,15 +1538,15 @@ body > * {
 
 .demotion-message {
   background: linear-gradient(135deg, rgba(231,76,60,0.95), rgba(178,34,34,0.95));
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 12px;
+  padding: 8px;
+  border-radius: 7px;
+  margin-bottom: 8px;
   font-weight: bold;
   text-align: center;
-  border: 2px solid #ff0000;
+  border: 1.4px solid #ff0000;
   color: #fff;
-  font-size: 0.85rem;
-  box-shadow: 0 6px 16px rgba(255,0,0,0.6);
+  font-size: 0.595rem;
+  box-shadow: 0 4px 11px rgba(255,0,0,0.6);
   max-width: 100%;
   word-wrap: break-word;
   overflow-wrap: break-word;

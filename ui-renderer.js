@@ -781,7 +781,7 @@ class UIRenderer {
       <div style="padding: 5px;">Book Move<br><strong style="font-size: 0.9rem;">${moveQuality}%</strong></div>
       <div style="padding: 5px;">Eval<br><strong style="font-size: 0.9rem;">${displayEval}</strong></div>
     </div>
-    <div style="font-style:italic;color:${rankColor};margin:5px 0;font-size:0.49rem;">Commander says - "${battleRank.msg}"</div>
+    <div style="font-style:italic;color:${rankColor};margin:5px 0;font-size:0.588rem;">Commander says - "${battleRank.msg}"</div>
     <div style="font-size:0.476rem;color:${rankColor};margin:4px 0;"><em>${battleRank.sub}</em></div>
     <div class="rank-progress" style="gap: 3px; margin: 6px 0;">
       ${['Levy', 'Hastatus', 'Principes', 'Triarius', 'Imperator'].map(r => {
