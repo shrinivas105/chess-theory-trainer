@@ -780,8 +780,8 @@ class UIRenderer {
       <div style="padding: 5px;">Book Move<br><strong style="font-size: 0.9rem;">${moveQuality}%</strong></div>
       <div style="padding: 5px;">Eval<br><strong style="font-size: 0.9rem;">${displayEval}</strong></div>
     </div>
-    <div style="font-style:italic;color:#bbb;margin:5px 0;font-size:0.7rem;">"${battleRank.msg}"</div>
-    <div style="font-size:0.68rem;color:#aaa;margin:4px 0;"><em>${battleRank.sub}</em></div>
+    <div style="font-style:italic;color:${rankColor};margin:5px 0;font-size:0.49rem;">"${battleRank.msg}"</div>
+    <div style="font-size:0.476rem;color:${rankColor};margin:4px 0;"><em>${battleRank.sub}</em></div>
     <div class="rank-progress" style="gap: 3px; margin: 6px 0;">
       ${['Levy', 'Hastatus', 'Principes', 'Triarius', 'Imperator'].map(r => {
         const color = rankColors[r];
@@ -791,17 +791,6 @@ class UIRenderer {
     </div>
     
     <div style="margin-top:10px; display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
-      <button id="showAnalysisBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
-        📊 Analyze
-      </button>
-      ${!isPractice ? `
-      <button id="downloadPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
-        📥 PGN
-      </button>
-      <button id="copyPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
-        📋 Copy
-      </button>
-      ` : ''}
       ${isPractice ? `
       <button id="tryAgainBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
         🔄 Try Again
@@ -811,6 +800,14 @@ class UIRenderer {
         ⚔️ Continue Campaign
       </button>
       `}
+      <button id="showAnalysisBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+        📊 Analyze
+      </button>
+      ${!isPractice ? `
+      <button id="downloadPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
+        📥 PGN
+      </button>
+      ` : ''}
       <button id="exitBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
         🚪 Exit
       </button>
@@ -829,7 +826,6 @@ class UIRenderer {
   setTimeout(() => {
     const analysisBtn = document.getElementById('showAnalysisBtn');
     const downloadBtn = document.getElementById('downloadPGNBtn');
-    const copyBtn = document.getElementById('copyPGNBtn');
     const tryAgainBtn = document.getElementById('tryAgainBtn');
     const continueCampaignBtn = document.getElementById('continueCampaignBtn');
     const exitBtn = document.getElementById('exitBtn');
@@ -840,10 +836,6 @@ class UIRenderer {
     
     if (downloadBtn) {
       downloadBtn.onclick = () => this.app.downloadPGN();
-    }
-    
-    if (copyBtn) {
-      copyBtn.onclick = () => this.app.copyPGN();
     }
     
     if (tryAgainBtn) {

@@ -276,6 +276,9 @@ async preloadAllData() {
   <button class="btn" onclick="app.downloadPGN()" style="padding: 5px 10px; font-size: 0.75rem;">
     📥 PGN
   </button>
+  <button class="btn" onclick="app.copyPGN()" style="padding: 5px 10px; font-size: 0.75rem;">
+    📋 Copy
+  </button>
 </div>
       </div>
     `;
