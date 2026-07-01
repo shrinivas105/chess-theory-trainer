@@ -867,8 +867,29 @@ class UIRenderer {
     }
   }, 100);
 
-  // Hide historical games section
-  msgEl.innerHTML = '';
-  msgEl.style.display = 'none';
+  // Show historical games from this position
+  if (gamesToShow && gamesToShow.length > 0) {
+    let html = `<strong>Historical games from this position:</strong><br>`;
+    gamesToShow.forEach((game, idx) => {
+      const whitePlayer = game.white?.name || 'Unknown';
+      const blackPlayer = game.black?.name || 'Unknown';
+      const whiteRating = game.white?.rating || '?';
+      const blackRating = game.black?.rating || '?';
+      const year = game.year || '';
+      const gameId = game.id || '';
+      const gameUrl = gameId ? `https://lichess.org/${gameId}` : '#';
+      const resultText = game.winner === 'white' ? '1-0' : game.winner === 'black' ? '0-1' : '\u00bd-\u00bd';
+      const resultColor = game.winner === 'white' ? '#fff' : game.winner === 'black' ? '#ccc' : '#f1c40f';
+      html += `<div class="game-list-item">
+        <strong>${idx + 1}.</strong> ${whitePlayer} (${whiteRating}) \u2013 ${blackPlayer} (${blackRating})${year ? `, ${year}` : ''}<br>
+        <span style="color:${resultColor};">${resultText}</span> \u2022 <a href="${gameUrl}" target="_blank">View \u2197</a>
+      </div>`;
+    });
+    msgEl.innerHTML = html;
+    msgEl.style.display = 'block';
+  } else {
+    msgEl.innerHTML = '';
+    msgEl.style.display = 'none';
+  }
 }
 }
