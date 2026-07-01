@@ -47,7 +47,7 @@ class UIRenderer {
       <div class="donate-wrap">
         <a href="${DONATION_PAYPAL}" target="_blank" rel="noopener noreferrer"
            class="coffee-btn coffee-btn--primary"
-           style="color:#ffffff !important; text-decoration:none !important; font-size:0.85rem;">
+           style="color:#ffffff !important; text-decoration:none !important; font-size:0.425rem;">
           ☕ Enjoyed this game ? Leave a tip using Paypal
         </a>
       </div>
@@ -786,7 +786,7 @@ class UIRenderer {
       ${['Levy', 'Hastatus', 'Principes', 'Triarius', 'Imperator'].map(r => {
         const color = rankColors[r];
         const isActive = r === battleRank.title;
-        return `<div class="rank-step ${isActive ? 'active' : ''}" style="padding: 3px 6px; font-size: 0.65rem; ${isActive ? `background: linear-gradient(135deg, ${color}, ${color}); color: ${r === 'Hastatus' ? '#000' : '#fff'}; border-color: ${color};` : ''}">${r}</div>`;
+        return `<div class="rank-step ${isActive ? 'active' : ''}" style="padding: 2px 4px; font-size: 0.455rem; ${isActive ? `background: linear-gradient(135deg, ${color}, ${color}); color: ${r === 'Hastatus' ? '#000' : '#fff'}; border-color: ${color};` : ''}">${r}</div>`;
       }).join('')}
     </div>
     
