@@ -803,11 +803,6 @@ class UIRenderer {
       <button id="showAnalysisBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
         📊 Analyze
       </button>
-      ${!isPractice ? `
-      <button id="downloadPGNBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
-        📥 PGN
-      </button>
-      ` : ''}
       <button id="exitBtn" class="btn" style="padding: 6px 10px; font-size: 0.7rem;">
         🚪 Exit
       </button>
@@ -825,17 +820,12 @@ class UIRenderer {
 
   setTimeout(() => {
     const analysisBtn = document.getElementById('showAnalysisBtn');
-    const downloadBtn = document.getElementById('downloadPGNBtn');
     const tryAgainBtn = document.getElementById('tryAgainBtn');
     const continueCampaignBtn = document.getElementById('continueCampaignBtn');
     const exitBtn = document.getElementById('exitBtn');
     
     if (analysisBtn) {
       analysisBtn.onclick = () => this.app.showAnalysis();
-    }
-    
-    if (downloadBtn) {
-      downloadBtn.onclick = () => this.app.downloadPGN();
     }
     
     if (tryAgainBtn) {
