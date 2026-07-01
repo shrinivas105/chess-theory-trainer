@@ -188,7 +188,7 @@ body > * {
   grid-template-columns: repeat(8, 1fr);
   
   /* Visual appearance */
-  border: 6px solid var(--maroon-costume);
+  border: 2px solid var(--maroon-costume);
   border-radius: 4px;
   background: #1a1410;
   
@@ -325,8 +325,8 @@ body > * {
    ======================================== */
 
 .piece {
-  width: 92%;
-  height: 92%;
+  width: 110%;
+  height: 110%;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.85));
   pointer-events: auto;
   position: relative;
