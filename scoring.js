@@ -352,14 +352,15 @@ class Scoring {
           demote: true,
           newRank: 'Legionary',
           newMerit: 200,
-          message: '⚔️ Commander: Two Levy failures! Your merit has been reset to 200! Prove yourself again!'
+          isReset: true,
+          message: 'Reset - Merit reset to 200'
         };
       } else {
         return {
           demote: true,
           newRank: 'Recruit',
           newMerit: 0,
-          message: '⚔️ Commander: Two Levy failures! You are stripped to Recruit! Prove your worth again!'
+          message: 'Demoted - You are now Recruit'
         };
       }
     }
@@ -372,14 +373,15 @@ class Scoring {
           demote: true,
           newRank: 'Optio',
           newMerit: 500,
-          message: '⚔️ Commander: Repeated weak battles! Your merit has been reset to 500! Rise or perish!'
+          isReset: true,
+          message: 'Reset - Merit reset to 500'
         };
       } else {
         return {
           demote: true,
           newRank: 'Legionary',
           newMerit: 200,
-          message: '⚔️ Commander: Repeated weak battles! You are broken to Legionary! Rise or perish!'
+          message: 'Demoted - You are now Legionary'
         };
       }
     }
@@ -391,14 +393,15 @@ class Scoring {
           demote: true,
           newRank: 'Centurion',
           newMerit: 900,
-          message: '⚔️ Commander: A Centurion showing such weakness! Your merit has been reset to 900! Disgraceful!'
+          isReset: true,
+          message: 'Reset - Merit reset to 900'
         };
       } else {
         return {
           demote: true,
           newRank: 'Optio',
           newMerit: 500,
-          message: '⚔️ Commander: A Centurion showing such weakness! You are demoted to Optio! Disgraceful!'
+          message: 'Demoted - You are now Optio'
         };
       }
     }
@@ -410,14 +413,15 @@ class Scoring {
           demote: true,
           newRank: 'Centurion',
           newMerit: 900,
-          message: '⚔️ Commander: Five battles without excellence! Your merit has been reset to 900! Unacceptable!'
+          isReset: true,
+          message: 'Reset - Merit reset to 900'
         };
       } else {
         return {
           demote: true,
           newRank: 'Optio',
           newMerit: 500,
-          message: '⚔️ Commander: Five battles without excellence! You are demoted to Optio! Unacceptable!'
+          message: 'Demoted - You are now Optio'
         };
       }
     }
@@ -429,14 +433,15 @@ class Scoring {
           demote: true,
           newRank: 'Tribunus',
           newMerit: 1300,
-          message: '⚔️ Commander: A Tribunus falling to such depths! Your merit has been reset to 1300! Shameful!'
+          isReset: true,
+          message: 'Reset - Merit reset to 1300'
         };
       } else {
         return {
           demote: true,
           newRank: 'Centurion',
           newMerit: 900,
-          message: '⚔️ Commander: A Tribunus falling to such depths! You are stripped to Centurion! Shameful!'
+          message: 'Demoted - You are now Centurion'
         };
       }
     }
@@ -453,14 +458,15 @@ class Scoring {
             demote: true,
             newRank: 'Tribunus',
             newMerit: 1300,
-            message: '⚔️ Commander: You cannot achieve the required excellence! Your merit has been reset to 1300!'
+            isReset: true,
+            message: 'Reset - Merit reset to 1300'
           };
         } else {
           return {
             demote: true,
             newRank: 'Centurion',
             newMerit: 900,
-            message: '⚔️ Commander: You cannot achieve the required excellence! You are demoted to Centurion!'
+            message: 'Demoted - You are now Centurion'
           };
         }
       }

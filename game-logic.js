@@ -24,6 +24,7 @@ class ChessTheoryApp {
     this.recentGames = [];
     this.pieceImages = pieces;
     this.rankChangeMessage = null;
+    this.rankChangeType = null;
     this.currentPGN = null;
     this.accuracyBonus = 0;
     this.accuracyTier = null;
@@ -105,11 +106,13 @@ class ChessTheoryApp {
     if (demotionCheck && demotionCheck.demote) {
       newMerit = demotionCheck.newMerit;
       this.rankChangeMessage = demotionCheck.message;
+      this.rankChangeType = demotionCheck.isReset ? 'reset' : 'demotion';
       rankChanged = true;
       this.setRecentBattleRanks(this.aiSource, []);
     } else if (Scoring.canPromote(oldLegion.title, newMerit, recentRanks) && tempLegion.level > oldLegion.level) {
       newMerit = tempLegion.thresholds[tempLegion.level];
-      this.rankChangeMessage = `⚔️ Commander: You have been promoted to ${tempLegion.title}! A cup of Falernian wine for the glory you’ve won. 🏺`;
+      this.rankChangeMessage = `Promoted - You are now ${tempLegion.title}`;
+      this.rankChangeType = 'promotion';
       rankChanged = true;
       this.setRecentBattleRanks(this.aiSource, []);
     }
