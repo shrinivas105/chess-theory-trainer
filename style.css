@@ -530,10 +530,18 @@ body > * {
   box-shadow: 0 5px 0 #4a0001, 0 8px 16px rgba(0,0,0,0.5);
 }
 
-/* Gold/bronze themed action buttons — Start Battle, New Battle, Consult Commander */
-.gold-btn {
+/* Metal-themed action buttons — Start Battle, Campaign picks, New Battle, Consult Commander */
+.gold-btn,
+.silver-btn,
+.bronze-btn {
   position: relative;
   overflow: hidden;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  animation: goldEmberPulse 2.6s ease-in-out infinite;
+}
+
+/* Gold — Master Campaign, Start Battle */
+.gold-btn {
   background: linear-gradient(135deg, #f4d976, var(--roman-gold) 45%, #8a6d1f);
   color: #2a1a00;
   border: 2px solid #f4d976;
@@ -541,11 +549,91 @@ body > * {
     0 3px 0 #7a5c14,
     0 4px 10px rgba(0,0,0,0.5),
     0 0 10px rgba(196,30,58,0.35);
-  text-shadow: 0 1px 0 rgba(255,255,255,0.35);
-  animation: goldEmberPulse 2.6s ease-in-out infinite;
 }
 
-.gold-btn::before {
+.gold-btn:hover {
+  box-shadow:
+    0 5px 0 #7a5c14,
+    0 10px 18px rgba(0,0,0,0.55),
+    0 0 18px rgba(196,30,58,0.6);
+  border-color: #fff1c2;
+}
+
+.gold-btn:active {
+  box-shadow:
+    0 1px 0 #7a5c14,
+    0 2px 6px rgba(0,0,0,0.5),
+    0 0 10px rgba(196,30,58,0.5);
+}
+
+/* Silver — Club Campaign */
+.silver-btn {
+  background: linear-gradient(135deg, #f4f4f4, var(--roman-silver) 45%, #6b6b6b);
+  color: #1a1a1a;
+  border: 2px solid #f4f4f4;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+  box-shadow:
+    0 3px 0 #5c5c5c,
+    0 4px 10px rgba(0,0,0,0.5),
+    0 0 10px rgba(196,30,58,0.35);
+}
+
+.silver-btn:hover {
+  box-shadow:
+    0 5px 0 #5c5c5c,
+    0 10px 18px rgba(0,0,0,0.55),
+    0 0 18px rgba(196,30,58,0.6);
+  border-color: #ffffff;
+}
+
+.silver-btn:active {
+  box-shadow:
+    0 1px 0 #5c5c5c,
+    0 2px 6px rgba(0,0,0,0.5),
+    0 0 10px rgba(196,30,58,0.5);
+}
+
+/* Bronze — Practice */
+.bronze-btn {
+  background: linear-gradient(135deg, #e0a868, #b87333 45%, #5c3a17);
+  color: #fff3dd;
+  border: 2px solid #e0a868;
+  box-shadow:
+    0 3px 0 #4a2f10,
+    0 4px 10px rgba(0,0,0,0.5),
+    0 0 10px rgba(196,30,58,0.35);
+}
+
+.bronze-btn:hover {
+  box-shadow:
+    0 5px 0 #4a2f10,
+    0 10px 18px rgba(0,0,0,0.55),
+    0 0 18px rgba(196,30,58,0.6);
+  border-color: #f0c090;
+}
+
+.bronze-btn:active {
+  box-shadow:
+    0 1px 0 #4a2f10,
+    0 2px 6px rgba(0,0,0,0.5),
+    0 0 10px rgba(196,30,58,0.5);
+}
+
+.gold-btn:hover,
+.silver-btn:hover,
+.bronze-btn:hover {
+  transform: translateY(-2px);
+}
+
+.gold-btn:active,
+.silver-btn:active,
+.bronze-btn:active {
+  transform: translateY(1px);
+}
+
+.gold-btn::before,
+.silver-btn::before,
+.bronze-btn::before {
   content: '';
   position: absolute;
   top: 0;
@@ -557,24 +645,17 @@ body > * {
   animation: goldShimmerSweep 3.2s ease-in-out infinite;
 }
 
-.gold-btn:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 5px 0 #7a5c14,
-    0 10px 18px rgba(0,0,0,0.55),
-    0 0 18px rgba(196,30,58,0.6);
-  border-color: #fff1c2;
+/* In-game buttons (New Battle, Consult Commander) skip the shimmer sweep — kept to the main menu only */
+.gold-btn.no-shimmer::before,
+.silver-btn.no-shimmer::before,
+.bronze-btn.no-shimmer::before {
+  display: none;
+  animation: none;
 }
 
-.gold-btn:active {
-  transform: translateY(1px);
-  box-shadow:
-    0 1px 0 #7a5c14,
-    0 2px 6px rgba(0,0,0,0.5),
-    0 0 10px rgba(196,30,58,0.5);
-}
-
-.gold-btn:disabled {
+.gold-btn:disabled,
+.silver-btn:disabled,
+.bronze-btn:disabled {
   animation: none;
   opacity: 0.55;
   background: linear-gradient(135deg, #b8ab7a, #7d7154);
@@ -582,7 +663,9 @@ body > * {
   box-shadow: 0 3px 0 #4a4534, 0 4px 8px rgba(0,0,0,0.4);
 }
 
-.gold-btn:disabled::before {
+.gold-btn:disabled::before,
+.silver-btn:disabled::before,
+.bronze-btn:disabled::before {
   display: none;
 }
 
@@ -934,7 +1017,7 @@ body > * {
 
 .legatus-banner-img {
   width: 100%;
-  max-width: 240px;
+  max-width: 168px;
   height: auto;
   border-radius: 50%;
   border: 2px solid var(--roman-gold);

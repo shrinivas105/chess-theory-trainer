@@ -225,17 +225,17 @@ class UIRenderer {
           <div class="menu-campaigns">
             <h3 style="color: var(--roman-gold); font-size: 0.9rem; margin-bottom: 10px; text-align: center;">Choose Your Campaign</h3>
             
-           <button id="masterBtn" class="menu-btn campaign-btn" style="background: linear-gradient(135deg, var(--roman-gold) 0%, #b8941f 100%); box-shadow: 0 4px 0 #8b6f1a, 0 5px 10px rgba(212,175,55,0.4); border-color: rgba(212,175,55,0.3);">
+           <button id="masterBtn" class="menu-btn campaign-btn gold-btn">
   <span class="campaign-btn-icon">🏆</span>
   <span class="campaign-btn-label">Master Campaign</span>
 </button>
             
-     <button id="lichessBtn" class="menu-btn campaign-btn" style="background: linear-gradient(135deg, var(--roman-silver) 0%, #a0a0a0 100%); box-shadow: 0 4px 0 #808080, 0 5px 10px rgba(192,192,192,0.4); border-color: rgba(192,192,192,0.3); color: #000; font-weight: 800;">
+     <button id="lichessBtn" class="menu-btn campaign-btn silver-btn">
   <span class="campaign-btn-icon">♟️</span>
   <span class="campaign-btn-label">Club Campaign</span>
 </button>
 
-     <button id="practiceBtn" class="menu-btn campaign-btn" style="background: linear-gradient(135deg, #4a90e2 0%, #2a6fb8 100%); box-shadow: 0 4px 0 #1f4f82, 0 5px 10px rgba(46, 134, 193, 0.4); border-color: rgba(69, 121, 191, 0.3); color: #fff;">
+     <button id="practiceBtn" class="menu-btn campaign-btn bronze-btn">
   <span class="campaign-btn-icon">📖</span>
   <span class="campaign-btn-label">Practice</span>
 </button>
@@ -587,8 +587,8 @@ class UIRenderer {
       <div id="endSummary" class="end-summary" style="display:none;"></div>
       <div id="theoryMessage" class="theory-message" style="display:none;"></div>
       <div class="action-buttons">
-        <button class="btn gold-btn" onclick="location.reload()">🔄 New Battle</button>
-        <button class="btn gold-btn" id="hintBtn">🎖️ Consult Commander</button>
+        <button class="btn gold-btn no-shimmer" onclick="location.reload()">🔄 New Battle</button>
+        <button class="btn gold-btn no-shimmer" id="hintBtn">🎖️ Consult Commander</button>
       </div>
     </div>
   `;
@@ -741,8 +741,8 @@ class UIRenderer {
         <div id="endSummary" class="end-summary" style="display:none;"></div>
         <div id="theoryMessage" class="theory-message" style="display:none;"></div>
         <div class="action-buttons" style="display:none;">
-          <button class="btn gold-btn" onclick="location.reload()">🔄 New Battle</button>
-          <button class="btn gold-btn" id="hintBtn">🎖️ Consult Commander</button>
+          <button class="btn gold-btn no-shimmer" onclick="location.reload()">🔄 New Battle</button>
+          <button class="btn gold-btn no-shimmer" id="hintBtn">🎖️ Consult Commander</button>
         </div>
       </div>
     `;
