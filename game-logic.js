@@ -148,17 +148,12 @@ class ChessTheoryApp {
     this.endGameData = null;
     const summaryEls = document.querySelectorAll('#endSummary');
     const theoryEls = document.querySelectorAll('#theoryMessage');
-    const actionButtons = document.querySelectorAll('.action-buttons');
     summaryEls.forEach(el => {
       el.style.display = 'none';
-      el.innerHTML = '';
     });
     theoryEls.forEach(el => {
       el.style.display = 'none';
       el.innerHTML = '';
-    });
-    actionButtons.forEach(el => {
-      el.style.display = 'none';
     });
     if (typeof RomanBattleEffects !== 'undefined') {
       RomanBattleEffects.stopMusic();
@@ -177,17 +172,12 @@ class ChessTheoryApp {
     this.endGameData = null;
     const summaryEls = document.querySelectorAll('#endSummary');
     const theoryEls = document.querySelectorAll('#theoryMessage');
-    const actionButtons = document.querySelectorAll('.action-buttons');
     summaryEls.forEach(el => {
       el.style.display = 'none';
-      el.innerHTML = '';
     });
     theoryEls.forEach(el => {
       el.style.display = 'none';
       el.innerHTML = '';
-    });
-    actionButtons.forEach(el => {
-      el.style.display = 'none';
     });
     this.resetGameState();
     this.game.load(opening.fen);
