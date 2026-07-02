@@ -556,7 +556,7 @@ class UIRenderer {
         </div>
 
         <div style="display:flex; gap:10px; justify-content:center; margin:8px 0;">
-          <button id="startBattleBtn" class="menu-btn" style="width: auto; padding: 10px 20px; font-size: 0.85rem;">⚔️ Start Battle</button>
+          <button id="startBattleBtn" class="menu-btn gold-btn" style="width: auto; padding: 10px 20px; font-size: 0.85rem;">⚔️ Start Battle</button>
         </div>
 
         <div class="legatus-banner">
@@ -587,8 +587,8 @@ class UIRenderer {
       <div id="endSummary" class="end-summary" style="display:none;"></div>
       <div id="theoryMessage" class="theory-message" style="display:none;"></div>
       <div class="action-buttons">
-        <button class="btn" onclick="location.reload()">🔄 New Battle</button>
-        <button class="btn" id="hintBtn">🎖️ Consult Commander</button>
+        <button class="btn gold-btn" onclick="location.reload()">🔄 New Battle</button>
+        <button class="btn gold-btn" id="hintBtn">🎖️ Consult Commander</button>
       </div>
     </div>
   `;
@@ -741,8 +741,8 @@ class UIRenderer {
         <div id="endSummary" class="end-summary" style="display:none;"></div>
         <div id="theoryMessage" class="theory-message" style="display:none;"></div>
         <div class="action-buttons" style="display:none;">
-          <button class="btn" onclick="location.reload()">🔄 New Battle</button>
-          <button class="btn" id="hintBtn">🎖️ Consult Commander</button>
+          <button class="btn gold-btn" onclick="location.reload()">🔄 New Battle</button>
+          <button class="btn gold-btn" id="hintBtn">🎖️ Consult Commander</button>
         </div>
       </div>
     `;
