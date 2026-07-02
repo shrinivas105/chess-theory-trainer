@@ -1039,6 +1039,28 @@ body > * {
   }
 }
 
+.menu .practice-opening-row td {
+  padding: 10px 14px !important;
+}
+
+.menu .practice-opening-name {
+  font-size: 0.75rem !important;
+}
+
+.menu .practice-opening-side {
+  font-size: 0.65rem !important;
+}
+
+.menu .practice-opening-remove-btn {
+  font-size: 0.55rem !important;
+  padding: 8px 10px !important;
+}
+
+.menu .practice-toolbar .menu-btn {
+  font-size: 1.05rem !important;
+  padding: 14px 18px !important;
+}
+
 .game-description p {
   margin: 0 0 12px 0;
   text-align: justify;
