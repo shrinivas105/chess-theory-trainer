@@ -495,109 +495,10 @@ async checkMoveQuality(prevFEN, playerUCI) {
  async getHints() {
   if (this.hintUsed && this.mode !== 'practice') return;
   const fen = this.game.fen();
-  try {
-    const data = await ChessAPI.queryExplorer(this.aiSource, fen);
-    const topMoves = data.moves ? data.moves.slice(0, 5) : [];
-    
-    if (topMoves.length === 0) {
-      const msgEl = document.getElementById('theoryMessage');
-      msgEl.innerHTML = '<em>No moves available in database.</em>';
-      msgEl.style.display = 'block';
-      if (this.mode !== 'practice') {
-        this.hintUsed = true;
-        const hintBtn = document.getElementById('hintBtn');
-        if (hintBtn) {
-          hintBtn.disabled = true;
-          hintBtn.textContent = '✓ Consulted';
-        }
-      }
-      return;
-    }
-    
-    const totalGames = (data.white || 0) + (data.draws || 0) + (data.black || 0);
-    let commanderText = '';
-    
-    // Determine threshold based on source: 50 for master, 500 for lichess
-    const threshold = this.aiSource === 'master' ? 50 : 500;
-    
-    // NEW LOGIC: If total games >= threshold, use intelligent recommendations
-    if (totalGames >= threshold && topMoves.length >= 3) {
-      const top3 = topMoves.slice(0, 3);
-      
-      // Calculate win percentages for player's color
-      const movesWithStats = top3.map(move => {
-        const moveTotal = move.white + move.draws + move.black;
-        const winPct = this.playerColor === 'w' 
-          ? (move.white / moveTotal) * 100 
-          : (move.black / moveTotal) * 100;
-        return {
-          san: move.san,
-          games: moveTotal,
-          winPct: winPct
-        };
-      });
-      
-      // Find most popular (most games)
-      const mostPopular = movesWithStats.reduce((max, move) => 
-        move.games > max.games ? move : max
-      );
-      
-      // Find highest win percentage
-      const highestWin = movesWithStats.reduce((max, move) => 
-        move.winPct > max.winPct ? move : max
-      );
-      
-      // Build commander message
-      commanderText = `🎖️ <strong>Commander speaks:</strong><br><br>"Soldier, I have seen this position many times.`;
-      
-      // Check if same move is both most popular AND highest win%
-      if (mostPopular.san === highestWin.san) {
-        commanderText += ` <strong>${mostPopular.san}</strong> is the most popular and strongest path — tried ${mostPopular.games.toLocaleString()} times with ${mostPopular.winPct.toFixed(1)}% victories!`;
-        
-        // Show second best option
-        const remaining = movesWithStats.filter(m => m.san !== mostPopular.san);
-        if (remaining.length > 0) {
-          const secondBest = remaining[0];
-          commanderText += ` Also consider <strong>${secondBest.san}</strong> — ${secondBest.games.toLocaleString()} games, ${secondBest.winPct.toFixed(1)}% win rate.`;
-        }
-      } else {
-        // Different moves for popularity and win rate
-        commanderText += ` The most popular path is <strong>${mostPopular.san}</strong> — tried ${mostPopular.games.toLocaleString()} times.`;
-        commanderText += ` Going for blood? March with <strong>${highestWin.san}</strong> — ${highestWin.winPct.toFixed(1)}% victories.`;
-      }
-      
-      // Add remaining alternatives (moves 4 and 5, or remaining from top 3)
-      const shownMoves = new Set([mostPopular.san, highestWin.san]);
-      const remaining = topMoves
-        .filter(m => !shownMoves.has(m.san))
-        .map(m => m.san)
-        .slice(0, 3);
-      
-      if (remaining.length > 0) {
-        commanderText += ` Other paths: <strong>${remaining.join(', ')}</strong>.`;
-      }
-      
-      commanderText += ` The choice is yours. Good luck."`;
-      
-    } else {
-      // EXISTING LOGIC: For positions below threshold
-      const moveNames = topMoves.map(m => m.san);
-      const first = moveNames[0];
-      const second = moveNames[1];
-      const others = moveNames.slice(2);
-      
-      commanderText = `🎖️ <strong>Commander speaks:</strong><br><br>"Soldier, I have seen this position many times.`;
-      commanderText += ` March with <strong>${first}</strong> — the most proven line.`;
-      if (second) commanderText += ` Or <strong>${second}</strong>, trusted by many.`;
-      if (others.length > 0) {
-        const othersList = others.join(', ');
-        commanderText += ` Other paths: <strong>${others.join(', ')}</strong>.`;
-      }
-      commanderText += ` The choice is yours. Good luck."`;
-    }
-    
+
+  const finishHint = (html) => {
     const msgEl = document.getElementById('theoryMessage');
-    msgEl.innerHTML = commanderText;
+    msgEl.innerHTML = html;
     msgEl.style.display = 'block';
     if (this.mode !== 'practice') {
       this.hintUsed = true;
@@ -607,6 +508,97 @@ async checkMoveQuality(prevFEN, playerUCI) {
         hintBtn.textContent = '✓ Consulted';
       }
     }
+  };
+
+  const apologyText = `🎖️ <strong>Commander speaks:</strong><br><br>"I'm sorry, soldier. I have not seen this position on the battlefield."`;
+
+  const defeatLines = [
+    `"Soldier... every path from here leads to ruin. This ground is already lost."`,
+    `"There is no glory to be found here. The enemy holds every road we could take."`,
+    `"I will not lie to you, soldier — this battle is already lost. Fight on, but expect no miracles."`
+  ];
+
+  try {
+    const data = await ChessAPI.queryExplorer(this.aiSource, fen);
+    const topMoves = data.moves ? data.moves.slice(0, 5) : [];
+
+    if (topMoves.length === 0) {
+      finishHint(apologyText);
+      return;
+    }
+
+    const totalGames = (data.white || 0) + (data.draws || 0) + (data.black || 0);
+
+    // Same threshold for both Masters and Club sources.
+    const threshold = 50;
+
+    // Win % (for the player's color) for every one of the top 5 moves.
+    const movesWithStats = topMoves.map(move => {
+      const moveTotal = move.white + move.draws + move.black;
+      const winPct = moveTotal > 0
+        ? (this.playerColor === 'w' ? (move.white / moveTotal) * 100 : (move.black / moveTotal) * 100)
+        : 0;
+      return { san: move.san, games: moveTotal, winPct };
+    });
+
+    // Not enough data to say anything meaningful — apologize instead of guessing.
+    if (totalGames < threshold || movesWithStats.length < 3) {
+      finishHint(apologyText);
+      return;
+    }
+
+    // Plenty of data, but nothing here actually wins for us.
+    const anyAbove40 = movesWithStats.some(m => m.winPct > 40);
+    if (!anyAbove40) {
+      const line = defeatLines[Math.floor(Math.random() * defeatLines.length)];
+      finishHint(`🎖️ <strong>Commander speaks:</strong><br><br>${line}`);
+      return;
+    }
+
+    // Intelligent recommendation, built from the top 3 moves.
+    const top3 = movesWithStats.slice(0, 3);
+
+    // Find most popular (most games)
+    const mostPopular = top3.reduce((max, move) => move.games > max.games ? move : max);
+
+    // Find highest win percentage
+    const highestWin = top3.reduce((max, move) => move.winPct > max.winPct ? move : max);
+
+    let commanderText = `🎖️ <strong>Commander speaks:</strong><br><br>"Soldier, I have seen this position many times.`;
+
+    // Check if same move is both most popular AND highest win%
+    if (mostPopular.san === highestWin.san) {
+      commanderText += ` <strong>${mostPopular.san}</strong> is the most popular and strongest path — tried ${mostPopular.games.toLocaleString()} times with ${mostPopular.winPct.toFixed(1)}% victories!`;
+
+      // Show second best option
+      const remaining = top3.filter(m => m.san !== mostPopular.san);
+      if (remaining.length > 0) {
+        const secondBest = remaining[0];
+        commanderText += ` Also consider <strong>${secondBest.san}</strong> — ${secondBest.games.toLocaleString()} games, ${secondBest.winPct.toFixed(1)}% win rate.`;
+      }
+    } else {
+      // Different moves for popularity and win rate
+      commanderText += ` The most popular path is <strong>${mostPopular.san}</strong> — tried ${mostPopular.games.toLocaleString()} times, ${mostPopular.winPct.toFixed(1)}% victories.`;
+      commanderText += ` Going for blood? March with <strong>${highestWin.san}</strong> — ${highestWin.winPct.toFixed(1)}% victories.`;
+    }
+
+    // Other alternatives from the full top 5, excluding what's already shown,
+    // and only worth mentioning if their win rate clears 40%.
+    const shownMoves = new Set([mostPopular.san, highestWin.san]);
+    const otherAlternatives = movesWithStats
+      .filter(m => !shownMoves.has(m.san) && m.winPct > 40)
+      .slice(0, 3);
+
+    if (otherAlternatives.length > 0) {
+      const altText = otherAlternatives
+        .map(m => `${m.san}, ${m.winPct.toFixed(1)}% victories`)
+        .join('; ');
+      commanderText += ` Other alternatives: <strong>${altText}</strong>.`;
+    }
+
+    commanderText += ` The choice is yours. Good luck."`;
+
+    finishHint(commanderText);
   } catch (error) {
     document.getElementById('theoryMessage').innerHTML = '<em>Unable to fetch hints.</em>';
     document.getElementById('theoryMessage').style.display = 'block';
