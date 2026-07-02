@@ -596,13 +596,13 @@ class UIRenderer {
           <button id="startBattleBtn" class="menu-btn gold-btn" style="width: auto; padding: 10px 20px; font-size: 0.85rem;">⚔️ Start Battle</button>
         </div>
 
-        <div class="rank-banner">
-          <div class="rank-banner-image-wrap">
-            <img src="${currentRankImage}" alt="${currentLegion.title}" class="rank-banner-img" onerror="this.style.display='none';" />
+        <div class="rank-banner" style="display:flex; align-items:center; gap:14px; margin:14px 0 4px; padding:10px 12px; background:rgba(0,0,0,0.25); border:1px solid var(--roman-gold); border-radius:10px; box-sizing:border-box;">
+          <div class="rank-banner-image-wrap" style="flex:0 0 auto;">
+            <img src="${currentRankImage}" alt="${currentLegion.title}" class="rank-banner-img" width="96" height="96" style="width:96px; height:96px; max-width:96px; object-fit:cover; border-radius:50%; border:2px solid var(--roman-gold); box-shadow:0 4px 14px rgba(0,0,0,0.6); display:block;" onerror="this.style.display='none';" />
           </div>
-          <div class="rank-banner-info">
-            <div class="rank-banner-title">${currentRankInfo.icon} ${currentRankInfo.label}</div>
-            <div class="rank-banner-text">${currentRankInfo.text}</div>
+          <div class="rank-banner-info" style="flex:1 1 auto; min-width:0; text-align:left;">
+            <div class="rank-banner-title" style="font-size:0.9rem; font-weight:bold; color:var(--roman-gold); margin-bottom:4px;">${currentRankInfo.icon} ${currentRankInfo.label}</div>
+            <div class="rank-banner-text" style="font-size:0.75rem; color:#ddd; line-height:1.35;">${currentRankInfo.text}</div>
           </div>
         </div>
       </div>
