@@ -486,12 +486,12 @@ class UIRenderer {
     
     // Generate progress path visualization with medal images
     const rankImageMap = {
-      'Recruit': 'recruit.jpg',
-      'Legionary': 'Legionary.jpg',
-      'Optio': 'optio.jpg',
-      'Centurion': 'centurion.jpg',
-      'Tribunus': 'trbunus.jpg',
-      'Legatus': 'legatus.jpg'
+      'Recruit': 'Recruit_new.png',
+      'Legionary': 'Legionary_new.png',
+      'Optio': 'Optio_new.png',
+      'Centurion': 'Centurion_new.png',
+      'Tribunus': 'Tribunus_new.png',
+      'Legatus': 'Legatus_new.png'
     };
 
     // Rank descriptions shown in the dynamic rank banner below "Start Battle"
@@ -528,7 +528,7 @@ class UIRenderer {
       }
     };
 
-    const currentRankImage = rankImageMap[currentLegion.title] || 'legatus.jpg';
+    const currentRankImage = rankImageMap[currentLegion.title] || 'Legatus_new.png';
     const currentRankInfo = rankDescriptionMap[currentLegion.title] || rankDescriptionMap['Legatus'];
     
     const pathSteps = currentLegion.rankOrder.map((rank, i) => {
@@ -598,7 +598,7 @@ class UIRenderer {
 
         <div class="rank-banner" style="display:flex; flex-direction:row; align-items:center; gap:12px; margin:14px 0 4px; padding:10px 12px; background:rgba(0,0,0,0.25); border:1px solid var(--roman-gold); border-radius:10px; box-sizing:border-box;">
           <div class="rank-banner-image-wrap" style="flex:0 0 auto; width:125px; height:125px; border-radius:50%; overflow:hidden; border:2px solid var(--roman-gold); box-shadow:0 4px 14px rgba(0,0,0,0.6);">
-            <img src="${currentRankImage}" alt="${currentLegion.title}" class="rank-banner-img" style="width:100%; height:100%; object-fit:cover; object-position:center 25%; transform:scale(1.7); display:block;" onerror="this.parentElement.style.display='none';" />
+            <img src="${currentRankImage}" alt="${currentLegion.title}" class="rank-banner-img" style="width:100%; height:100%; object-fit:cover; object-position:center; display:block;" onerror="this.parentElement.style.display='none';" />
           </div>
           <div class="rank-banner-info" style="flex:1 1 auto; min-width:0; text-align:left;">
             <div class="rank-banner-title" style="font-size:0.63rem; font-weight:bold; color:var(--roman-gold); margin-bottom:4px;">${currentRankInfo.icon} ${currentRankInfo.label}</div>
