@@ -223,16 +223,16 @@ class UIRenderer {
         <div class="menu-home">
           <!-- CAMPAIGNS SECTION -->
           <div class="menu-campaigns">
-            <h3 style="color: var(--roman-gold); font-size: 0.9rem; margin-bottom: 10px; text-align: center;">Choose Your Campaign</h3>
+            <h3 style="color: var(--roman-gold); font-size: 0.9rem; margin-bottom: 0; text-align: center;">Choose Your Campaign</h3>
             
            <button id="masterBtn" class="menu-btn campaign-btn gold-btn">
   <span class="campaign-btn-icon">🏆</span>
-  <span class="campaign-btn-label">Master Campaign</span>
+  <span class="campaign-btn-label">Master</span>
 </button>
             
      <button id="lichessBtn" class="menu-btn campaign-btn silver-btn">
   <span class="campaign-btn-icon">♟️</span>
-  <span class="campaign-btn-label">Club Campaign</span>
+  <span class="campaign-btn-label">Club</span>
 </button>
 
      <button id="practiceBtn" class="menu-btn campaign-btn bronze-btn">
@@ -493,6 +493,43 @@ class UIRenderer {
       'Tribunus': 'trbunus.jpg',
       'Legatus': 'legatus.jpg'
     };
+
+    // Rank descriptions shown in the dynamic rank banner below "Start Battle"
+    const rankDescriptionMap = {
+      'Recruit': {
+        label: 'Recruit (Tiro)',
+        icon: '🌱',
+        text: 'A newly enlisted soldier, still learning the discipline and skills needed to survive the battlefield.'
+      },
+      'Legionary': {
+        label: 'Legionary (Legionarius)',
+        icon: '⚔️',
+        text: 'A fully trained Roman soldier, forming the backbone of the legion and fighting in the front lines.'
+      },
+      'Optio': {
+        label: 'Optio',
+        icon: '🛡️',
+        text: 'A trusted veteran chosen to assist a Centurion, leading soldiers and maintaining order in battle.'
+      },
+      'Centurion': {
+        label: 'Centurion',
+        icon: '🏛️',
+        text: 'A battle-hardened commander who leads a century of soldiers with courage, discipline, and experience.'
+      },
+      'Tribunus': {
+        label: 'Tribunus (Military Tribune)',
+        icon: '🦅',
+        text: 'A senior officer responsible for strategy, leadership, and overseeing multiple military units.'
+      },
+      'Legatus': {
+        label: 'Legatus',
+        icon: '👑',
+        text: 'The commander of an entire Roman legion, entrusted with leading thousands of soldiers to victory.'
+      }
+    };
+
+    const currentRankImage = rankImageMap[currentLegion.title] || 'legatus.jpg';
+    const currentRankInfo = rankDescriptionMap[currentLegion.title] || rankDescriptionMap['Legatus'];
     
     const pathSteps = currentLegion.rankOrder.map((rank, i) => {
       const isReached = i <= currentLevel;
@@ -559,8 +596,14 @@ class UIRenderer {
           <button id="startBattleBtn" class="menu-btn gold-btn" style="width: auto; padding: 10px 20px; font-size: 0.85rem;">⚔️ Start Battle</button>
         </div>
 
-        <div class="legatus-banner">
-          <img src="legatus.jpg" alt="Legatus" class="legatus-banner-img" onerror="this.parentElement.style.display='none';" />
+        <div class="rank-banner">
+          <div class="rank-banner-image-wrap">
+            <img src="${currentRankImage}" alt="${currentLegion.title}" class="rank-banner-img" onerror="this.style.display='none';" />
+          </div>
+          <div class="rank-banner-info">
+            <div class="rank-banner-title">${currentRankInfo.icon} ${currentRankInfo.label}</div>
+            <div class="rank-banner-text">${currentRankInfo.text}</div>
+          </div>
         </div>
       </div>
     `;

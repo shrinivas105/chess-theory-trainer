@@ -1013,20 +1013,59 @@ body > * {
   box-sizing: border-box;
 }
 
-.legatus-banner {
+.rank-banner {
   display: flex;
-  justify-content: center;
+  align-items: center;
+  gap: 14px;
   margin: 14px 0 4px;
+  padding: 10px 12px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--roman-gold);
+  border-radius: 10px;
+  animation: fadeInUp 0.6s ease-out;
 }
 
-.legatus-banner-img {
-  width: 100%;
-  max-width: 168px;
-  height: auto;
+.rank-banner-image-wrap {
+  flex: 0 0 auto;
+}
+
+.rank-banner-img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
   border-radius: 50%;
   border: 2px solid var(--roman-gold);
   box-shadow: 0 4px 14px rgba(0,0,0,0.6);
-  animation: fadeInUp 0.6s ease-out;
+  display: block;
+}
+
+.rank-banner-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+}
+
+.rank-banner-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--roman-gold);
+  margin-bottom: 4px;
+}
+
+.rank-banner-text {
+  font-size: 0.75rem;
+  color: #ddd;
+  line-height: 1.35;
+}
+
+@media (max-width: 380px) {
+  .rank-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+  .rank-banner-info {
+    text-align: center;
+  }
 }
 
 .legion-card.masters {
