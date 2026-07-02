@@ -146,6 +146,16 @@ class ChessTheoryApp {
     this.practiceStartingPosition = false;
     this.gameEnded = false;
     this.endGameData = null;
+    const summaryEl = document.getElementById('endSummary');
+    const theoryEl = document.getElementById('theoryMessage');
+    if (summaryEl) {
+      summaryEl.style.display = 'none';
+      summaryEl.innerHTML = '';
+    }
+    if (theoryEl) {
+      theoryEl.style.display = 'none';
+      theoryEl.innerHTML = '';
+    }
     if (typeof RomanBattleEffects !== 'undefined') {
       RomanBattleEffects.stopMusic();
     }
@@ -161,6 +171,16 @@ class ChessTheoryApp {
     this.practiceStartingPosition = true;
     this.gameEnded = false;
     this.endGameData = null;
+    const summaryEl = document.getElementById('endSummary');
+    const theoryEl = document.getElementById('theoryMessage');
+    if (summaryEl) {
+      summaryEl.style.display = 'none';
+      summaryEl.innerHTML = '';
+    }
+    if (theoryEl) {
+      theoryEl.style.display = 'none';
+      theoryEl.innerHTML = '';
+    }
     this.resetGameState();
     this.game.load(opening.fen);
     this.selected = null;
