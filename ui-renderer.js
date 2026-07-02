@@ -528,8 +528,50 @@ class UIRenderer {
       }
     };
 
+    const rankFunFactsMap = {
+      'Recruit': [
+        'Roman recruits often trained with wooden swords and wicker shields that were nearly twice the weight of real weapons, making actual combat feel easier.',
+        'Every recruit swore the Sacramentum, a sacred oath of loyalty to Rome that could never be broken.',
+        'New recruits spent months drilling before they were trusted with real weapons.',
+        'Roman recruits learned to march in perfect step—discipline was valued as much as courage.'
+      ],
+      'Legionary': [
+        'A legionary typically marched 30 km (18–20 miles) a day while carrying equipment weighing around 30–40 kg (65–90 lb).',
+        'A legionary carried so much gear they were nicknamed "Marius\' Mules."',
+        'Roman soldiers built fortified camps at the end of almost every day\'s march.',
+        'A Roman legionary could serve for 25 years before earning retirement and land.'
+      ],
+      'Optio': [
+        'An Optio usually stood behind the formation, keeping soldiers in line and preventing anyone from fleeing the battle.',
+        'An Optio earned roughly twice the pay of a regular legionary.',
+        'If a Centurion fell in battle, the Optio was expected to take command immediately.',
+        'The long staff carried by an Optio helped direct formations and maintain discipline.'
+      ],
+      'Centurion': [
+        'Centurions carried a vine staff (vitis), a symbol of authority that allowed them to discipline soldiers—even experienced veterans.',
+        'Centurions were among the highest-paid soldiers in the Roman Army.',
+        'Experienced Centurions often led the first charge instead of directing from behind.',
+        'A Centurion\'s red transverse helmet crest made him easy to recognize on the battlefield.'
+      ],
+      'Tribunus': [
+        'Many future Roman politicians and generals began their public careers as military tribunes.',
+        'Most legions had six military tribunes, each helping oversee administration and command.',
+        'Young Roman nobles often served as Tribunes before entering public office.',
+        'Serving as a Tribune was considered a prestigious step toward becoming a Roman governor or senator.'
+      ],
+      'Legatus': [
+        'A Legatus commanded 5,000–6,000 legionaries and was appointed directly by the Roman Emperor.',
+        'A Legatus commanded the equivalent of a modern military brigade—around 5,000 to 6,000 soldiers.',
+        'Legati were appointed directly by the Emperor and usually served for several years.',
+        'Some Legati later became governors of Roman provinces after distinguished military service.'
+      ]
+    };
+
     const currentRankImage = rankImageMap[currentLegion.title] || 'Legatus_new.png';
     const currentRankInfo = rankDescriptionMap[currentLegion.title] || rankDescriptionMap['Legatus'];
+    const currentRankFact = rankFunFactsMap[currentLegion.title]
+      ? rankFunFactsMap[currentLegion.title][Math.floor(Math.random() * rankFunFactsMap[currentLegion.title].length)]
+      : '';
     
     const pathSteps = currentLegion.rankOrder.map((rank, i) => {
       const isReached = i <= currentLevel;
@@ -603,6 +645,10 @@ class UIRenderer {
           <div class="rank-banner-info" style="flex:1 1 auto; min-width:0; text-align:left;">
             <div class="rank-banner-title" style="font-size:0.63rem; font-weight:bold; color:var(--roman-gold); margin-bottom:4px;">${currentRankInfo.icon} ${currentRankInfo.label}</div>
             <div class="rank-banner-text" style="font-size:0.53rem; color:#ddd; line-height:1.35;">${currentRankInfo.text}</div>
+            <div class="rank-fact">
+              <div class="rank-fact-title">Did you know?</div>
+              <div class="rank-fact-text">${currentRankFact}</div>
+            </div>
           </div>
         </div>
       </div>

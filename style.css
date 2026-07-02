@@ -1041,8 +1041,8 @@ body > * {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 25%;
-  transform: scale(1.7);
+  object-position: center;
+  transform: none;
   display: block;
 }
 
@@ -1063,6 +1063,29 @@ body > * {
   font-size: 0.53rem;
   color: #ddd;
   line-height: 1.35;
+}
+
+.rank-fact {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  border-radius: 10px;
+}
+
+.rank-fact-title {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--roman-gold);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.rank-fact-text {
+  font-size: 0.52rem;
+  color: #eee;
+  line-height: 1.45;
 }
 
 .legion-card.masters {
