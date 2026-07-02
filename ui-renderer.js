@@ -558,6 +558,10 @@ class UIRenderer {
         <div style="display:flex; gap:10px; justify-content:center; margin:8px 0;">
           <button id="startBattleBtn" class="menu-btn" style="width: auto; padding: 10px 20px; font-size: 0.85rem;">⚔️ Start Battle</button>
         </div>
+
+        <div class="legatus-banner">
+          <img src="legatus.jpg" alt="Legatus" class="legatus-banner-img" onerror="this.parentElement.style.display='none';" />
+        </div>
       </div>
     `;
 

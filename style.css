@@ -849,6 +849,22 @@ body > * {
   box-sizing: border-box;
 }
 
+.legatus-banner {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0 4px;
+}
+
+.legatus-banner-img {
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  border-radius: 50%;
+  border: 2px solid var(--roman-gold);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+  animation: fadeInUp 0.6s ease-out;
+}
+
 .legion-card.masters {
   border: 2px solid var(--roman-gold);
   background: 
