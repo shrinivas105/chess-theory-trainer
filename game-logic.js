@@ -106,17 +106,17 @@ class ChessTheoryApp {
     if (demotionCheck && demotionCheck.demote) {
       newMerit = demotionCheck.newMerit;
       if (demotionCheck.isReset) {
-        this.rankChangeMessage = `Reset<br><br>Honor remains. Merit must be earned again.<br>Merit reset to ${newMerit}.`;
+        this.rankChangeMessage = `Reset !! <br>Honor remains. Merit must be earned again. Merit reset to ${newMerit}.`;
         this.rankChangeType = 'reset';
       } else {
-        this.rankChangeMessage = `Demotion<br><br>Your honor has diminished.<br>You are now ${Scoring.getLegionRank(newMerit).title}.`;
+        this.rankChangeMessage = `Demotion !! <br>Your honor has diminished.You are now ${Scoring.getLegionRank(newMerit).title}.`;
         this.rankChangeType = 'demotion';
       }
       rankChanged = true;
       this.setRecentBattleRanks(this.aiSource, []);
     } else if (Scoring.canPromote(oldLegion.title, newMerit, recentRanks) && tempLegion.level > oldLegion.level) {
       newMerit = tempLegion.thresholds[tempLegion.level];
-      this.rankChangeMessage = `Promotion<br><br>Ave! Rome honors your service.<br>You are now ${tempLegion.title}.`;
+      this.rankChangeMessage = `Promotion !! <br>Ave! Rome honors your service.You are now ${tempLegion.title}.`;
       this.rankChangeType = 'promotion';
       rankChanged = true;
       this.setRecentBattleRanks(this.aiSource, []);

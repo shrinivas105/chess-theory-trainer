@@ -536,42 +536,83 @@ class UIRenderer {
     };
 
     const rankFunFactsMap = {
-      'Recruit': [
-        'Roman recruits often trained with wooden swords and wicker shields that were nearly twice the weight of real weapons, making actual combat feel easier.',
-        'Every recruit swore the Sacramentum, a sacred oath of loyalty to Rome that could never be broken.',
-        'New recruits spent months drilling before they were trusted with real weapons.',
-        'Roman recruits learned to march in perfect step—discipline was valued as much as courage.'
-      ],
-      'Legionary': [
-        'A legionary typically marched 30 km (18–20 miles) a day while carrying equipment weighing around 30–40 kg (65–90 lb).',
-        'A legionary carried so much gear they were nicknamed "Marius\' Mules."',
-        'Roman soldiers built fortified camps at the end of almost every day\'s march.',
-        'A Roman legionary could serve for 25 years before earning retirement and land.'
-      ],
-      'Optio': [
-        'An Optio usually stood behind the formation, keeping soldiers in line and preventing anyone from fleeing the battle.',
-        'An Optio earned roughly twice the pay of a regular legionary.',
-        'If a Centurion fell in battle, the Optio was expected to take command immediately.',
-        'The long staff carried by an Optio helped direct formations and maintain discipline.'
-      ],
-      'Centurion': [
-        'Centurions carried a vine staff (vitis), a symbol of authority that allowed them to discipline soldiers—even experienced veterans.',
-        'Centurions were among the highest-paid soldiers in the Roman Army.',
-        'Experienced Centurions often led the first charge instead of directing from behind.',
-        'A Centurion\'s red transverse helmet crest made him easy to recognize on the battlefield.'
-      ],
-      'Tribunus': [
-        'Many future Roman politicians and generals began their public careers as military tribunes.',
-        'Most legions had six military tribunes, each helping oversee administration and command.',
-        'Young Roman nobles often served as Tribunes before entering public office.',
-        'Serving as a Tribune was considered a prestigious step toward becoming a Roman governor or senator.'
-      ],
-      'Legatus': [
-        'A Legatus commanded 5,000–6,000 legionaries and was appointed directly by the Roman Emperor.',
-        'A Legatus commanded the equivalent of a modern military brigade—around 5,000 to 6,000 soldiers.',
-        'Legati were appointed directly by the Emperor and usually served for several years.',
-        'Some Legati later became governors of Roman provinces after distinguished military service.'
-      ]
+     Recruit: [
+    'Roman recruits often trained with wooden swords and wicker shields that were nearly twice the weight of real weapons, making actual combat feel easier.',
+    'Every recruit swore the Sacramentum, a sacred oath of loyalty to Rome that could never be broken.',
+    'New recruits spent months drilling before they were trusted with real weapons.',
+    'Roman recruits learned to march in perfect step—discipline was valued as much as courage.',
+    'Recruits spent countless hours practicing the same formations until they could perform them without hesitation.',
+    'Before joining a legion, every recruit underwent rigorous physical and endurance training.',
+    'A recruit\'s discipline was judged as carefully as his fighting ability.',
+    'Roman training camps were designed to prepare soldiers for every kind of terrain and weather.',
+    'Many recruits came from distant provinces, united under the banner of Rome.',
+    'Training was so demanding that veterans often claimed it was harder than battle itself.'
+  ],
+
+  Legionary: [
+    'A legionary typically marched 30 km (18–20 miles) a day while carrying equipment weighing around 30–40 kg (65–90 lb).',
+    'A legionary carried so much gear they were nicknamed "Marius\' Mules."',
+    'Roman soldiers built fortified camps at the end of almost every day\'s march.',
+    'A Roman legionary could serve for 25 years before earning retirement and land.',
+    'A legionary was expected to fight, build, march, and survive with little outside support.',
+    'Each legion had its own name, number, and proud traditions that soldiers fiercely defended.',
+    'Legionaries built roads, bridges, forts, and siege engines wherever the army marched.',
+    'Roman armor and weapons were regularly maintained—rusty equipment was unacceptable.',
+    'Veteran legionaries often mentored new recruits during campaigns.',
+    'A disciplined legion could construct an entire fortified camp before sunset.'
+  ],
+
+  Optio: [
+    'An Optio usually stood behind the formation, keeping soldiers in line and preventing anyone from fleeing the battle.',
+    'An Optio earned roughly twice the pay of a regular legionary.',
+    'If a Centurion fell in battle, the Optio was expected to take command immediately.',
+    'The long staff carried by an Optio helped direct formations and maintain discipline.',
+    'An Optio was handpicked by the Centurion for exceptional loyalty and leadership.',
+    'Optios memorized battle formations so they could keep units organized under pressure.',
+    'The Optio acted as the Centurion\'s most trusted advisor during combat.',
+    'Promotion to Optio was earned through merit, not noble birth.',
+    'Many future Centurions first proved themselves as Optios.',
+    'An Optio was expected to inspire confidence even when battles turned against Rome.'
+  ],
+
+  Centurion: [
+    'Centurions carried a vine staff (vitis), a symbol of authority that allowed them to discipline soldiers—even experienced veterans.',
+    'Centurions were among the highest-paid soldiers in the Roman Army.',
+    'Experienced Centurions often led the first charge instead of directing from behind.',
+    'A Centurion\'s red transverse helmet crest made him easy to recognize on the battlefield.',
+    'Centurions often rose through the ranks after years of distinguished service.',
+    'A skilled Centurion could command the loyalty of nearly eighty soldiers.',
+    'Centurions were expected to be the first into battle and the last to retreat.',
+    'The best Centurions could eventually become the prestigious Primus Pilus, the senior Centurion of a legion.',
+    'Centurions enforced Rome\'s famous discipline, which helped make its army one of history\'s greatest.',
+    'Battle scars were often worn with pride—they were proof of courage and experience.'
+  ],
+
+  Tribunus: [
+    'Many future Roman politicians and generals began their public careers as military tribunes.',
+    'Most legions had six military tribunes, each helping oversee administration and command.',
+    'Young Roman nobles often served as Tribunes before entering public office.',
+    'Serving as a Tribune was considered a prestigious step toward becoming a Roman governor or senator.',
+    'Military Tribunes helped oversee logistics, training, and the daily operation of an entire legion.',
+    'A Tribune often served as the link between senior commanders and frontline officers.',
+    'Many Tribunes came from influential Roman families, but still had to earn the respect of their soldiers.',
+    'Tribunes frequently inspected camps to ensure discipline and readiness.',
+    'Serving as a Tribune provided valuable military experience before higher office.',
+    'A capable Tribune balanced strategy, administration, and leadership.'
+  ],
+
+  Legatus: [
+    'A Legatus commanded 5,000–6,000 legionaries and was appointed directly by the Roman Emperor.',
+    'A Legatus commanded the equivalent of a modern military brigade—around 5,000 to 6,000 soldiers.',
+    'Legati were appointed directly by the Emperor and usually served for several years.',
+    'Some Legati later became governors of Roman provinces after distinguished military service.',
+    'A Legatus was entrusted with the lives of thousands of legionaries.',
+    'Legati planned campaigns, negotiated with allies, and commanded armies across the Empire.',
+    'Only Rome\'s most respected officers were entrusted with leading a legion.',
+    'A victorious Legatus could celebrate a triumph and earn lasting fame throughout Rome.',
+    'Some Legati commanded campaigns that expanded the borders of the Roman Empire.',
+    'A Legatus answered directly to the Emperor or the Senate, depending on the campaign.'
+  ]
     };
 
     const currentRankImage = rankImageMap[currentLegion.title] || 'Legatus_new.png';
