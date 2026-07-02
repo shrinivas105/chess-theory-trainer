@@ -732,6 +732,15 @@ class UIRenderer {
         : 'Position data unavailable – continuing...';
     }
 
+    const summaryEl = document.getElementById('endSummary');
+    if (summaryEl && !this.app.gameEnded) {
+      summaryEl.style.display = 'none';
+    }
+    const theoryEl = document.getElementById('theoryMessage');
+    if (theoryEl && !this.app.gameEnded) {
+      theoryEl.style.display = 'none';
+    }
+
     const hintBtn = document.getElementById('hintBtn');
     if (hintBtn) {
       const hintEnabled = this.app.mode === 'practice'
