@@ -769,9 +769,9 @@ body > * {
 }
 
 .practice-category {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   border: 2px solid rgba(255,255,255,0.12);
   background: rgba(0,0,0,0.18);
 }
@@ -796,7 +796,7 @@ body > * {
 }
 
 .practice-opening-row td {
-  padding: 8px 10px;
+  padding: 6px 8px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
@@ -958,9 +958,9 @@ body > * {
 .practice-loading,
 .practice-empty,
 .practice-message {
-  margin: 20px 0;
-  padding: 18px;
-  border-radius: 14px;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 12px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.08);
   color: #e8e8e8;
@@ -1032,10 +1032,10 @@ body > * {
 @media (max-width: 600px) {
   .practice-opening-side {
     width: 50px;
-    font-size: 0.7rem;
+    font-size: 0.38rem;
   }
   .practice-opening-name {
-    font-size: 0.85rem;
+    font-size: 0.42rem;
   }
 }
 

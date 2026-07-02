@@ -2,9 +2,11 @@ const PracticeOpenings = [];
 
 const PracticeOpeningsManager = {
   storageKey: 'practiceOpeningsUserLines',
+  deletedBaseRowsKey: 'practiceOpeningsDeletedBaseRows',
   csvFileName: 'practice-openings.csv',
   baseRows: [],
   userRows: [],
+  deletedBaseIndexes: [],
   isLoaded: false,
   loadPromise: null,
 
@@ -15,8 +17,9 @@ const PracticeOpeningsManager = {
 
   async load() {
     const csvText = await this.loadCsvFile();
-    this.baseRows = csvText ? this.parseCsv(csvText) : [];
-    this.userRows = this.loadUserRows();
+    this.baseRows = csvText ? this.parseCsv(csvText).map((row, index) => ({ ...row, source: 'base', originalIndex: index })) : [];
+    this.userRows = this.loadUserRows().map((row, index) => ({ ...row, source: 'user', originalIndex: index }));
+    this.deletedBaseIndexes = this.loadDeletedBaseIndexes();
     this.refreshPracticeOpenings();
     this.isLoaded = true;
     if (window.app && window.app.mode === 'practice') {
@@ -51,9 +54,29 @@ const PracticeOpeningsManager = {
     } catch {}
   },
 
+  loadDeletedBaseIndexes() {
+    try {
+      const raw = localStorage.getItem(this.deletedBaseRowsKey);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  saveDeletedBaseIndexes() {
+    try {
+      localStorage.setItem(this.deletedBaseRowsKey, JSON.stringify(this.deletedBaseIndexes));
+    } catch {}
+  },
+
   refreshPracticeOpenings() {
     PracticeOpenings.length = 0;
-    [...this.baseRows, ...this.userRows].forEach(row => PracticeOpenings.push(row));
+    this.baseRows.forEach(row => {
+      if (!this.deletedBaseIndexes.includes(row.originalIndex)) {
+        PracticeOpenings.push(row);
+      }
+    });
+    this.userRows.forEach(row => PracticeOpenings.push(row));
   },
 
   formatName(name) {
@@ -71,6 +94,8 @@ const PracticeOpeningsManager = {
       name: this.formatName(name),
       fen: String(fen || '').trim(),
       orientation: String(orientation || '').trim().toLowerCase() === 'black' ? 'black' : 'white',
+      source: 'user',
+      originalIndex: this.userRows.length,
     };
     if (!row.name || !row.fen) {
       alert('Name, FEN, and orientation are required.');
@@ -168,7 +193,11 @@ const PracticeOpeningsManager = {
   async handleUploadFile(file) {
     try {
       const text = await file.text();
-      const rows = this.parseCsv(text);
+      const rows = this.parseCsv(text).map((row, index) => ({
+        ...row,
+        source: 'user',
+        originalIndex: index,
+      }));
       if (!rows.length) {
         alert('No valid practice lines found. Each row needs name, fen, and orientation.');
         return;
@@ -201,17 +230,25 @@ const PracticeOpeningsManager = {
     this.addLine({ name, fen, orientation });
   },
 
-  removeLine(index) {
-    if (typeof index !== 'number' || index < 0 || index >= PracticeOpenings.length) return;
-    if (index < this.baseRows.length) {
-      alert('Only user-added practice lines can be removed.');
+  removeLine(source, index) {
+    if (source === 'base') {
+      if (typeof index !== 'number' || index < 0 || index >= this.baseRows.length) return;
+      if (!this.deletedBaseIndexes.includes(index)) {
+        this.deletedBaseIndexes.push(index);
+        this.saveDeletedBaseIndexes();
+        this.refreshPracticeOpenings();
+        if (window.app) window.app.render();
+      }
       return;
     }
-    const userIndex = index - this.baseRows.length;
-    this.userRows.splice(userIndex, 1);
-    this.saveUserRows();
-    this.refreshPracticeOpenings();
-    if (window.app) window.app.render();
+
+    if (source === 'user') {
+      if (typeof index !== 'number' || index < 0 || index >= this.userRows.length) return;
+      this.userRows.splice(index, 1);
+      this.saveUserRows();
+      this.refreshPracticeOpenings();
+      if (window.app) window.app.render();
+    }
   },
 
   bindPracticePicker() {

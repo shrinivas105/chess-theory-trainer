@@ -390,13 +390,14 @@ class UIRenderer {
     const order = ['White Opening', 'Black Defense'];
     const sections = order.map(group => {
       const rows = (grouped[group] || []).map(opening => {
-        const isUserOpening = opening.index >= PracticeOpeningsManager.baseRows.length;
+        const source = opening.source || 'base';
+        const originalIndex = Number.isFinite(opening.originalIndex) ? opening.originalIndex : opening.index;
         return `
         <tr class="practice-opening-row" onclick="app.startPracticeOpening(PracticeOpenings[${opening.index}])">
           <td class="practice-opening-name">${opening.name}</td>
           <td class="practice-opening-side">${opening.orientation === 'white' ? 'White' : 'Black'}</td>
           <td class="practice-opening-action">
-            ${isUserOpening ? `<button class="practice-opening-remove-btn" onclick="event.stopPropagation(); PracticeOpeningsManager.removeLine(${opening.index});">Remove</button>` : ''}
+            <button class="practice-opening-remove-btn" onclick="event.stopPropagation(); PracticeOpeningsManager.removeLine('${source}', ${originalIndex});">Remove</button>
           </td>
         </tr>
       `;
@@ -424,7 +425,7 @@ class UIRenderer {
         <h1 class="menu-title">Practice Mode</h1>
         <p class="menu-subtitle">Pick an opening and drill the position from a real-game opening book.</p>
 
-        <div class="practice-message">${emptyMessage}</div>
+        ${emptyMessage ? `<div class="practice-message">${emptyMessage}</div>` : ''}
 
         ${isLoading ? '' : sections}
 
