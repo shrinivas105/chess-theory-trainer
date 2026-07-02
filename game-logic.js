@@ -146,16 +146,20 @@ class ChessTheoryApp {
     this.practiceStartingPosition = false;
     this.gameEnded = false;
     this.endGameData = null;
-    const summaryEl = document.getElementById('endSummary');
-    const theoryEl = document.getElementById('theoryMessage');
-    if (summaryEl) {
-      summaryEl.style.display = 'none';
-      summaryEl.innerHTML = '';
-    }
-    if (theoryEl) {
-      theoryEl.style.display = 'none';
-      theoryEl.innerHTML = '';
-    }
+    const summaryEls = document.querySelectorAll('#endSummary');
+    const theoryEls = document.querySelectorAll('#theoryMessage');
+    const actionButtons = document.querySelectorAll('.action-buttons');
+    summaryEls.forEach(el => {
+      el.style.display = 'none';
+      el.innerHTML = '';
+    });
+    theoryEls.forEach(el => {
+      el.style.display = 'none';
+      el.innerHTML = '';
+    });
+    actionButtons.forEach(el => {
+      el.style.display = 'none';
+    });
     if (typeof RomanBattleEffects !== 'undefined') {
       RomanBattleEffects.stopMusic();
     }
@@ -171,16 +175,20 @@ class ChessTheoryApp {
     this.practiceStartingPosition = true;
     this.gameEnded = false;
     this.endGameData = null;
-    const summaryEl = document.getElementById('endSummary');
-    const theoryEl = document.getElementById('theoryMessage');
-    if (summaryEl) {
-      summaryEl.style.display = 'none';
-      summaryEl.innerHTML = '';
-    }
-    if (theoryEl) {
-      theoryEl.style.display = 'none';
-      theoryEl.innerHTML = '';
-    }
+    const summaryEls = document.querySelectorAll('#endSummary');
+    const theoryEls = document.querySelectorAll('#theoryMessage');
+    const actionButtons = document.querySelectorAll('.action-buttons');
+    summaryEls.forEach(el => {
+      el.style.display = 'none';
+      el.innerHTML = '';
+    });
+    theoryEls.forEach(el => {
+      el.style.display = 'none';
+      el.innerHTML = '';
+    });
+    actionButtons.forEach(el => {
+      el.style.display = 'none';
+    });
     this.resetGameState();
     this.game.load(opening.fen);
     this.selected = null;
