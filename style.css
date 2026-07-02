@@ -407,7 +407,8 @@ body > * {
 .menu-campaigns {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  align-items: center;
+  gap: 10px;
   width: 100%;
 }
 
@@ -695,6 +696,9 @@ body > * {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  width: 60% !important;
+  max-width: 220px;
+  min-width: 160px;
 }
 
 .campaign-btn-icon {
@@ -715,7 +719,7 @@ body > * {
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 20px;
-  font-size: 0.7rem;
+  font-size: 0.56rem;
   line-height: 1.5;
   color: var(--parchment);
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
