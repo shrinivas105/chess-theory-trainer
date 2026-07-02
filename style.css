@@ -502,11 +502,54 @@ body > * {
   font-family: 'Cinzel', serif;
   color: #ffffff;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   background: linear-gradient(to right, #a0a0a0 0%, #ffffff 30%, #e8e8e8 50%, #ffffff 70%, #a0a0a0 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.practice-message {
+  margin-bottom: 10px;
+}
+
+.practice-category {
+  margin-bottom: 16px;
+}
+
+.practice-opening-name {
+  font-size: 0.45rem;
+}
+
+.practice-opening-side {
+  text-align: right;
+  font-size: 0.42rem;
+  opacity: 0.85;
+  white-space: nowrap;
+  width: 70px;
+}
+
+.practice-opening-action {
+  width: 70px;
+  text-align: right;
+}
+
+.practice-opening-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  font-size: 0.4rem;
+  color: #fff;
+  background: rgba(200, 40, 40, 0.9);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.practice-opening-remove-btn:hover {
+  background: rgba(220, 60, 60, 1);
 }
 
 .menu-btn {
@@ -726,18 +769,18 @@ body > * {
 }
 
 .practice-category {
-  margin-bottom: 28px;
+  margin-bottom: 16px;
   border-radius: 12px;
-  padding: 16px 18px;
+  padding: 14px 16px;
   border: 2px solid rgba(255,255,255,0.12);
   background: rgba(0,0,0,0.18);
 }
 
 .practice-category h3 {
-  margin-bottom: 12px;
-  font-size: 1rem;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.3px;
 }
 
 .practice-table {
@@ -749,11 +792,11 @@ body > * {
 
 .practice-opening-row {
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition: background 0.2s ease;
 }
 
 .practice-opening-row td {
-  padding: 12px 14px;
+  padding: 8px 10px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
@@ -766,15 +809,38 @@ body > * {
 }
 
 .practice-opening-name {
-  font-size: 0.65rem;
+  font-size: 0.48rem;
 }
 
 .practice-opening-side {
   text-align: right;
-  font-size: 0.6rem;
+  font-size: 0.42rem;
   opacity: 0.85;
   white-space: nowrap;
   width: 70px;
+}
+
+.practice-opening-action {
+  width: 80px;
+  text-align: right;
+}
+
+.practice-opening-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  font-size: 0.4rem;
+  color: #fff;
+  background: rgba(200, 40, 40, 0.9);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.practice-opening-remove-btn:hover {
+  background: rgba(220, 60, 60, 1);
 }
 
 .practice-category h3 {

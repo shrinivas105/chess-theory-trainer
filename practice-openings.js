@@ -201,6 +201,19 @@ const PracticeOpeningsManager = {
     this.addLine({ name, fen, orientation });
   },
 
+  removeLine(index) {
+    if (typeof index !== 'number' || index < 0 || index >= PracticeOpenings.length) return;
+    if (index < this.baseRows.length) {
+      alert('Only user-added practice lines can be removed.');
+      return;
+    }
+    const userIndex = index - this.baseRows.length;
+    this.userRows.splice(userIndex, 1);
+    this.saveUserRows();
+    this.refreshPracticeOpenings();
+    if (window.app) window.app.render();
+  },
+
   bindPracticePicker() {
     const uploadInput = document.getElementById('practiceOpeningsUploadInput');
     if (uploadInput) uploadInput.onchange = (event) => this.handleFileChange(event);
